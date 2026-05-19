@@ -5,11 +5,52 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 // Database Entity Types
 export interface User {
   id: string;
-  role: 'farmer' | 'buyer' | 'transporter' | 'cooperative' | 'exporter' | 'admin';
+  role: 'farmer' | 'buyer' | 'transporter' | 'cooperative' | 'exporter' | 'admin' | 'government' | 'bank';
   name: string;
   email: string;
   phone: string;
-  country: 'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa';
+  country: 'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa' | 'Mozambique';
+}
+
+export interface Cooperative {
+  id: string;
+  name: string;
+  members: string[]; // User IDs
+  total_output: number; // in tons
+  country: string;
+}
+
+export interface FinancingRequest {
+  id: string;
+  user_id: string;
+  amount: number;
+  purpose: string;
+  risk_score: number; // 0 - 100
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+}
+
+export interface Webhook {
+  id: string;
+  url: string;
+  events: string[];
+  active: boolean;
+  created_at: string;
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  key: string;
+  role: string;
+  created_at: string;
+}
+
+export interface EventLog {
+  id: string;
+  event: string;
+  payload: any;
+  created_at: string;
 }
 
 export interface Farm {
@@ -95,6 +136,11 @@ interface AppContextType {
   shipments: Shipment[];
   payments: Payment[];
   exports: Export[];
+  cooperatives: Cooperative[];
+  financingRequests: FinancingRequest[];
+  webhooks: Webhook[];
+  apiKeys: ApiKey[];
+  eventLogs: EventLog[];
   currentUser: User | null;
   setCurrentUser: (user: User) => void;
   // Actions
@@ -107,6 +153,15 @@ interface AppContextType {
   updateExportStatus: (exportId: string, status: Export['status'], readinessScore?: number, missingReqs?: string[]) => void;
   releasePayment: (paymentId: string) => void;
   resetAllData: () => void;
+  // Step 5 Actions
+  addFinancingRequest: (req: Omit<FinancingRequest, 'id' | 'created_at'>) => FinancingRequest;
+  updateFinancingRequest: (id: string, status: FinancingRequest['status']) => void;
+  registerWebhook: (webhook: Omit<Webhook, 'id' | 'created_at'>) => Webhook;
+  deleteWebhook: (id: string) => void;
+  generateApiKey: (name: string, role: string) => ApiKey;
+  revokeApiKey: (id: string) => void;
+  triggerEvent: (event: string, payload: any) => void;
+  addFarm: (farm: Omit<Farm, 'id'>) => Farm;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -129,6 +184,12 @@ const SEED_USERS: User[] = [
   { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Agribusiness Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe' },
   { id: 'e4000000-0000-0000-0000-000000000002', role: 'exporter', name: 'Atlantic Trade Linkers', email: 'customs@atlantictrade.co.na', phone: '+264 61 290 1234', country: 'Namibia' },
   
+  { id: 'g6000000-0000-0000-0000-000000000001', role: 'government', name: 'Ministry of Agriculture (Botswana)', email: 'policy@agric.gov.bw', phone: '+267 368 9000', country: 'Botswana' },
+  { id: 'g6000000-0000-0000-0000-000000000002', role: 'government', name: 'Ministry of Agriculture (Zambia)', email: 'export@mfl.gov.zm', phone: '+260 211 251379', country: 'Zambia' },
+  
+  { id: 'k7000000-0000-0000-0000-000000000001', role: 'bank', name: 'Standard Bank SADC Trade', email: 'structured.trade@standardbank.co.za', phone: '+27 11 636 9111', country: 'South Africa' },
+  { id: 'k7000000-0000-0000-0000-000000000002', role: 'bank', name: 'BancABC Trade Finance', email: 'trade.desk@bancabc.co.bw', phone: '+267 367 4300', country: 'Botswana' },
+  
   { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'PulaTrade Operations', email: 'admin@pulatrade.com', phone: '+267 360 1234', country: 'Botswana' }
 ];
 
@@ -139,6 +200,33 @@ const SEED_FARMS: Farm[] = [
   { id: 'fa100000-0000-0000-0000-000000000004', owner_id: 'f1000000-0000-0000-0000-000000000004', farm_name: 'Okahandja Beef Ranches', farm_size: 5500, country: 'Namibia', region: 'Otjozondjupa', commodity_focus: ['Beef'], production_capacity: 800, certification_status: 'Certified' },
   { id: 'fa100000-0000-0000-0000-000000000005', owner_id: 'f1000000-0000-0000-0000-000000000005', farm_name: 'Free State Grainlands', farm_size: 1200, country: 'South Africa', region: 'Free State', commodity_focus: ['Maize', 'Sorghum', 'Poultry feed products'], production_capacity: 4000, certification_status: 'Certified' }
 ];
+
+const SEED_COOPERATIVES: Cooperative[] = [
+  { id: 'c1000000-0000-0000-0000-000000000001', name: 'Limpopo Agricultural Cooperative', members: ['f1000000-0000-0000-0000-000000000005'], total_output: 1200, country: 'South Africa' },
+  { id: 'c1000000-0000-0000-0000-000000000002', name: 'Chobe Valley Organic Cooperative', members: ['f1000000-0000-0000-0000-000000000001'], total_output: 850, country: 'Botswana' },
+  { id: 'c1000000-0000-0000-0000-000000000003', name: 'Mazowe Smallholder Pool', members: ['f1000000-0000-0000-0000-000000000002'], total_output: 600, country: 'Zimbabwe' },
+];
+
+const SEED_FINANCING_REQUESTS: FinancingRequest[] = [
+  { id: 'req00000-0000-0000-0000-000000000001', user_id: 'f1000000-0000-0000-0000-000000000001', amount: 15000, purpose: 'Purchase high-grade feed & fertilizer for next sowing cycle', risk_score: 18, status: 'pending', created_at: new Date(Date.now() - 3600000 * 24).toISOString() },
+  { id: 'req00000-0000-0000-0000-000000000002', user_id: 'f1000000-0000-0000-0000-000000000002', amount: 35000, purpose: 'Borehole drilling & drip irrigation setup', risk_score: 42, status: 'approved', created_at: new Date(Date.now() - 3600000 * 72).toISOString() },
+  { id: 'req00000-0000-0000-0000-000000000003', user_id: 'f1000000-0000-0000-0000-000000000003', amount: 8000, purpose: 'Pre-export logistics fees and phytosanitary audit costs', risk_score: 12, status: 'pending', created_at: new Date(Date.now() - 3600000 * 6).toISOString() },
+];
+
+const SEED_WEBHOOKS: Webhook[] = [
+  { id: 'w1000000-0000-0000-0000-000000000001', url: 'https://sadc-trade.free.beeceptor.com/webhook', events: ['trade.created', 'payment.escrowed'], active: true, created_at: new Date().toISOString() }
+];
+
+const SEED_API_KEYS: ApiKey[] = [
+  { id: 'key00000-0000-0000-0000-000000000001', name: 'Production Logistics Integration', key: 'sb_pub_live_79a3bc9df1e24bc392', role: 'transporter', created_at: new Date().toISOString() },
+  { id: 'key00000-0000-0000-0000-000000000002', name: 'Government Trade Portal API', key: 'sb_pub_live_45f8ac9df1e24bc882', role: 'government', created_at: new Date().toISOString() }
+];
+
+const SEED_EVENT_LOGS: EventLog[] = [
+  { id: 'ev000000-0000-0000-0000-000000000001', event: 'trade.created', payload: { order_id: 'o0000000-0000-0000-0000-000000000001', amount: 24000, currency: 'USD' }, created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
+  { id: 'ev000000-0000-0000-0000-000000000002', event: 'payment.escrowed', payload: { payment_id: 'p0000000-0000-0000-0000-000000000001', order_id: 'o0000000-0000-0000-0000-000000000001' }, created_at: new Date(Date.now() - 3600000 * 1.8).toISOString() },
+];
+
 
 // Generate 50 realistic listings
 const generateListings = (): CommodityListing[] => {
@@ -648,6 +736,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [exports, setExports] = useState<Export[]>([]);
+  const [cooperatives, setCooperatives] = useState<Cooperative[]>([]);
+  const [financingRequests, setFinancingRequests] = useState<FinancingRequest[]>([]);
+  const [webhooks, setWebhooks] = useState<Webhook[]>([]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [eventLogs, setEventLogs] = useState<EventLog[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Load from local storage or set defaults
@@ -660,6 +753,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const storedShipments = localStorage.getItem('pt_shipments');
       const storedPayments = localStorage.getItem('pt_payments');
       const storedExports = localStorage.getItem('pt_exports');
+      const storedCooperatives = localStorage.getItem('pt_cooperatives');
+      const storedFinRequests = localStorage.getItem('pt_financing_requests');
+      const storedWebhooks = localStorage.getItem('pt_webhooks');
+      const storedApiKeys = localStorage.getItem('pt_api_keys');
+      const storedEventLogs = localStorage.getItem('pt_event_logs');
       const storedCurrentUser = localStorage.getItem('pt_current_user');
 
       if (storedUsers) setUsers(JSON.parse(storedUsers));
@@ -696,6 +794,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       else {
         setExports(FULL_EXPORTS);
         localStorage.setItem('pt_exports', JSON.stringify(FULL_EXPORTS));
+      }
+
+      if (storedCooperatives) setCooperatives(JSON.parse(storedCooperatives));
+      else {
+        setCooperatives(SEED_COOPERATIVES);
+        localStorage.setItem('pt_cooperatives', JSON.stringify(SEED_COOPERATIVES));
+      }
+
+      if (storedFinRequests) setFinancingRequests(JSON.parse(storedFinRequests));
+      else {
+        setFinancingRequests(SEED_FINANCING_REQUESTS);
+        localStorage.setItem('pt_financing_requests', JSON.stringify(SEED_FINANCING_REQUESTS));
+      }
+
+      if (storedWebhooks) setWebhooks(JSON.parse(storedWebhooks));
+      else {
+        setWebhooks(SEED_WEBHOOKS);
+        localStorage.setItem('pt_webhooks', JSON.stringify(SEED_WEBHOOKS));
+      }
+
+      if (storedApiKeys) setApiKeys(JSON.parse(storedApiKeys));
+      else {
+        setApiKeys(SEED_API_KEYS);
+        localStorage.setItem('pt_api_keys', JSON.stringify(SEED_API_KEYS));
+      }
+
+      if (storedEventLogs) setEventLogs(JSON.parse(storedEventLogs));
+      else {
+        setEventLogs(SEED_EVENT_LOGS);
+        localStorage.setItem('pt_event_logs', JSON.stringify(SEED_EVENT_LOGS));
       }
 
       if (storedCurrentUser) {
@@ -892,8 +1020,95 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const releasePayment = (paymentId: string) => {
-    const updated = payments.map(p => p.id === paymentId ? { ...p, status: 'released' as const } : p);
+    const updated = payments.map(p => {
+      if (p.id === paymentId) {
+        return { ...p, status: 'released' as const };
+      }
+      return p;
+    });
     saveState('pt_payments', updated, setPayments);
+    const pm = payments.find(p => p.id === paymentId);
+    if (pm) {
+      triggerEvent('payment.released', { id: paymentId, order_id: pm.order_id, amount: pm.amount });
+    }
+  };
+
+  const addFinancingRequest = (req: Omit<FinancingRequest, 'id' | 'created_at'>) => {
+    const created: FinancingRequest = {
+      ...req,
+      id: `req00000-0000-0000-0000-${(financingRequests.length + 1).toString().padStart(12, '0')}`,
+      created_at: new Date().toISOString()
+    };
+    const updated = [created, ...financingRequests];
+    saveState('pt_financing_requests', updated, setFinancingRequests);
+    triggerEvent('financing.requested', created);
+    return created;
+  };
+
+  const updateFinancingRequest = (id: string, status: FinancingRequest['status']) => {
+    const updated = financingRequests.map(r => r.id === id ? { ...r, status } : r);
+    saveState('pt_financing_requests', updated, setFinancingRequests);
+    const req = financingRequests.find(r => r.id === id);
+    if (req) {
+      triggerEvent('financing.updated', { id, status, amount: req.amount });
+    }
+  };
+
+  const registerWebhook = (webhook: Omit<Webhook, 'id' | 'created_at'>) => {
+    const created: Webhook = {
+      ...webhook,
+      id: `w1000000-0000-0000-0000-${(webhooks.length + 1).toString().padStart(12, '0')}`,
+      created_at: new Date().toISOString()
+    };
+    const updated = [...webhooks, created];
+    saveState('pt_webhooks', updated, setWebhooks);
+    return created;
+  };
+
+  const deleteWebhook = (id: string) => {
+    const updated = webhooks.filter(w => w.id !== id);
+    saveState('pt_webhooks', updated, setWebhooks);
+  };
+
+  const generateApiKey = (name: string, role: string) => {
+    const rawKey = 'sb_pub_live_' + Math.random().toString(16).substring(2, 10) + Math.random().toString(16).substring(2, 10);
+    const created: ApiKey = {
+      id: `key00000-0000-0000-0000-${(apiKeys.length + 1).toString().padStart(12, '0')}`,
+      name,
+      key: rawKey,
+      role,
+      created_at: new Date().toISOString()
+    };
+    const updated = [...apiKeys, created];
+    saveState('pt_api_keys', updated, setApiKeys);
+    return created;
+  };
+
+  const revokeApiKey = (id: string) => {
+    const updated = apiKeys.filter(k => k.id !== id);
+    saveState('pt_api_keys', updated, setApiKeys);
+  };
+
+  const triggerEvent = (event: string, payload: any) => {
+    const log: EventLog = {
+      id: `ev000000-0000-0000-0000-${(eventLogs.length + 1).toString().padStart(12, '0')}`,
+      event,
+      payload,
+      created_at: new Date().toISOString()
+    };
+    const updated = [log, ...eventLogs].slice(0, 100);
+    saveState('pt_event_logs', updated, setEventLogs);
+  };
+
+  const addFarm = (newFarm: Omit<Farm, 'id'>) => {
+    const created: Farm = {
+      ...newFarm,
+      id: `fa100000-0000-0000-0000-${(farms.length + 1).toString().padStart(12, '0')}`
+    };
+    const updated = [...farms, created];
+    saveState('pt_farms', updated, setFarms);
+    triggerEvent('farm.registered', created);
+    return created;
   };
 
   const resetAllData = () => {
@@ -905,6 +1120,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem('pt_shipments');
       localStorage.removeItem('pt_payments');
       localStorage.removeItem('pt_exports');
+      localStorage.removeItem('pt_cooperatives');
+      localStorage.removeItem('pt_financing_requests');
+      localStorage.removeItem('pt_webhooks');
+      localStorage.removeItem('pt_api_keys');
+      localStorage.removeItem('pt_event_logs');
       localStorage.removeItem('pt_current_user');
 
       setUsers(SEED_USERS);
@@ -914,6 +1134,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setShipments(FULL_SHIPMENTS);
       setPayments(FULL_PAYMENTS);
       setExports(FULL_EXPORTS);
+      setCooperatives(SEED_COOPERATIVES);
+      setFinancingRequests(SEED_FINANCING_REQUESTS);
+      setWebhooks(SEED_WEBHOOKS);
+      setApiKeys(SEED_API_KEYS);
+      setEventLogs(SEED_EVENT_LOGS);
       setCurrentUser(SEED_USERS[0]);
 
       window.location.reload();
@@ -929,6 +1154,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       shipments,
       payments,
       exports,
+      cooperatives,
+      financingRequests,
+      webhooks,
+      apiKeys,
+      eventLogs,
       currentUser,
       setCurrentUser: handleSetCurrentUser,
       addListing,
@@ -939,7 +1169,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateShipmentStatus,
       updateExportStatus,
       releasePayment,
-      resetAllData
+      resetAllData,
+      addFinancingRequest,
+      updateFinancingRequest,
+      registerWebhook,
+      deleteWebhook,
+      generateApiKey,
+      revokeApiKey,
+      triggerEvent,
+      addFarm
     }}>
       {children}
     </AppContext.Provider>

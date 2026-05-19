@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,10 @@ export const BuyerDashboard: React.FC = () => {
   const [search, setSearch] = useState('');
   const [countryFilter, setCountryFilter] = useState('All');
   const [commodityFilter, setCommodityFilter] = useState('All');
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
 
   // Filter listings based on criteria
   const availableListings = listings.filter(l => l.status === 'available');
@@ -283,9 +288,10 @@ export const BuyerDashboard: React.FC = () => {
                   <div className="flex gap-2 pt-2">
                     <Button 
                       variant="outline" 
-                      className="p-2 border-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-900"
+                      onClick={() => toggleFavorite(listing.id)}
+                      className={`p-2 border-zinc-800 hover:bg-zinc-900 transition-colors ${favorites.includes(listing.id) ? 'text-red-500 hover:text-red-600 bg-red-950/20' : 'text-zinc-400 hover:text-red-400'}`}
                     >
-                      <Heart className="h-4 w-4" />
+                      <Heart className="h-4 w-4" fill={favorites.includes(listing.id) ? 'currentColor' : 'none'} />
                     </Button>
                     <Button 
                       onClick={() => handlePurchase(listing.id, Math.min(10, listing.quantity))}
@@ -391,9 +397,59 @@ export const BuyerDashboard: React.FC = () => {
               <p className="text-xs text-zinc-400 mb-4">
                 The Gaborone - Harare route is experiencing border clearance queue times of ~4 hours. Prefer Francistown - Lusaka for faster logistics clearance under standard customs validation.
               </p>
-              <Button size="sm" className="bg-amber-950/40 hover:bg-amber-900/30 text-amber-400 border border-amber-900/50 text-xs">
-                Check Real-time Border Queues
-              </Button>
+              <Dialog>
+                <DialogTrigger render={
+                  <Button size="sm" className="bg-amber-950/40 hover:bg-amber-900/30 text-amber-400 border border-amber-900/50 text-xs">
+                    Check Real-time Border Queues
+                  </Button>
+                } />
+                <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-200 max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-zinc-100 flex items-center gap-2 font-bold text-sm">
+                      <Globe className="h-4.5 w-4.5 text-emerald-400" />
+                      SADC Border Queue Monitor
+                    </DialogTitle>
+                    <DialogDescription className="text-zinc-400 text-xs">
+                      Live queue updates for commercial cargo check gates.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-3 my-4">
+                    <div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 flex justify-between items-center">
+                      <div>
+                        <div className="text-xs font-semibold text-zinc-200">Pioneer Gate (SA ⇆ Botswana)</div>
+                        <div className="text-[10px] text-zinc-500">Commercial cargo trucks</div>
+                      </div>
+                      <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px]">1.5h delay</Badge>
+                    </div>
+                    <div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 flex justify-between items-center">
+                      <div>
+                        <div className="text-xs font-semibold text-zinc-200">Beitbridge (SA ⇆ Zimbabwe)</div>
+                        <div className="text-[10px] text-zinc-500">Phytosanitary check slowdown</div>
+                      </div>
+                      <Badge className="bg-amber-950 text-amber-400 border border-amber-900 text-[10px]">5.2h delay</Badge>
+                    </div>
+                    <div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 flex justify-between items-center">
+                      <div>
+                        <div className="text-xs font-semibold text-zinc-200">Kazungula Bridge (Zambia ⇆ Botswana)</div>
+                        <div className="text-[10px] text-zinc-500">One-Stop Border Post active</div>
+                      </div>
+                      <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px]">0.8h delay</Badge>
+                    </div>
+                    <div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 flex justify-between items-center">
+                      <div>
+                        <div className="text-xs font-semibold text-zinc-200">Plumtree (Botswana ⇆ Zimbabwe)</div>
+                        <div className="text-[10px] text-zinc-500">General customs lanes open</div>
+                      </div>
+                      <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px]">2.1h delay</Badge>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose render={
+                      <Button variant="outline" className="border-zinc-800 text-zinc-300 text-xs">Dismiss</Button>
+                    } />
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </Card>
           </div>
         </TabsContent>

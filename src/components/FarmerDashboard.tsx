@@ -13,12 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend
 } from 'recharts';
 
 export const FarmerDashboard: React.FC = () => {
-  const { currentUser, farms, listings, orders, addListing, updateListing } = useApp();
+  const { currentUser, farms, listings, orders, addListing, updateListing, updateOrderStatus } = useApp();
   const [showAddForm, setShowAddForm] = useState(false);
 
   // Form State
@@ -459,14 +460,30 @@ export const FarmerDashboard: React.FC = () => {
                             <td className="p-3 text-right">
                               {order.status === 'pending' && (
                                 <div className="flex justify-end gap-1.5">
-                                  <Button size="sm" variant="outline" className="h-7 text-[10px] border-red-900 text-red-400 hover:bg-red-950/20">Reject</Button>
-                                  <Button size="sm" className="h-7 text-[10px] bg-emerald-600 text-white hover:bg-emerald-700">Approve</Button>
+                                  <Button 
+                                    onClick={() => updateOrderStatus(order.id, 'rejected')}
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="h-7 text-[10px] border-red-900 text-red-400 hover:bg-red-950/20"
+                                  >
+                                    Reject
+                                  </Button>
+                                  <Button 
+                                    onClick={() => updateOrderStatus(order.id, 'approved')}
+                                    size="sm" 
+                                    className="h-7 text-[10px] bg-emerald-600 text-white hover:bg-emerald-700"
+                                  >
+                                    Approve
+                                  </Button>
                                 </div>
                               )}
                               {order.status === 'approved' && (
                                 <span className="text-[10px] text-blue-400 flex items-center justify-end gap-1 font-medium">
                                   <Truck className="h-3 w-3" /> Awaiting Transport
                                 </span>
+                              )}
+                              {order.status === 'rejected' && (
+                                <span className="text-[10px] text-red-400 font-medium">Rejected</span>
                               )}
                               {order.status === 'completed' && (
                                 <span className="text-[10px] text-emerald-400 font-bold">Payment Released</span>
@@ -485,29 +502,153 @@ export const FarmerDashboard: React.FC = () => {
 
         <TabsContent value="quick-actions" className="mt-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="glass-card border-zinc-900/60 p-4">
-              <h4 className="font-bold text-zinc-200 text-sm mb-1">Export Readiness Certificate</h4>
-              <p className="text-xs text-zinc-400 mb-3">Check certificate compliance scores, phytosanitary audit statuses, and export approval requests.</p>
-              <Button size="sm" className="w-full bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-900 text-xs gap-1">
-                <FileText className="h-3.5 w-3.5" /> View Compliance Portal
-              </Button>
-            </Card>
+            <Dialog>
+              <Card className="glass-card border-zinc-900/60 p-4 flex flex-col justify-between h-full">
+                <div>
+                  <h4 className="font-bold text-zinc-200 text-sm mb-1">Export Readiness Certificate</h4>
+                  <p className="text-xs text-zinc-400 mb-3">Check certificate compliance scores, phytosanitary audit statuses, and export approval requests.</p>
+                </div>
+                <DialogTrigger render={
+                  <Button size="sm" className="w-full bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-900 text-xs gap-1">
+                    <FileText className="h-3.5 w-3.5" /> View Compliance Portal
+                  </Button>
+                } />
+              </Card>
+              <DialogContent className="bg-zinc-950 border border-zinc-900 max-w-md p-6 rounded-2xl text-zinc-300">
+                <DialogHeader className="mb-4">
+                  <DialogTitle className="text-zinc-100 flex items-center gap-2">
+                    <CheckCircle className="text-emerald-500 h-5 w-5" /> SADC Border Compliance Registry
+                  </DialogTitle>
+                  <DialogDescription className="text-zinc-500">Bilateral phytosanitary & biosecurity checkpoints for {currentUser?.country || 'Botswana'}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 my-4 text-xs">
+                  <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 flex justify-between items-center">
+                    <span>Phytosanitary Clearance Certificate</span>
+                    <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px]">Validated</Badge>
+                  </div>
+                  <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 flex justify-between items-center">
+                    <span>Export Customs Entry Declaration</span>
+                    <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px]">Active</Badge>
+                  </div>
+                  <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 flex justify-between items-center">
+                    <span>Corridor Transit Permit (e-SADC)</span>
+                    <Badge className="bg-amber-950 text-amber-400 border border-amber-900 text-[10px]">Awaiting Dispatch</Badge>
+                  </div>
+                  <div className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-800 flex justify-between items-center">
+                    <span>Veterinary Inspection Record (Beef)</span>
+                    <Badge className="bg-zinc-950 text-zinc-500 border border-zinc-900 text-[10px]">Not Required</Badge>
+                  </div>
+                </div>
+                <DialogFooter className="mt-6">
+                  <DialogClose render={<Button variant="outline" className="border-zinc-800 text-zinc-300">Close Registry</Button>} />
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-            <Card className="glass-card border-zinc-900/60 p-4">
-              <h4 className="font-bold text-zinc-200 text-sm mb-1">Regional Logistics Desk</h4>
-              <p className="text-xs text-zinc-400 mb-3">Book kalahari express, track customs clearance times, and view transport container rates.</p>
-              <Button size="sm" className="w-full bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-900 text-xs gap-1">
-                <Truck className="h-3.5 w-3.5" /> Request Freight Quote
-              </Button>
-            </Card>
+            <Dialog>
+              <Card className="glass-card border-zinc-900/60 p-4 flex flex-col justify-between h-full">
+                <div>
+                  <h4 className="font-bold text-zinc-200 text-sm mb-1">Regional Logistics Desk</h4>
+                  <p className="text-xs text-zinc-400 mb-3">Book kalahari express, track customs clearance times, and view transport container rates.</p>
+                </div>
+                <DialogTrigger render={
+                  <Button size="sm" className="w-full bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-900 text-xs gap-1">
+                    <Truck className="h-3.5 w-3.5" /> Request Freight Quote
+                  </Button>
+                } />
+              </Card>
+              <DialogContent className="bg-zinc-950 border border-zinc-900 max-w-md p-6 rounded-2xl text-zinc-300">
+                <DialogHeader className="mb-4">
+                  <DialogTitle className="text-zinc-100 flex items-center gap-2">
+                    <Truck className="text-emerald-500 h-5 w-5" /> Corridor Freight Estimator
+                  </DialogTitle>
+                  <DialogDescription className="text-zinc-500">Calculate shipping costs across SADC transport routes</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 my-4 text-xs">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-zinc-400 mb-1 block">Origin Route</Label>
+                      <Input readOnly value={currentUser?.country === 'Botswana' ? 'Gaborone Hub' : 'Harare Hub'} className="bg-zinc-900 border-zinc-800 text-zinc-300" />
+                    </div>
+                    <div>
+                      <Label className="text-zinc-400 mb-1 block">Destination Hub</Label>
+                      <Input readOnly value="Johannesburg Dry Port" className="bg-zinc-900 border-zinc-800 text-zinc-300" />
+                    </div>
+                  </div>
+                  <div className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Estimated Cargo Weight</span>
+                      <strong className="text-zinc-200">50 Tons (Bulk)</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Transporter Base Fare</span>
+                      <strong className="text-zinc-200">$1,850.00</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Customs Levy & Tolls</span>
+                      <strong className="text-zinc-200">$240.00</strong>
+                    </div>
+                    <div className="flex justify-between border-t border-zinc-800 pt-2 text-sm">
+                      <span className="text-zinc-400 font-semibold">Total Transit Estimate</span>
+                      <strong className="text-emerald-400 font-bold">$2,090.00</strong>
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter className="mt-6">
+                  <DialogClose render={<Button variant="outline" className="border-zinc-800 text-zinc-300">Close</Button>} />
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500" onClick={() => alert('Freight request dispatched to registered SADC Transporters.')}>
+                    Request Bookings
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-            <Card className="glass-card border-zinc-900/60 p-4">
-              <h4 className="font-bold text-zinc-200 text-sm mb-1">Cooperative Pool</h4>
-              <p className="text-xs text-zinc-400 mb-3">Aggregate your yield with neighborhood farms to unlock higher buyer volume tiers.</p>
-              <Button size="sm" className="w-full bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-900 text-xs gap-1">
-                <PlusCircle className="h-3.5 w-3.5" /> Aggregate Produce
-              </Button>
-            </Card>
+            <Dialog>
+              <Card className="glass-card border-zinc-900/60 p-4 flex flex-col justify-between h-full">
+                <div>
+                  <h4 className="font-bold text-zinc-200 text-sm mb-1">Cooperative Pool</h4>
+                  <p className="text-xs text-zinc-400 mb-3">Aggregate your yield with neighborhood farms to unlock higher buyer volume tiers.</p>
+                </div>
+                <DialogTrigger render={
+                  <Button size="sm" className="w-full bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 border border-emerald-900 text-xs gap-1">
+                    <PlusCircle className="h-3.5 w-3.5" /> Aggregate Produce
+                  </Button>
+                } />
+              </Card>
+              <DialogContent className="bg-zinc-950 border border-zinc-900 max-w-md p-6 rounded-2xl text-zinc-300">
+                <DialogHeader className="mb-4">
+                  <DialogTitle className="text-zinc-100 flex items-center gap-2">
+                    <PlusCircle className="text-emerald-500 h-5 w-5" /> Cooperative Aggregation Pool
+                  </DialogTitle>
+                  <DialogDescription className="text-zinc-500">Aggregate your produce to command premium bulk contract rates</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 my-4 text-xs">
+                  <p className="text-zinc-400 leading-relaxed">
+                    By listing collectively under the local agricultural cooperative registry, smallholders gain access to global export contracts requiring 200+ tons.
+                  </p>
+                  <div className="bg-zinc-900/50 p-4 rounded-lg border border-zinc-800 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Your Current Yield</span>
+                      <strong className="text-zinc-200">50 Tons</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">Coop Aggregated Pool</span>
+                      <strong className="text-zinc-200">380 Tons</strong>
+                    </div>
+                    <div className="flex justify-between border-t border-zinc-800 pt-2 text-sm">
+                      <span className="text-zinc-400 font-semibold">Bulk Price Premium</span>
+                      <strong className="text-emerald-400 font-bold">+12% Premium / Ton</strong>
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter className="mt-6">
+                  <DialogClose render={<Button variant="outline" className="border-zinc-800 text-zinc-300">Cancel</Button>} />
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500" onClick={() => alert('Your listing has been submitted for cooperative pooling validation.')}>
+                    Join Pool
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </TabsContent>
       </Tabs>

@@ -10,6 +10,8 @@ import { TransporterDashboard } from '@/components/TransporterDashboard';
 import { ExporterDashboard } from '@/components/ExporterDashboard';
 import { CooperativeDashboard } from '@/components/CooperativeDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
+import { GovernmentDashboard } from '@/components/GovernmentDashboard';
+import { BankDashboard } from '@/components/BankDashboard';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
   HelpCircle, ExternalLink, Menu, X, Star
@@ -44,6 +46,10 @@ export default function Home() {
         return <ExporterDashboard />;
       case 'cooperative':
         return <CooperativeDashboard />;
+      case 'government':
+        return <GovernmentDashboard />;
+      case 'bank':
+        return <BankDashboard />;
       case 'admin':
         return <AdminPanel />;
       default:

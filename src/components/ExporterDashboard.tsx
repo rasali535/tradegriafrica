@@ -68,6 +68,15 @@ export const ExporterDashboard: React.FC = () => {
     }
   };
 
+  const handleRequestReAudit = (id: string) => {
+    updateExportStatus(id, 'pending_approval', 90);
+    const updated = exports.find(e => e.id === id);
+    if (updated) {
+      setSelectedExport({ ...updated, status: 'pending_approval', readiness_score: 90 });
+    }
+    alert('Phytosanitary Re-Audit request dispatched successfully to border inspectors!');
+  };
+
   // Get checklist for selected export item
   const selectedOrder = selectedExport ? orders.find(o => o.id === selectedExport.order_id) : null;
   const selectedListing = selectedOrder ? listings.find(l => l.id === selectedOrder.listing_id) : null;
@@ -207,7 +216,11 @@ export const ExporterDashboard: React.FC = () => {
 
           {selectedExport && selectedExport.status === 'pending_approval' && (
             <div className="pt-4 border-t border-zinc-800 mt-6 flex justify-end gap-2">
-              <Button variant="outline" className="border-zinc-800 text-zinc-300">
+              <Button 
+                variant="outline" 
+                onClick={() => handleRequestReAudit(selectedExport.id)}
+                className="border-zinc-800 text-zinc-300"
+              >
                 Request Phytosanitary Re-Audit
               </Button>
               <Button 

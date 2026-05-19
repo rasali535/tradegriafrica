@@ -11,16 +11,56 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
 export const CooperativeDashboard: React.FC = () => {
-  const { currentUser, farms, listings, orders } = useApp();
+  const { currentUser, farms, listings, orders, addFarm } = useApp();
+  const [farmName, setFarmName] = useState('');
+  const [region, setRegion] = useState('');
+  const [farmSize, setFarmSize] = useState('');
+  const [commodityFocus, setCommodityFocus] = useState<'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products'>('Maize');
+  const [capacity, setCapacity] = useState('');
+  const [open, setOpen] = useState(false);
+
+  const coopCountry = currentUser?.country || 'Botswana';
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!farmName || !region || !farmSize || !capacity) {
+      alert('Please fill out all fields');
+      return;
+    }
+    addFarm({
+      owner_id: `f1000000-0000-0000-0000-${Math.random().toString().substring(2, 10)}`,
+      farm_name: farmName,
+      farm_size: Number(farmSize),
+      country: coopCountry,
+      region,
+      commodity_focus: [commodityFocus],
+      production_capacity: Number(capacity),
+      certification_status: 'Certified'
+    });
+    alert('Farmer Member successfully added to SADC Cooperative Pool!');
+    setFarmName('');
+    setRegion('');
+    setFarmSize('');
+    setCapacity('');
+    setOpen(false);
+  };
 
   // Aggregate stats across cooperative members
   // We mock cooperative members as farmers registered under the same country
-  const coopCountry = currentUser?.country || 'Botswana';
   const coopFarms = farms.filter(f => f.country === coopCountry);
   const coopFarmIds = coopFarms.map(f => f.id);
   const coopListings = listings.filter(l => coopFarmIds.includes(l.farm_id));
@@ -56,9 +96,91 @@ export const CooperativeDashboard: React.FC = () => {
         </div>
         <div className="flex gap-2 items-center">
           <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900">Member Status: Certified</Badge>
-          <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 gap-1 text-xs">
-            <UserPlus className="h-3.5 w-3.5" /> Add Farmer Member
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger render={
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 gap-1 text-xs">
+                <UserPlus className="h-3.5 w-3.5" /> Add Farmer Member
+              </Button>
+            } />
+            <DialogContent className="bg-zinc-950 border-zinc-800 text-zinc-200 max-w-sm">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle className="text-zinc-100 font-bold text-sm">Add Cooperative Farmer</DialogTitle>
+                  <DialogDescription className="text-zinc-400 text-xs">
+                    Register a local farmer under this cooperative pool.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-zinc-500">Farm / Farmer Name</label>
+                    <Input 
+                      placeholder="e.g. Kgale Grain Farms" 
+                      value={farmName} 
+                      onChange={e => setFarmName(e.target.value)}
+                      className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-zinc-500">District / Region</label>
+                    <Input 
+                      placeholder="e.g. Southern District" 
+                      value={region} 
+                      onChange={e => setRegion(e.target.value)}
+                      className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs" 
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-zinc-500">Size (Hectares)</label>
+                      <Input 
+                        type="number" 
+                        placeholder="e.g. 150" 
+                        value={farmSize} 
+                        onChange={e => setFarmSize(e.target.value)}
+                        className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs" 
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-zinc-500">Capacity (Tons)</label>
+                      <Input 
+                        type="number" 
+                        placeholder="e.g. 450" 
+                        value={capacity} 
+                        onChange={e => setCapacity(e.target.value)}
+                        className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-zinc-500">Primary Commodity Focus</label>
+                    <Select 
+                      value={commodityFocus} 
+                      onValueChange={(val: any) => setCommodityFocus(val)}
+                    >
+                      <SelectTrigger className="w-full bg-zinc-900 border-zinc-800 text-zinc-200 text-xs">
+                        <SelectValue placeholder="Select commodity" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
+                        <SelectItem value="Maize">Maize</SelectItem>
+                        <SelectItem value="Sorghum">Sorghum</SelectItem>
+                        <SelectItem value="Beef">Beef</SelectItem>
+                        <SelectItem value="Horticulture">Horticulture</SelectItem>
+                        <SelectItem value="Poultry feed products">Poultry feed products</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter className="pt-2">
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)} className="border-zinc-800 text-zinc-400 text-xs">
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs">
+                    Confirm Registration
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
