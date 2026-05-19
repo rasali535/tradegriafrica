@@ -1,0 +1,955 @@
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+// Database Entity Types
+export interface User {
+  id: string;
+  role: 'farmer' | 'buyer' | 'transporter' | 'cooperative' | 'exporter' | 'admin';
+  name: string;
+  email: string;
+  phone: string;
+  country: 'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa';
+}
+
+export interface Farm {
+  id: string;
+  owner_id: string;
+  farm_name: string;
+  farm_size: number;
+  country: string;
+  region: string;
+  commodity_focus: string[];
+  production_capacity: number;
+  certification_status: string;
+}
+
+export interface CommodityListing {
+  id: string;
+  farm_id: string;
+  commodity: 'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products';
+  quantity: number;
+  price: number;
+  status: 'draft' | 'available' | 'reserved' | 'sold';
+  export_ready: boolean;
+  harvest_date: string;
+  photos: string[];
+  storage_availability: string;
+  country_of_origin: string;
+  created_at: string;
+}
+
+export interface Order {
+  id: string;
+  buyer_id: string;
+  listing_id: string;
+  quantity: number;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected' | 'completed';
+  created_at: string;
+}
+
+export interface GPSData {
+  lat: number;
+  lng: number;
+  speed?: number;
+  bearing?: number;
+}
+
+export interface Shipment {
+  id: string;
+  order_id: string;
+  transporter_id: string | null;
+  status: 'pending' | 'transit' | 'delivered';
+  route_from: string;
+  route_to: string;
+  gps: GPSData | null;
+  transport_mode: 'Road' | 'Rail' | 'Air';
+  created_at: string;
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  amount: number;
+  status: 'pending' | 'released' | 'refunded';
+  created_at: string;
+}
+
+export interface Export {
+  id: string;
+  order_id: string;
+  country: string;
+  readiness_score: number;
+  status: 'incomplete' | 'pending_approval' | 'approved' | 'rejected';
+  missing_requirements: string[];
+  certificates: Record<string, string>;
+  created_at: string;
+}
+
+interface AppContextType {
+  users: User[];
+  farms: Farm[];
+  listings: CommodityListing[];
+  orders: Order[];
+  shipments: Shipment[];
+  payments: Payment[];
+  exports: Export[];
+  currentUser: User | null;
+  setCurrentUser: (user: User) => void;
+  // Actions
+  addListing: (listing: Omit<CommodityListing, 'id' | 'created_at'>) => CommodityListing;
+  updateListing: (id: string, updates: Partial<CommodityListing>) => void;
+  placeOrder: (listingId: string, quantity: number) => Order;
+  updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  assignTransporter: (shipmentId: string, transporterId: string) => void;
+  updateShipmentStatus: (shipmentId: string, status: Shipment['status'], gps?: GPSData) => void;
+  updateExportStatus: (exportId: string, status: Export['status'], readinessScore?: number, missingReqs?: string[]) => void;
+  releasePayment: (paymentId: string) => void;
+  resetAllData: () => void;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+// Initial Seed Data for local testing and investor demos
+const SEED_USERS: User[] = [
+  { id: 'f1000000-0000-0000-0000-000000000001', role: 'farmer', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana' },
+  { id: 'f1000000-0000-0000-0000-000000000002', role: 'farmer', name: 'Farai Moyo', email: 'farai@farmer.com', phone: '+263 77 123 4567', country: 'Zimbabwe' },
+  { id: 'f1000000-0000-0000-0000-000000000003', role: 'farmer', name: 'Mwansa Mwape', email: 'mwansa@farmer.com', phone: '+260 97 123 4567', country: 'Zambia' },
+  { id: 'f1000000-0000-0000-0000-000000000004', role: 'farmer', name: 'Ndapewa Shivute', email: 'ndapewa@farmer.com', phone: '+264 81 123 4567', country: 'Namibia' },
+  { id: 'f1000000-0000-0000-0000-000000000005', role: 'farmer', name: 'Johan Pretorius', email: 'johan@farmer.com', phone: '+27 82 123 4567', country: 'South Africa' },
+  
+  { id: 'b2000000-0000-0000-0000-000000000001', role: 'buyer', name: 'SADC Food Distributors', email: 'orders@sadcfood.com', phone: '+27 11 987 6543', country: 'South Africa' },
+  { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana' },
+  { id: 'b2000000-0000-0000-0000-000000000003', role: 'buyer', name: 'Zambezi Grain Millers', email: 'purchase@zambezigrain.co.zm', phone: '+260 211 987654', country: 'Zambia' },
+  
+  { id: 't3000000-0000-0000-0000-000000000001', role: 'transporter', name: 'Kalahari Express Logistics', email: 'ops@kalahari-express.com', phone: '+267 7234 5678', country: 'Botswana' },
+  { id: 't3000000-0000-0000-0000-000000000002', role: 'transporter', name: 'Limpopo Corridor Freighters', email: 'bookings@limpopofreight.co.za', phone: '+27 15 516 1234', country: 'South Africa' },
+  
+  { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Agribusiness Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe' },
+  { id: 'e4000000-0000-0000-0000-000000000002', role: 'exporter', name: 'Atlantic Trade Linkers', email: 'customs@atlantictrade.co.na', phone: '+264 61 290 1234', country: 'Namibia' },
+  
+  { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'PulaTrade Operations', email: 'admin@pulatrade.com', phone: '+267 360 1234', country: 'Botswana' }
+];
+
+const SEED_FARMS: Farm[] = [
+  { id: 'fa100000-0000-0000-0000-000000000001', owner_id: 'f1000000-0000-0000-0000-000000000001', farm_name: 'Chobe Valley Farms', farm_size: 450, country: 'Botswana', region: 'Chobe District', commodity_focus: ['Maize', 'Sorghum', 'Horticulture'], production_capacity: 1200, certification_status: 'Certified' },
+  { id: 'fa100000-0000-0000-0000-000000000002', owner_id: 'f1000000-0000-0000-0000-000000000002', farm_name: 'Mazowe Agri-Estate', farm_size: 800, country: 'Zimbabwe', region: 'Mashonaland Central', commodity_focus: ['Maize', 'Horticulture', 'Poultry feed products'], production_capacity: 2500, certification_status: 'Certified' },
+  { id: 'fa100000-0000-0000-0000-000000000003', owner_id: 'f1000000-0000-0000-0000-000000000003', farm_name: 'Lusaka South Cooperatives', farm_size: 350, country: 'Zambia', region: 'Lusaka Province', commodity_focus: ['Maize', 'Sorghum', 'Poultry feed products'], production_capacity: 900, certification_status: 'Pending' },
+  { id: 'fa100000-0000-0000-0000-000000000004', owner_id: 'f1000000-0000-0000-0000-000000000004', farm_name: 'Okahandja Beef Ranches', farm_size: 5500, country: 'Namibia', region: 'Otjozondjupa', commodity_focus: ['Beef'], production_capacity: 800, certification_status: 'Certified' },
+  { id: 'fa100000-0000-0000-0000-000000000005', owner_id: 'f1000000-0000-0000-0000-000000000005', farm_name: 'Free State Grainlands', farm_size: 1200, country: 'South Africa', region: 'Free State', commodity_focus: ['Maize', 'Sorghum', 'Poultry feed products'], production_capacity: 4000, certification_status: 'Certified' }
+];
+
+// Generate 50 realistic listings
+const generateListings = (): CommodityListing[] => {
+  const result: CommodityListing[] = [
+    {
+      id: 'l0000001-0000-0000-0000-000000000001',
+      farm_id: 'fa100000-0000-0000-0000-000000000004',
+      commodity: 'Beef',
+      quantity: 25,
+      price: 4800,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-10',
+      photos: ['https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Storage (Okahandja)',
+      country_of_origin: 'Namibia',
+      created_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000001-0000-0000-0000-000000000002',
+      farm_id: 'fa100000-0000-0000-0000-000000000004',
+      commodity: 'Beef',
+      quantity: 50,
+      price: 4750,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-12',
+      photos: ['https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Storage (Windhoek)',
+      country_of_origin: 'Namibia',
+      created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000001-0000-0000-0000-000000000003',
+      farm_id: 'fa100000-0000-0000-0000-000000000001',
+      commodity: 'Beef',
+      quantity: 15,
+      price: 5100,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-15',
+      photos: ['https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Storage (Gaborone)',
+      country_of_origin: 'Botswana',
+      created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000001-0000-0000-0000-000000000004',
+      farm_id: 'fa100000-0000-0000-0000-000000000004',
+      commodity: 'Beef',
+      quantity: 30,
+      price: 4700,
+      status: 'reserved',
+      export_ready: true,
+      harvest_date: '2026-05-08',
+      photos: ['https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Storage (Walvis Bay)',
+      country_of_origin: 'Namibia',
+      created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000001-0000-0000-0000-000000000005',
+      farm_id: 'fa100000-0000-0000-0000-000000000004',
+      commodity: 'Beef',
+      quantity: 40,
+      price: 4650,
+      status: 'sold',
+      export_ready: true,
+      harvest_date: '2026-04-20',
+      photos: ['https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Storage (Windhoek)',
+      country_of_origin: 'Namibia',
+      created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000001',
+      farm_id: 'fa100000-0000-0000-0000-000000000005',
+      commodity: 'Maize',
+      quantity: 500,
+      price: 290,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-01',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Bloemfontein)',
+      country_of_origin: 'South Africa',
+      created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000002',
+      farm_id: 'fa100000-0000-0000-0000-000000000005',
+      commodity: 'Maize',
+      quantity: 1000,
+      price: 280,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-02',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Kroonstad)',
+      country_of_origin: 'South Africa',
+      created_at: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000003',
+      farm_id: 'fa100000-0000-0000-0000-000000000002',
+      commodity: 'Maize',
+      quantity: 200,
+      price: 310,
+      status: 'available',
+      export_ready: false,
+      harvest_date: '2026-05-05',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'On-farm Barn (Mazowe)',
+      country_of_origin: 'Zimbabwe',
+      created_at: new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000004',
+      farm_id: 'fa100000-0000-0000-0000-000000000003',
+      commodity: 'Maize',
+      quantity: 150,
+      price: 305,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-04-28',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cooperative Silo (Lusaka)',
+      country_of_origin: 'Zambia',
+      created_at: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000005',
+      farm_id: 'fa100000-0000-0000-0000-000000000001',
+      commodity: 'Maize',
+      quantity: 80,
+      price: 330,
+      status: 'available',
+      export_ready: false,
+      harvest_date: '2026-05-14',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Pandamatenga)',
+      country_of_origin: 'Botswana',
+      created_at: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000006',
+      farm_id: 'fa100000-0000-0000-0000-000000000005',
+      commodity: 'Maize',
+      quantity: 400,
+      price: 285,
+      status: 'reserved',
+      export_ready: true,
+      harvest_date: '2026-04-15',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Welkom)',
+      country_of_origin: 'South Africa',
+      created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000002-0000-0000-0000-000000000007',
+      farm_id: 'fa100000-0000-0000-0000-000000000003',
+      commodity: 'Maize',
+      quantity: 300,
+      price: 295,
+      status: 'sold',
+      export_ready: true,
+      harvest_date: '2026-04-10',
+      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cooperative Silo (Choma)',
+      country_of_origin: 'Zambia',
+      created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000003-0000-0000-0000-000000000001',
+      farm_id: 'fa100000-0000-0000-0000-000000000001',
+      commodity: 'Sorghum',
+      quantity: 120,
+      price: 350,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-02',
+      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Pandamatenga)',
+      country_of_origin: 'Botswana',
+      created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000003-0000-0000-0000-000000000002',
+      farm_id: 'fa100000-0000-0000-0000-000000000005',
+      commodity: 'Sorghum',
+      quantity: 500,
+      price: 310,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-05',
+      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Bethlehem)',
+      country_of_origin: 'South Africa',
+      created_at: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000003-0000-0000-0000-000000000003',
+      farm_id: 'fa100000-0000-0000-0000-000000000003',
+      commodity: 'Sorghum',
+      quantity: 250,
+      price: 320,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-06',
+      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Silo (Kabwe)',
+      country_of_origin: 'Zambia',
+      created_at: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000003-0000-0000-0000-000000000004',
+      farm_id: 'fa100000-0000-0000-0000-000000000002',
+      commodity: 'Sorghum',
+      quantity: 80,
+      price: 340,
+      status: 'available',
+      export_ready: false,
+      harvest_date: '2026-05-10',
+      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'On-farm Barn (Gweru)',
+      country_of_origin: 'Zimbabwe',
+      created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000004-0000-0000-0000-000000000001',
+      farm_id: 'fa100000-0000-0000-0000-000000000002',
+      commodity: 'Poultry feed products',
+      quantity: 100,
+      price: 420,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-01',
+      photos: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Warehouse (Harare)',
+      country_of_origin: 'Zimbabwe',
+      created_at: new Date(Date.now() - 11 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000004-0000-0000-0000-000000000002',
+      farm_id: 'fa100000-0000-0000-0000-000000000005',
+      commodity: 'Poultry feed products',
+      quantity: 600,
+      price: 380,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-04',
+      photos: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Warehouse (Pretoria)',
+      country_of_origin: 'South Africa',
+      created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000004-0000-0000-0000-000000000003',
+      farm_id: 'fa100000-0000-0000-0000-000000000003',
+      commodity: 'Poultry feed products',
+      quantity: 200,
+      price: 395,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-07',
+      photos: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Warehouse (Lusaka)',
+      country_of_origin: 'Zambia',
+      created_at: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000005-0000-0000-0000-000000000001',
+      farm_id: 'fa100000-0000-0000-0000-000000000001',
+      commodity: 'Horticulture',
+      quantity: 10,
+      price: 850,
+      status: 'available',
+      export_ready: false,
+      harvest_date: '2026-05-18',
+      photos: ['https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold room (Francistown)',
+      country_of_origin: 'Botswana',
+      created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000005-0000-0000-0000-000000000002',
+      farm_id: 'fa100000-0000-0000-0000-000000000002',
+      commodity: 'Horticulture',
+      quantity: 30,
+      price: 750,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-16',
+      photos: ['https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Storage (Mutare)',
+      country_of_origin: 'Zimbabwe',
+      created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
+    },
+    {
+      id: 'l0000005-0000-0000-0000-000000000003',
+      farm_id: 'fa100000-0000-0000-0000-000000000005',
+      commodity: 'Horticulture',
+      quantity: 100,
+      price: 700,
+      status: 'available',
+      export_ready: true,
+      harvest_date: '2026-05-15',
+      photos: ['https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80'],
+      storage_availability: 'Cold Depot (Nelspruit)',
+      country_of_origin: 'South Africa',
+      created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
+    }
+  ];
+
+  // Dynamically generate the remaining listings up to 50
+  const commodities: Array<'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products'> = [
+    'Beef', 'Maize', 'Sorghum', 'Horticulture', 'Poultry feed products'
+  ];
+  const countries = ['Botswana', 'Zimbabwe', 'Zambia', 'Namibia', 'South Africa'];
+  const farmIds = [
+    'fa100000-0000-0000-0000-000000000001',
+    'fa100000-0000-0000-0000-000000000002',
+    'fa100000-0000-0000-0000-000000000003',
+    'fa100000-0000-0000-0000-000000000004',
+    'fa100000-0000-0000-0000-000000000005'
+  ];
+  const images = {
+    Beef: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80',
+    Maize: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80',
+    Sorghum: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80',
+    Horticulture: 'https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80',
+    'Poultry feed products': 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'
+  };
+
+  for (let i = result.length + 1; i <= 50; i++) {
+    const commodity = commodities[i % commodities.length];
+    const country = countries[i % countries.length];
+    const farmId = farmIds[i % farmIds.length];
+    const qty = Math.floor(Math.random() * 450) + 10;
+    const price = commodity === 'Beef' 
+      ? Math.floor(Math.random() * 800) + 4200
+      : Math.floor(Math.random() * 150) + 250;
+
+    result.push({
+      id: `l0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
+      farm_id: farmId,
+      commodity: commodity,
+      quantity: qty,
+      price: price,
+      status: 'available',
+      export_ready: Math.random() > 0.3,
+      harvest_date: `2026-05-${(i % 28 + 1).toString().padStart(2, '0')}`,
+      photos: [images[commodity]],
+      storage_availability: `Regional Storage Facility`,
+      country_of_origin: country,
+      created_at: new Date(Date.now() - (i % 30 + 1) * 24 * 3600 * 1000).toISOString()
+    });
+  }
+
+  return result;
+};
+
+const SEED_LISTINGS = generateListings();
+
+const SEED_ORDERS: Order[] = [
+  { id: 'o0000001-0000-0000-0000-000000000001', buyer_id: 'b2000000-0000-0000-0000-000000000001', listing_id: 'l0000001-0000-0000-0000-000000000005', quantity: 40, amount: 186000, status: 'completed', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 'o0000001-0000-0000-0000-000000000002', buyer_id: 'b2000000-0000-0000-0000-000000000002', listing_id: 'l0000002-0000-0000-0000-000000000007', quantity: 300, amount: 88500, status: 'completed', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
+  { id: 'o0000001-0000-0000-0000-000000000003', buyer_id: 'b2000000-0000-0000-0000-000000000001', listing_id: 'l0000002-0000-0000-0000-000000000006', quantity: 400, amount: 114000, status: 'approved', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
+  { id: 'o0000001-0000-0000-0000-000000000004', buyer_id: 'b2000000-0000-0000-0000-000000000003', listing_id: 'l0000001-0000-0000-0000-000000000004', quantity: 30, amount: 141000, status: 'approved', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() },
+  { id: 'o0000001-0000-0000-0000-000000000005', buyer_id: 'b2000000-0000-0000-0000-000000000002', listing_id: 'l0000002-0000-0000-0000-000000000001', quantity: 100, amount: 29000, status: 'pending', created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString() }
+];
+
+// Add dummy orders to reach 20 orders total
+const fillOrders = (): Order[] => {
+  const result = [...SEED_ORDERS];
+  const buyers = ['b2000000-0000-0000-0000-000000000001', 'b2000000-0000-0000-0000-000000000002', 'b2000000-0000-0000-0000-000000000003'];
+  const statuses: Order['status'][] = ['completed', 'approved', 'pending', 'rejected'];
+
+  for (let i = result.length + 1; i <= 20; i++) {
+    const listing = SEED_LISTINGS[i % SEED_LISTINGS.length];
+    const buyerId = buyers[i % buyers.length];
+    const qty = Math.floor(listing.quantity * 0.5) || 5;
+    const amount = qty * listing.price;
+    const status = statuses[i % statuses.length];
+
+    result.push({
+      id: `o0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
+      buyer_id: buyerId,
+      listing_id: listing.id,
+      quantity: qty,
+      amount: amount,
+      status: status,
+      created_at: new Date(Date.now() - (i % 20 + 2) * 24 * 3600 * 1000).toISOString()
+    });
+  }
+  return result;
+};
+
+const FULL_ORDERS = fillOrders();
+
+const SEED_SHIPMENTS: Shipment[] = [
+  { id: 's0000001-0000-0000-0000-000000000001', order_id: 'o0000001-0000-0000-0000-000000000001', transporter_id: 't3000000-0000-0000-0000-000000000002', status: 'delivered', route_from: 'Windhoek', route_to: 'Johannesburg', gps: { lat: -26.2041, lng: 28.0473, speed: 0, bearing: 0 }, transport_mode: 'Road', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 's0000001-0000-0000-0000-000000000002', order_id: 'o0000001-0000-0000-0000-000000000002', transporter_id: 't3000000-0000-0000-0000-000000000001', status: 'delivered', route_from: 'Choma', route_to: 'Gaborone', gps: { lat: -24.6282, lng: 25.9231, speed: 0, bearing: 0 }, transport_mode: 'Road', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
+  { id: 's0000001-0000-0000-0000-000000000003', order_id: 'o0000001-0000-0000-0000-000000000003', transporter_id: 't3000000-0000-0000-0000-000000000002', status: 'transit', route_from: 'Welkom', route_to: 'Johannesburg', gps: { lat: -27.9830, lng: 26.7200, speed: 75, bearing: 45 }, transport_mode: 'Road', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
+  { id: 's0000001-0000-0000-0000-000000000004', order_id: 'o0000001-0000-0000-0000-000000000004', transporter_id: 't3000000-0000-0000-0000-000000000001', status: 'transit', route_from: 'Maun', route_to: 'Windhoek', gps: { lat: -21.1400, lng: 19.9800, speed: 80, bearing: 280 }, transport_mode: 'Road', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+];
+
+// Fill up to 20 shipments
+const fillShipments = (): Shipment[] => {
+  const result = [...SEED_SHIPMENTS];
+  const transporters = ['t3000000-0000-0000-0000-000000000001', 't3000000-0000-0000-0000-000000000002'];
+  const routes = [
+    { from: 'Gaborone', to: 'Harare' },
+    { from: 'Francistown', to: 'Lusaka' },
+    { from: 'Gaborone', to: 'Johannesburg' },
+    { from: 'Maun', to: 'Windhoek' }
+  ];
+  const statuses: Shipment['status'][] = ['delivered', 'transit', 'pending'];
+
+  for (let i = result.length + 1; i <= 20; i++) {
+    const order = FULL_ORDERS[i % FULL_ORDERS.length];
+    const transporterId = transporters[i % transporters.length];
+    const route = routes[i % routes.length];
+    const status = statuses[i % statuses.length];
+    
+    result.push({
+      id: `s0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
+      order_id: order.id,
+      transporter_id: status === 'pending' ? null : transporterId,
+      status: status,
+      route_from: route.from,
+      route_to: route.to,
+      gps: status === 'transit' ? { lat: -24.6 + (Math.random() - 0.5) * 4, lng: 25.9 + (Math.random() - 0.5) * 4, speed: 65, bearing: 180 } : null,
+      transport_mode: i % 3 === 0 ? 'Rail' : 'Road',
+      created_at: new Date(Date.now() - (i % 20 + 2) * 24 * 3600 * 1000).toISOString()
+    });
+  }
+  return result;
+};
+
+const FULL_SHIPMENTS = fillShipments();
+
+const SEED_PAYMENTS: Payment[] = [
+  { id: 'p0000001-0000-0000-0000-000000000001', order_id: 'o0000001-0000-0000-0000-000000000001', amount: 186000, status: 'released', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 'p0000001-0000-0000-0000-000000000002', order_id: 'o0000001-0000-0000-0000-000000000002', amount: 88500, status: 'released', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
+  { id: 'p0000001-0000-0000-0000-000000000003', order_id: 'o0000001-0000-0000-0000-000000000003', amount: 114000, status: 'pending', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
+  { id: 'p0000001-0000-0000-0000-000000000004', order_id: 'o0000001-0000-0000-0000-000000000004', amount: 141000, status: 'pending', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+];
+
+const fillPayments = (): Payment[] => {
+  const result = [...SEED_PAYMENTS];
+  for (let i = result.length + 1; i <= 20; i++) {
+    const order = FULL_ORDERS[i % FULL_ORDERS.length];
+    result.push({
+      id: `p0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
+      order_id: order.id,
+      amount: order.amount,
+      status: order.status === 'completed' ? 'released' : 'pending',
+      created_at: new Date(Date.now() - (i % 20 + 2) * 24 * 3600 * 1000).toISOString()
+    });
+  }
+  return result;
+};
+
+const FULL_PAYMENTS = fillPayments();
+
+const SEED_EXPORTS: Export[] = [
+  { id: 'e0000001-0000-0000-0000-000000000001', order_id: 'o0000001-0000-0000-0000-000000000001', country: 'South Africa', readiness_score: 100, status: 'approved', missing_requirements: [], certificates: { phytosanitary: 'ISSUED', sabs: 'APPROVED' }, created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 'e0000001-0000-0000-0000-000000000002', order_id: 'o0000001-0000-0000-0000-000000000002', country: 'Botswana', readiness_score: 100, status: 'approved', missing_requirements: [], certificates: { import_permit: 'ISSUED', quality_cert: 'ISSUED' }, created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
+  { id: 'e0000001-0000-0000-0000-000000000003', order_id: 'o0000001-0000-0000-0000-000000000003', country: 'South Africa', readiness_score: 85, status: 'pending_approval', missing_requirements: ['Quality Verification Audit'], certificates: { phytosanitary: 'ISSUED' }, created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
+  { id: 'e0000001-0000-0000-0000-000000000004', order_id: 'o0000001-0000-0000-0000-000000000004', country: 'Namibia', readiness_score: 60, status: 'incomplete', missing_requirements: ['Customs Declaration Clearance', 'SADC Certificate of Origin'], certificates: { veterinary_cert: 'ISSUED' }, created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+];
+
+const fillExports = (): Export[] => {
+  const result = [...SEED_EXPORTS];
+  const countries = ['Botswana', 'Zimbabwe', 'Zambia', 'Namibia', 'South Africa'];
+  const statuses: Export['status'][] = ['approved', 'pending_approval', 'incomplete', 'rejected'];
+
+  for (let i = result.length + 1; i <= 20; i++) {
+    const order = FULL_ORDERS[i % FULL_ORDERS.length];
+    const country = countries[i % countries.length];
+    const status = statuses[i % statuses.length];
+    const score = status === 'approved' ? 100 : status === 'pending_approval' ? 85 : status === 'incomplete' ? 45 : 20;
+    const missing = status === 'incomplete' ? ['SADC Customs Dec', 'Quality Standard Verification'] : status === 'rejected' ? ['Phytosanitary Certification Failed'] : [];
+
+    result.push({
+      id: `e0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
+      order_id: order.id,
+      country: country,
+      readiness_score: score,
+      status: status,
+      missing_requirements: missing,
+      certificates: status === 'approved' ? { customs_clearance: 'ISSUED', standard_approval: 'ISSUED' } : {},
+      created_at: new Date(Date.now() - (i % 20 + 2) * 24 * 3600 * 1000).toISOString()
+    });
+  }
+  return result;
+};
+
+const FULL_EXPORTS = fillExports();
+
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [users, setUsers] = useState<User[]>(SEED_USERS);
+  const [farms, setFarms] = useState<Farm[]>(SEED_FARMS);
+  const [listings, setListings] = useState<CommodityListing[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [exports, setExports] = useState<Export[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // Load from local storage or set defaults
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUsers = localStorage.getItem('pt_users');
+      const storedFarms = localStorage.getItem('pt_farms');
+      const storedListings = localStorage.getItem('pt_listings');
+      const storedOrders = localStorage.getItem('pt_orders');
+      const storedShipments = localStorage.getItem('pt_shipments');
+      const storedPayments = localStorage.getItem('pt_payments');
+      const storedExports = localStorage.getItem('pt_exports');
+      const storedCurrentUser = localStorage.getItem('pt_current_user');
+
+      if (storedUsers) setUsers(JSON.parse(storedUsers));
+      else localStorage.setItem('pt_users', JSON.stringify(SEED_USERS));
+
+      if (storedFarms) setFarms(JSON.parse(storedFarms));
+      else localStorage.setItem('pt_farms', JSON.stringify(SEED_FARMS));
+
+      if (storedListings) setListings(JSON.parse(storedListings));
+      else {
+        setListings(SEED_LISTINGS);
+        localStorage.setItem('pt_listings', JSON.stringify(SEED_LISTINGS));
+      }
+
+      if (storedOrders) setOrders(JSON.parse(storedOrders));
+      else {
+        setOrders(FULL_ORDERS);
+        localStorage.setItem('pt_orders', JSON.stringify(FULL_ORDERS));
+      }
+
+      if (storedShipments) setShipments(JSON.parse(storedShipments));
+      else {
+        setShipments(FULL_SHIPMENTS);
+        localStorage.setItem('pt_shipments', JSON.stringify(FULL_SHIPMENTS));
+      }
+
+      if (storedPayments) setPayments(JSON.parse(storedPayments));
+      else {
+        setPayments(FULL_PAYMENTS);
+        localStorage.setItem('pt_payments', JSON.stringify(FULL_PAYMENTS));
+      }
+
+      if (storedExports) setExports(JSON.parse(storedExports));
+      else {
+        setExports(FULL_EXPORTS);
+        localStorage.setItem('pt_exports', JSON.stringify(FULL_EXPORTS));
+      }
+
+      if (storedCurrentUser) {
+        setCurrentUser(JSON.parse(storedCurrentUser));
+      } else {
+        // Default to Farmer (Tshepo)
+        setCurrentUser(SEED_USERS[0]);
+        localStorage.setItem('pt_current_user', JSON.stringify(SEED_USERS[0]));
+      }
+    }
+  }, []);
+
+  // Save updates helper
+  const saveState = (key: string, data: any, setter: Function) => {
+    setter(data);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+  };
+
+  const handleSetCurrentUser = (user: User) => {
+    saveState('pt_current_user', user, setCurrentUser);
+  };
+
+  // ACTIONS IMPLEMENTATION
+  const addListing = (newListing: Omit<CommodityListing, 'id' | 'created_at'>) => {
+    const created: CommodityListing = {
+      ...newListing,
+      id: `l0000000-0000-0000-0000-${(listings.length + 1).toString().padStart(12, '0')}`,
+      created_at: new Date().toISOString()
+    };
+    const updatedList = [created, ...listings];
+    saveState('pt_listings', updatedList, setListings);
+    return created;
+  };
+
+  const updateListing = (id: string, updates: Partial<CommodityListing>) => {
+    const updated = listings.map(l => l.id === id ? { ...l, ...updates } : l);
+    saveState('pt_listings', updated, setListings);
+  };
+
+  const placeOrder = (listingId: string, quantity: number) => {
+    const listing = listings.find(l => l.id === listingId);
+    if (!listing) throw new Error("Listing not found");
+
+    const amount = quantity * listing.price;
+    const newOrder: Order = {
+      id: `o0000000-0000-0000-0000-${(orders.length + 1).toString().padStart(12, '0')}`,
+      buyer_id: currentUser?.id || 'b2000000-0000-0000-0000-000000000001',
+      listing_id: listingId,
+      quantity,
+      amount,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    // Update listing status or decrease quantity
+    const updatedListings = listings.map(l => {
+      if (l.id === listingId) {
+        const remaining = l.quantity - quantity;
+        return {
+          ...l,
+          quantity: remaining > 0 ? remaining : 0,
+          status: remaining <= 0 ? 'sold' : 'reserved' as any
+        };
+      }
+      return l;
+    });
+
+    // Create payment entry
+    const newPayment: Payment = {
+      id: `p0000000-0000-0000-0000-${(payments.length + 1).toString().padStart(12, '0')}`,
+      order_id: newOrder.id,
+      amount,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
+
+    // Create export entry
+    const newExport: Export = {
+      id: `e0000000-0000-0000-0000-${(exports.length + 1).toString().padStart(12, '0')}`,
+      order_id: newOrder.id,
+      country: currentUser?.country || 'South Africa',
+      readiness_score: listing.export_ready ? 85 : 45,
+      status: listing.export_ready ? 'pending_approval' : 'incomplete',
+      missing_requirements: listing.export_ready 
+        ? ['Quality Verification Audit'] 
+        : ['SADC Certificate of Origin', 'Phytosanitary Certification', 'Quality Verification Audit'],
+      certificates: {},
+      created_at: new Date().toISOString()
+    };
+
+    // Create empty shipment entry (pending assignment)
+    const newShipment: Shipment = {
+      id: `s0000000-0000-0000-0000-${(shipments.length + 1).toString().padStart(12, '0')}`,
+      order_id: newOrder.id,
+      transporter_id: null,
+      status: 'pending',
+      route_from: listing.storage_availability.includes('(') 
+        ? listing.storage_availability.split('(')[1].replace(')', '') 
+        : listing.country_of_origin,
+      route_to: currentUser?.country || 'South Africa',
+      gps: null,
+      transport_mode: 'Road',
+      created_at: new Date().toISOString()
+    };
+
+    saveState('pt_listings', updatedListings, setListings);
+    saveState('pt_orders', [newOrder, ...orders], setOrders);
+    saveState('pt_payments', [newPayment, ...payments], setPayments);
+    saveState('pt_exports', [newExport, ...exports], setExports);
+    saveState('pt_shipments', [newShipment, ...shipments], setShipments);
+
+    return newOrder;
+  };
+
+  const updateOrderStatus = (orderId: string, status: Order['status']) => {
+    const updated = orders.map(o => o.id === orderId ? { ...o, status } : o);
+    saveState('pt_orders', updated, setOrders);
+  };
+
+  const assignTransporter = (shipmentId: string, transporterId: string) => {
+    const updated = shipments.map(s => {
+      if (s.id === shipmentId) {
+        return {
+          ...s,
+          transporter_id: transporterId,
+          status: 'transit' as const,
+          gps: {
+            lat: -24.6282 + (Math.random() - 0.5) * 2,
+            lng: 25.9231 + (Math.random() - 0.5) * 2,
+            speed: 65,
+            bearing: 90
+          }
+        };
+      }
+      return s;
+    });
+    saveState('pt_shipments', updated, setShipments);
+  };
+
+  const updateShipmentStatus = (shipmentId: string, status: Shipment['status'], gps?: GPSData) => {
+    const updated = shipments.map(s => {
+      if (s.id === shipmentId) {
+        // If shipment is marked delivered, also complete the order and release payment
+        if (status === 'delivered') {
+          setTimeout(() => {
+            // Completed Order
+            const ship = shipments.find(x => x.id === shipmentId);
+            if (ship) {
+              setOrders(prev => {
+                const uOrders = prev.map(o => o.id === ship.order_id ? { ...o, status: 'completed' as const } : o);
+                if (typeof window !== 'undefined') localStorage.setItem('pt_orders', JSON.stringify(uOrders));
+                return uOrders;
+              });
+              setPayments(prev => {
+                const uPayments = prev.map(p => p.order_id === ship.order_id ? { ...p, status: 'released' as const } : p);
+                if (typeof window !== 'undefined') localStorage.setItem('pt_payments', JSON.stringify(uPayments));
+                return uPayments;
+              });
+              setExports(prev => {
+                const uExports = prev.map(e => e.order_id === ship.order_id ? { ...e, status: 'approved' as const, readiness_score: 100 } : e);
+                if (typeof window !== 'undefined') localStorage.setItem('pt_exports', JSON.stringify(uExports));
+                return uExports;
+              });
+            }
+          }, 100);
+        }
+
+        return {
+          ...s,
+          status,
+          gps: gps || (status === 'delivered' ? null : s.gps)
+        };
+      }
+      return s;
+    });
+    saveState('pt_shipments', updated, setShipments);
+  };
+
+  const updateExportStatus = (exportId: string, status: Export['status'], readinessScore?: number, missingReqs?: string[]) => {
+    const updated = exports.map(e => {
+      if (e.id === exportId) {
+        return {
+          ...e,
+          status,
+          readiness_score: readinessScore !== undefined ? readinessScore : e.readiness_score,
+          missing_requirements: missingReqs || e.missing_requirements
+        };
+      }
+      return e;
+    });
+    saveState('pt_exports', updated, setExports);
+  };
+
+  const releasePayment = (paymentId: string) => {
+    const updated = payments.map(p => p.id === paymentId ? { ...p, status: 'released' as const } : p);
+    saveState('pt_payments', updated, setPayments);
+  };
+
+  const resetAllData = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('pt_users');
+      localStorage.removeItem('pt_farms');
+      localStorage.removeItem('pt_listings');
+      localStorage.removeItem('pt_orders');
+      localStorage.removeItem('pt_shipments');
+      localStorage.removeItem('pt_payments');
+      localStorage.removeItem('pt_exports');
+      localStorage.removeItem('pt_current_user');
+
+      setUsers(SEED_USERS);
+      setFarms(SEED_FARMS);
+      setListings(SEED_LISTINGS);
+      setOrders(FULL_ORDERS);
+      setShipments(FULL_SHIPMENTS);
+      setPayments(FULL_PAYMENTS);
+      setExports(FULL_EXPORTS);
+      setCurrentUser(SEED_USERS[0]);
+
+      window.location.reload();
+    }
+  };
+
+  return (
+    <AppContext.Provider value={{
+      users,
+      farms,
+      listings,
+      orders,
+      shipments,
+      payments,
+      exports,
+      currentUser,
+      setCurrentUser: handleSetCurrentUser,
+      addListing,
+      updateListing,
+      placeOrder,
+      updateOrderStatus,
+      assignTransporter,
+      updateShipmentStatus,
+      updateExportStatus,
+      releasePayment,
+      resetAllData
+    }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  return context;
+};
