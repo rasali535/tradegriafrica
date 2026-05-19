@@ -18,6 +18,17 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend
 } from 'recharts';
 
+const getOriginHub = (country: string) => {
+  switch (country) {
+    case 'Botswana': return 'Gaborone Hub';
+    case 'Zimbabwe': return 'Harare Hub';
+    case 'Zambia': return 'Lusaka Hub';
+    case 'Namibia': return 'Windhoek Hub';
+    case 'South Africa': return 'Johannesburg Hub';
+    default: return 'Gaborone Hub';
+  }
+};
+
 export const FarmerDashboard: React.FC = () => {
   const { currentUser, farms, listings, orders, addListing, updateListing, updateOrderStatus } = useApp();
   const [showAddForm, setShowAddForm] = useState(false);
@@ -568,7 +579,7 @@ export const FarmerDashboard: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-zinc-400 mb-1 block">Origin Route</Label>
-                      <Input readOnly value={currentUser?.country === 'Botswana' ? 'Gaborone Hub' : 'Harare Hub'} className="bg-zinc-900 border-zinc-800 text-zinc-300" />
+                      <Input readOnly value={getOriginHub(currentUser?.country || 'Botswana')} className="bg-zinc-900 border-zinc-800 text-zinc-300" />
                     </div>
                     <div>
                       <Label className="text-zinc-400 mb-1 block">Destination Hub</Label>

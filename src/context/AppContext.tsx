@@ -177,18 +177,22 @@ const SEED_USERS: User[] = [
   { id: 'b2000000-0000-0000-0000-000000000001', role: 'buyer', name: 'SADC Food Distributors', email: 'orders@sadcfood.com', phone: '+27 11 987 6543', country: 'South Africa' },
   { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana' },
   { id: 'b2000000-0000-0000-0000-000000000003', role: 'buyer', name: 'Zambezi Grain Millers', email: 'purchase@zambezigrain.co.zm', phone: '+260 211 987654', country: 'Zambia' },
+  { id: 'b2000000-0000-0000-0000-000000000004', role: 'buyer', name: 'Namibia Agronomic Distributors', email: 'procure@nad.com.na', phone: '+264 61 300 4567', country: 'Namibia' },
   
   { id: 't3000000-0000-0000-0000-000000000001', role: 'transporter', name: 'Kalahari Express Logistics', email: 'ops@kalahari-express.com', phone: '+267 7234 5678', country: 'Botswana' },
   { id: 't3000000-0000-0000-0000-000000000002', role: 'transporter', name: 'Limpopo Corridor Freighters', email: 'bookings@limpopofreight.co.za', phone: '+27 15 516 1234', country: 'South Africa' },
+  { id: 't3000000-0000-0000-0000-000000000003', role: 'transporter', name: 'Trans-Kalahari Logistics', email: 'ops@transkalahari.com.na', phone: '+264 81 222 3333', country: 'Namibia' },
   
   { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Agribusiness Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe' },
   { id: 'e4000000-0000-0000-0000-000000000002', role: 'exporter', name: 'Atlantic Trade Linkers', email: 'customs@atlantictrade.co.na', phone: '+264 61 290 1234', country: 'Namibia' },
   
   { id: 'g6000000-0000-0000-0000-000000000001', role: 'government', name: 'Ministry of Agriculture (Botswana)', email: 'policy@agric.gov.bw', phone: '+267 368 9000', country: 'Botswana' },
   { id: 'g6000000-0000-0000-0000-000000000002', role: 'government', name: 'Ministry of Agriculture (Zambia)', email: 'export@mfl.gov.zm', phone: '+260 211 251379', country: 'Zambia' },
+  { id: 'g6000000-0000-0000-0000-000000000003', role: 'government', name: 'Ministry of Agriculture, Water & Land Reform (Namibia)', email: 'trade@mawlr.gov.na', phone: '+264 61 208 7111', country: 'Namibia' },
   
   { id: 'k7000000-0000-0000-0000-000000000001', role: 'bank', name: 'Standard Bank SADC Trade', email: 'structured.trade@standardbank.co.za', phone: '+27 11 636 9111', country: 'South Africa' },
   { id: 'k7000000-0000-0000-0000-000000000002', role: 'bank', name: 'BancABC Trade Finance', email: 'trade.desk@bancabc.co.bw', phone: '+267 367 4300', country: 'Botswana' },
+  { id: 'k7000000-0000-0000-0000-000000000003', role: 'bank', name: 'Bank Windhoek Trade Finance', email: 'trade.desk@bankwindhoek.com.na', phone: '+264 61 299 1200', country: 'Namibia' },
   
   { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'PulaTrade Operations', email: 'admin@pulatrade.com', phone: '+267 360 1234', country: 'Botswana' }
 ];
@@ -205,6 +209,7 @@ const SEED_COOPERATIVES: Cooperative[] = [
   { id: 'c1000000-0000-0000-0000-000000000001', name: 'Limpopo Agricultural Cooperative', members: ['f1000000-0000-0000-0000-000000000005'], total_output: 1200, country: 'South Africa' },
   { id: 'c1000000-0000-0000-0000-000000000002', name: 'Chobe Valley Organic Cooperative', members: ['f1000000-0000-0000-0000-000000000001'], total_output: 850, country: 'Botswana' },
   { id: 'c1000000-0000-0000-0000-000000000003', name: 'Mazowe Smallholder Pool', members: ['f1000000-0000-0000-0000-000000000002'], total_output: 600, country: 'Zimbabwe' },
+  { id: 'c1000000-0000-0000-0000-000000000004', name: 'Kalahari Agronomic Coop', members: ['f1000000-0000-0000-0000-000000000004'], total_output: 750, country: 'Namibia' }
 ];
 
 const SEED_FINANCING_REQUESTS: FinancingRequest[] = [
