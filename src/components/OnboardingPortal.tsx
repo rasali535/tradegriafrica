@@ -35,6 +35,11 @@ export const OnboardingPortal: React.FC = () => {
   const [corridorFocus, setCorridorFocus] = useState('Trans-Kalahari Corridor');
   const [transportMode, setTransportMode] = useState<'Road' | 'Rail' | 'Air'>('Road');
 
+  // Onboarding On-chain Document Fields
+  const [docType, setDocType] = useState('Business Registration Certificate');
+  const [docRef, setDocRef] = useState('');
+  const [docFileName, setDocFileName] = useState('');
+
   const [registeredUser, setRegisteredUser] = useState<User | null>(null);
 
   const toggleCommodity = (crop: string) => {
@@ -50,13 +55,19 @@ export const OnboardingPortal: React.FC = () => {
     }
 
     try {
-      // 1. Register base user
+      const companyOrName = role === 'farmer' ? name : role === 'buyer' ? companyName || `${name} Distributors` : companyName || name;
+      
+      // 1. Register base user with onboarding verification documents
       const user = registerUser({
-        name: role === 'farmer' ? name : role === 'buyer' ? companyName || `${name} Distributors` : name,
+        name: companyOrName,
         email,
         phone,
         country,
-        role
+        role,
+        kyc_status: 'pending',
+        document_name: docType,
+        document_ref: docRef || `SADC-REF-${Math.floor(1000 + Math.random() * 9000)}`,
+        document_url: docFileName || `${companyOrName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_verification_document.pdf`
       });
 
       // 2. Perform role specific side-effects
@@ -390,6 +401,66 @@ export const OnboardingPortal: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Compliance & Verification Documents */}
+          <div className="space-y-6 pt-4 border-t border-zinc-900">
+            <div className="border-b border-zinc-900 pb-3 flex items-center gap-2">
+              <Layers className="h-4 w-4 text-emerald-500" />
+              <div className="text-left">
+                <h3 className="font-bold text-zinc-200 text-sm">Compliance & Onboarding Documents</h3>
+                <p className="text-xs text-zinc-500">Provide official trade licenses or local permits for administrative review and corridor verification.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-left">
+              <div className="space-y-2">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Document Type</label>
+                <select
+                  value={docType}
+                  onChange={e => setDocType(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
+                >
+                  <option value="Business Registration Certificate">Business Registration Certificate</option>
+                  <option value="SADC Corridor Cross-Border Permit">SADC Corridor Cross-Border Permit</option>
+                  <option value="Phytosanitary Regulatory Certificate">Phytosanitary Regulatory Certificate</option>
+                  <option value="National Agribusiness License">National Agribusiness License</option>
+                  <option value="Biosecurity & Land Certificate">Biosecurity & Land Certificate</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Document Reference Number</label>
+                <Input
+                  type="text"
+                  required
+                  value={docRef}
+                  onChange={e => setDocRef(e.target.value)}
+                  placeholder="e.g. SADC-REF-1092-2026"
+                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Upload Digital Copy (Mock File Simulation)</label>
+                <div className="border border-dashed border-zinc-800 hover:border-zinc-700 bg-zinc-950/40 rounded-lg p-4 transition-all flex flex-col items-center justify-center text-center space-y-2">
+                  <div className="text-zinc-500">
+                    <ShieldCheck className="h-6 w-6 mx-auto mb-1 text-emerald-500/80" />
+                    <span className="text-xs font-semibold block text-zinc-300">
+                      {docFileName ? `Selected: ${docFileName}` : "Simulate file attachment upload below"}
+                    </span>
+                    <span className="text-[10px] text-zinc-600 block mt-0.5">PDF, PNG or JPG up to 10MB</span>
+                  </div>
+                  <Input 
+                    type="text" 
+                    placeholder="Enter file name (e.g. business_permit.pdf) to upload" 
+                    value={docFileName}
+                    onChange={e => setDocFileName(e.target.value)}
+                    className="max-w-md bg-zinc-950 border-zinc-900 text-zinc-300 focus:border-emerald-700 h-8 text-center text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="pt-4 border-t border-zinc-900 flex justify-end">
             <Button

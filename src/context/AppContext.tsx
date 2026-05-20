@@ -10,6 +10,10 @@ export interface User {
   email: string;
   phone: string;
   country: 'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa' | 'Mozambique';
+  kyc_status?: 'pending' | 'approved' | 'rejected';
+  document_name?: string;
+  document_ref?: string;
+  document_url?: string;
 }
 
 export interface Cooperative {
@@ -128,6 +132,34 @@ export interface Export {
   created_at: string;
 }
 
+export interface TradeAgreement {
+  id: string;
+  agreement_name: string;
+  origin_country: string;
+  destination_country: string;
+  commodity: string;
+  documents_required: string[];
+  tariff_type: string;
+  certificate_required: boolean;
+  permit_required: boolean;
+  veterinary_required: boolean;
+  phytosanitary_required: boolean;
+  local_content_min_pct?: number;
+  customs_notes: string;
+}
+
+export interface TradeCorridor {
+  id: string;
+  name: string;
+  origin: string;
+  destination: string;
+  border_checkpoint: string;
+  queue_delay_hours: number;
+  transit_efficiency: number;
+  active_transport_lines: number;
+  biosecurity_status: 'Active' | 'Standard' | 'Alert';
+}
+
 interface AppContextType {
   users: User[];
   farms: Farm[];
@@ -141,6 +173,8 @@ interface AppContextType {
   webhooks: Webhook[];
   apiKeys: ApiKey[];
   eventLogs: EventLog[];
+  tradeAgreements: TradeAgreement[];
+  tradeCorridors: TradeCorridor[];
   currentUser: User | null;
   setCurrentUser: (user: User) => void;
   // Actions
@@ -163,39 +197,41 @@ interface AppContextType {
   triggerEvent: (event: string, payload: any) => void;
   addFarm: (farm: Omit<Farm, 'id'>) => Farm;
   registerUser: (user: Omit<User, 'id'>) => User;
+  updateUserKycStatus: (id: string, status: 'pending' | 'approved' | 'rejected') => void;
+  updateTradeCorridor: (id: string, updates: Partial<TradeCorridor>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Initial Seed Data for local testing and investor demos
 const SEED_USERS: User[] = [
-  { id: 'f1000000-0000-0000-0000-000000000001', role: 'farmer', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana' },
-  { id: 'f1000000-0000-0000-0000-000000000002', role: 'farmer', name: 'Farai Moyo', email: 'farai@farmer.com', phone: '+263 77 123 4567', country: 'Zimbabwe' },
-  { id: 'f1000000-0000-0000-0000-000000000003', role: 'farmer', name: 'Mwansa Mwape', email: 'mwansa@farmer.com', phone: '+260 97 123 4567', country: 'Zambia' },
-  { id: 'f1000000-0000-0000-0000-000000000004', role: 'farmer', name: 'Ndapewa Shivute', email: 'ndapewa@farmer.com', phone: '+264 81 123 4567', country: 'Namibia' },
-  { id: 'f1000000-0000-0000-0000-000000000005', role: 'farmer', name: 'Johan Pretorius', email: 'johan@farmer.com', phone: '+27 82 123 4567', country: 'South Africa' },
+  { id: 'f1000000-0000-0000-0000-000000000001', role: 'farmer', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana', kyc_status: 'approved', document_name: 'Botswana Smallholder Agri-Permit', document_ref: 'BW-AGR-4019', document_url: 'tshepo_agri_permit.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000002', role: 'farmer', name: 'Farai Moyo', email: 'farai@farmer.com', phone: '+263 77 123 4567', country: 'Zimbabwe', kyc_status: 'pending', document_name: 'Zimbabwe Biosecurity & Land Certificate', document_ref: 'ZW-BIO-8821', document_url: 'farai_moyo_land_cert.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000003', role: 'farmer', name: 'Mwansa Mwape', email: 'mwansa@farmer.com', phone: '+260 97 123 4567', country: 'Zambia', kyc_status: 'approved', document_name: 'Zambia Cooperative Produce Code', document_ref: 'ZM-COOP-1029', document_url: 'mwansa_coop_code.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000004', role: 'farmer', name: 'Ndapewa Shivute', email: 'ndapewa@farmer.com', phone: '+264 81 123 4567', country: 'Namibia', kyc_status: 'pending', document_name: 'Namibia Livestock Brand Registry', document_ref: 'NM-LBR-8832', document_url: 'ndapewa_livestock_brand.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000005', role: 'farmer', name: 'Johan Pretorius', email: 'johan@farmer.com', phone: '+27 82 123 4567', country: 'South Africa', kyc_status: 'approved', document_name: 'SA Grain Export License', document_ref: 'ZA-GEL-9821', document_url: 'johan_grain_license.pdf' },
   
-  { id: 'b2000000-0000-0000-0000-000000000001', role: 'buyer', name: 'SADC Food Distributors', email: 'orders@sadcfood.com', phone: '+27 11 987 6543', country: 'South Africa' },
-  { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana' },
-  { id: 'b2000000-0000-0000-0000-000000000003', role: 'buyer', name: 'Zambezi Grain Millers', email: 'purchase@zambezigrain.co.zm', phone: '+260 211 987654', country: 'Zambia' },
-  { id: 'b2000000-0000-0000-0000-000000000004', role: 'buyer', name: 'Namibia Agronomic Distributors', email: 'procure@nad.com.na', phone: '+264 61 300 4567', country: 'Namibia' },
+  { id: 'b2000000-0000-0000-0000-000000000001', role: 'buyer', name: 'SADC Food Distributors', email: 'orders@sadcfood.com', phone: '+27 11 987 6543', country: 'South Africa', kyc_status: 'approved', document_name: 'SADC Corporate Import Passport', document_ref: 'SADC-BUY-9021', document_url: 'sadc_food_dist_passport.pdf' },
+  { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana', kyc_status: 'approved', document_name: 'BW Agribusiness Buying License', document_ref: 'BW-ABL-2291', document_url: 'bot_milling_license.pdf' },
+  { id: 'b2000000-0000-0000-0000-000000000003', role: 'buyer', name: 'Zambezi Grain Millers', email: 'purchase@zambezigrain.co.zm', phone: '+260 211 987654', country: 'Zambia', kyc_status: 'pending', document_name: 'Zambia Import/Export License', document_ref: 'ZM-IEL-4481', document_url: 'zambezi_grain_license.pdf' },
+  { id: 'b2000000-0000-0000-0000-000000000004', role: 'buyer', name: 'Namibia Agronomic Distributors', email: 'procure@nad.com.na', phone: '+264 61 300 4567', country: 'Namibia', kyc_status: 'approved', document_name: 'Namibia Agronomic Board Registry', document_ref: 'NM-NAB-7719', document_url: 'nam_agronomic_registry.pdf' },
   
-  { id: 't3000000-0000-0000-0000-000000000001', role: 'transporter', name: 'Kalahari Express Logistics', email: 'ops@kalahari-express.com', phone: '+267 7234 5678', country: 'Botswana' },
-  { id: 't3000000-0000-0000-0000-000000000002', role: 'transporter', name: 'Limpopo Corridor Freighters', email: 'bookings@limpopofreight.co.za', phone: '+27 15 516 1234', country: 'South Africa' },
-  { id: 't3000000-0000-0000-0000-000000000003', role: 'transporter', name: 'Trans-Kalahari Logistics', email: 'ops@transkalahari.com.na', phone: '+264 81 222 3333', country: 'Namibia' },
+  { id: 't3000000-0000-0000-0000-000000000001', role: 'transporter', name: 'Kalahari Express Logistics', email: 'ops@kalahari-express.com', phone: '+267 7234 5678', country: 'Botswana', kyc_status: 'approved', document_name: 'SADC Multi-corridor Carrier Permit', document_ref: 'SADC-LOG-9021', document_url: 'kalahari_express_permit.pdf' },
+  { id: 't3000000-0000-0000-0000-000000000002', role: 'transporter', name: 'Limpopo Corridor Freighters', email: 'bookings@limpopofreight.co.za', phone: '+27 15 516 1234', country: 'South Africa', kyc_status: 'pending', document_name: 'Cross-Border Carrier Permit', document_ref: 'RSA-CBP-3392', document_url: 'limpopo_corridor_freight.pdf' },
+  { id: 't3000000-0000-0000-0000-000000000003', role: 'transporter', name: 'Trans-Kalahari Logistics', email: 'ops@transkalahari.com.na', phone: '+264 81 222 3333', country: 'Namibia', kyc_status: 'approved', document_name: 'Namibia Cross-Border Logistics License', document_ref: 'NM-CBL-4432', document_url: 'trans_kalahari_license.pdf' },
   
-  { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Agribusiness Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe' },
-  { id: 'e4000000-0000-0000-0000-000000000002', role: 'exporter', name: 'Atlantic Trade Linkers', email: 'customs@atlantictrade.co.na', phone: '+264 61 290 1234', country: 'Namibia' },
+  { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Agribusiness Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe', kyc_status: 'approved', document_name: 'AfriTrade Customs Passport', document_ref: 'AFR-CP-1102', document_url: 'afritrade_customs.pdf' },
+  { id: 'e4000000-0000-0000-0000-000000000002', role: 'exporter', name: 'Atlantic Trade Linkers', email: 'customs@atlantictrade.co.na', phone: '+264 61 290 1234', country: 'Namibia', kyc_status: 'approved', document_name: 'Atlantic Port clearance Permit', document_ref: 'ATL-PCP-0922', document_url: 'atlantic_clearance.pdf' },
   
-  { id: 'g6000000-0000-0000-0000-000000000001', role: 'government', name: 'Ministry of Agriculture (Botswana)', email: 'policy@agric.gov.bw', phone: '+267 368 9000', country: 'Botswana' },
-  { id: 'g6000000-0000-0000-0000-000000000002', role: 'government', name: 'Ministry of Agriculture (Zambia)', email: 'export@mfl.gov.zm', phone: '+260 211 251379', country: 'Zambia' },
-  { id: 'g6000000-0000-0000-0000-000000000003', role: 'government', name: 'Ministry of Agriculture, Water & Land Reform (Namibia)', email: 'trade@mawlr.gov.na', phone: '+264 61 208 7111', country: 'Namibia' },
+  { id: 'g6000000-0000-0000-0000-000000000001', role: 'government', name: 'Ministry of Agriculture (Botswana)', email: 'policy@agric.gov.bw', phone: '+267 368 9000', country: 'Botswana', kyc_status: 'approved' },
+  { id: 'g6000000-0000-0000-0000-000000000002', role: 'government', name: 'Ministry of Agriculture (Zambia)', email: 'export@mfl.gov.zm', phone: '+260 211 251379', country: 'Zambia', kyc_status: 'approved' },
+  { id: 'g6000000-0000-0000-0000-000000000003', role: 'government', name: 'Ministry of Agriculture, Water & Land Reform (Namibia)', email: 'trade@mawlr.gov.na', phone: '+264 61 208 7111', country: 'Namibia', kyc_status: 'approved' },
   
-  { id: 'k7000000-0000-0000-0000-000000000001', role: 'bank', name: 'Standard Bank SADC Trade', email: 'structured.trade@standardbank.co.za', phone: '+27 11 636 9111', country: 'South Africa' },
-  { id: 'k7000000-0000-0000-0000-000000000002', role: 'bank', name: 'BancABC Trade Finance', email: 'trade.desk@bancabc.co.bw', phone: '+267 367 4300', country: 'Botswana' },
-  { id: 'k7000000-0000-0000-0000-000000000003', role: 'bank', name: 'Bank Windhoek Trade Finance', email: 'trade.desk@bankwindhoek.com.na', phone: '+264 61 299 1200', country: 'Namibia' },
+  { id: 'k7000000-0000-0000-0000-000000000001', role: 'bank', name: 'Standard Bank SADC Trade', email: 'structured.trade@standardbank.co.za', phone: '+27 11 636 9111', country: 'South Africa', kyc_status: 'approved' },
+  { id: 'k7000000-0000-0000-0000-000000000002', role: 'bank', name: 'BancABC Trade Finance', email: 'trade.desk@bancabc.co.bw', phone: '+267 367 4300', country: 'Botswana', kyc_status: 'approved' },
+  { id: 'k7000000-0000-0000-0000-000000000003', role: 'bank', name: 'Bank Windhoek Trade Finance', email: 'trade.desk@bankwindhoek.com.na', phone: '+264 61 299 1200', country: 'Namibia', kyc_status: 'approved' },
   
-  { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'PulaTrade Operations', email: 'admin@pulatrade.com', phone: '+267 360 1234', country: 'Botswana' }
+  { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'PulaTrade Operations', email: 'admin@pulatrade.com', phone: '+267 360 1234', country: 'Botswana', kyc_status: 'approved' }
 ];
 
 const SEED_FARMS: Farm[] = [
@@ -734,6 +770,152 @@ const fillExports = (): Export[] => {
 
 const FULL_EXPORTS = fillExports();
 
+const SEED_TRADE_AGREEMENTS: TradeAgreement[] = [
+  {
+    id: 'ta100000-0000-0000-0000-000000000001',
+    agreement_name: 'SACU + SADC Trade Protocol',
+    origin_country: 'Botswana',
+    destination_country: 'South Africa',
+    commodity: 'All (Beef, Maize, Sorghum, Horticulture)',
+    documents_required: ['SADC Certificate of Origin', 'Veterinary Certificate', 'Cold Chain Log Report', 'Transport Manifest', 'SACU Customs declaration'],
+    tariff_type: 'Duty-free Movement',
+    certificate_required: true,
+    permit_required: false,
+    veterinary_required: true,
+    phytosanitary_required: true,
+    customs_notes: 'Common external tariff applies. Livestock/meat require veterinary validation and cold-chain compliance tracking.'
+  },
+  {
+    id: 'ta100000-0000-0000-0000-000000000002',
+    agreement_name: 'SACU + SADC Customs Union',
+    origin_country: 'Botswana',
+    destination_country: 'Namibia',
+    commodity: 'Beef & Livestock',
+    documents_required: ['Veterinary Compliance Certificate', 'Animal Health Status Report', 'SADC Certificate of Origin', 'Cold-Chain Verification Log'],
+    tariff_type: 'Duty-free Movement',
+    certificate_required: true,
+    permit_required: true,
+    veterinary_required: true,
+    phytosanitary_required: false,
+    customs_notes: 'Livestock and beef movement governed by mutual SACU/DVS health inspection. Requires active ear-tag audit (LITS).'
+  },
+  {
+    id: 'ta100000-0000-0000-0000-000000000003',
+    agreement_name: 'Botswana-Zimbabwe Bilateral Trade Agreement (1988)',
+    origin_country: 'Botswana',
+    destination_country: 'Zimbabwe',
+    commodity: 'Maize, Sorghum, Horticulture',
+    documents_required: ['SADC Certificate of Origin (Form 61)', 'Local Content Validation Sheet', 'Phytosanitary Permit', 'Bilateral Import Permit'],
+    tariff_type: 'Duty-free Preferential Trade',
+    certificate_required: true,
+    permit_required: true,
+    veterinary_required: false,
+    phytosanitary_required: true,
+    local_content_min_pct: 25,
+    customs_notes: 'Requires certificate of origin rules + minimum 25% local content verification to qualify for tariff exemption.'
+  },
+  {
+    id: 'ta100000-0000-0000-0000-000000000004',
+    agreement_name: 'Bilateral Trade Protocol + SADC + AfCFTA',
+    origin_country: 'Zimbabwe',
+    destination_country: 'South Africa',
+    commodity: 'Horticulture, Maize, Processed Foods, Livestock',
+    documents_required: ['SADC Certificate of Origin', 'CD1 Export Declaration', 'Phytosanitary Clearance', 'Customs Bill of Entry'],
+    tariff_type: 'Preferential Tariff Rate',
+    certificate_required: true,
+    permit_required: true,
+    veterinary_required: true,
+    phytosanitary_required: true,
+    customs_notes: 'High-value ag lane. Subject to Beitbridge border checks. Tracks queue delay and customs manifest clearance.'
+  },
+  {
+    id: 'ta100000-0000-0000-0000-000000000005',
+    agreement_name: 'Zimbabwe-Namibia Bilateral Trade Pact',
+    origin_country: 'Zimbabwe',
+    destination_country: 'Namibia',
+    commodity: 'Beef, Horticulture, Grains',
+    documents_required: ['SADC Origin Certificate', 'Phytosanitary Permit', 'Namibian Import Permit', 'Bilateral Transport Waiver'],
+    tariff_type: 'Preferential Duty-free',
+    certificate_required: true,
+    permit_required: true,
+    veterinary_required: false,
+    phytosanitary_required: true,
+    customs_notes: 'Bilateral agreement offers duty-free market access. Permits require pre-clearance upload before border arrival.'
+  },
+  {
+    id: 'ta100000-0000-0000-0000-000000000006',
+    agreement_name: 'COMESA + SADC + AfCFTA Grain Corridor',
+    origin_country: 'Zambia',
+    destination_country: 'Zimbabwe',
+    commodity: 'Maize & Grains',
+    documents_required: ['COMESA Certificate of Origin', 'Food Reserve Agency Quota Clearance', 'Phytosanitary Safety Permit', 'Transport Transit Permit'],
+    tariff_type: 'Preferential Trade',
+    certificate_required: true,
+    permit_required: true,
+    veterinary_required: false,
+    phytosanitary_required: true,
+    customs_notes: 'Major regional grain pipeline. Requires active Food Reserve Agency (FRA) quota approval and mycotoxin/aflatoxin tests.'
+  }
+];
+
+const SEED_TRADE_CORRIDORS: TradeCorridor[] = [
+  {
+    id: 'tc100000-0000-0000-0000-000000000001',
+    name: 'Botswana-Zimbabwe Corridor',
+    origin: 'Botswana',
+    destination: 'Zimbabwe',
+    border_checkpoint: 'Plumtree Border Post',
+    queue_delay_hours: 4.1,
+    transit_efficiency: 85,
+    active_transport_lines: 38,
+    biosecurity_status: 'Standard'
+  },
+  {
+    id: 'tc100000-0000-0000-0000-000000000002',
+    name: 'Botswana-SouthAfrica Corridor',
+    origin: 'Botswana',
+    destination: 'South Africa',
+    border_checkpoint: 'Tlokweng / Kopfontein',
+    queue_delay_hours: 1.8,
+    transit_efficiency: 92,
+    active_transport_lines: 54,
+    biosecurity_status: 'Standard'
+  },
+  {
+    id: 'tc100000-0000-0000-0000-000000000003',
+    name: 'Botswana-Namibia Corridor',
+    origin: 'Botswana',
+    destination: 'Namibia',
+    border_checkpoint: 'Mamuno / Trans-Kalahari',
+    queue_delay_hours: 1.2,
+    transit_efficiency: 95,
+    active_transport_lines: 24,
+    biosecurity_status: 'Standard'
+  },
+  {
+    id: 'tc100000-0000-0000-0000-000000000004',
+    name: 'Zimbabwe-SouthAfrica Corridor',
+    origin: 'Zimbabwe',
+    destination: 'South Africa',
+    border_checkpoint: 'Beitbridge Border Post',
+    queue_delay_hours: 14.5,
+    transit_efficiency: 68,
+    active_transport_lines: 120,
+    biosecurity_status: 'Alert'
+  },
+  {
+    id: 'tc100000-0000-0000-0000-000000000005',
+    name: 'Zambia-Zimbabwe Corridor',
+    origin: 'Zambia',
+    destination: 'Zimbabwe',
+    border_checkpoint: 'Chirundu Border Control',
+    queue_delay_hours: 5.3,
+    transit_efficiency: 82,
+    active_transport_lines: 65,
+    biosecurity_status: 'Active'
+  }
+];
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(SEED_USERS);
   const [farms, setFarms] = useState<Farm[]>(SEED_FARMS);
@@ -747,6 +929,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [eventLogs, setEventLogs] = useState<EventLog[]>([]);
+  const [tradeAgreements, setTradeAgreements] = useState<TradeAgreement[]>([]);
+  const [tradeCorridors, setTradeCorridors] = useState<TradeCorridor[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Load from local storage or set defaults
@@ -765,6 +949,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const storedApiKeys = localStorage.getItem('pt_api_keys');
       const storedEventLogs = localStorage.getItem('pt_event_logs');
       const storedCurrentUser = localStorage.getItem('pt_current_user');
+      const storedAgreements = localStorage.getItem('pt_trade_agreements');
+      const storedCorridors = localStorage.getItem('pt_trade_corridors');
 
       if (storedUsers) setUsers(JSON.parse(storedUsers));
       else localStorage.setItem('pt_users', JSON.stringify(SEED_USERS));
@@ -830,6 +1016,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       else {
         setEventLogs(SEED_EVENT_LOGS);
         localStorage.setItem('pt_event_logs', JSON.stringify(SEED_EVENT_LOGS));
+      }
+
+      if (storedAgreements) setTradeAgreements(JSON.parse(storedAgreements));
+      else {
+        setTradeAgreements(SEED_TRADE_AGREEMENTS);
+        localStorage.setItem('pt_trade_agreements', JSON.stringify(SEED_TRADE_AGREEMENTS));
+      }
+
+      if (storedCorridors) setTradeCorridors(JSON.parse(storedCorridors));
+      else {
+        setTradeCorridors(SEED_TRADE_CORRIDORS);
+        localStorage.setItem('pt_trade_corridors', JSON.stringify(SEED_TRADE_CORRIDORS));
       }
 
       if (storedCurrentUser) {
@@ -1121,12 +1319,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const prefix = newUser.role === 'farmer' ? 'f' : newUser.role === 'buyer' ? 'b' : newUser.role === 'transporter' ? 't' : 'u';
     const created: User = {
       ...newUser,
+      kyc_status: (newUser.role === 'farmer' || newUser.role === 'buyer' || newUser.role === 'transporter') 
+        ? (newUser.kyc_status || 'pending') 
+        : 'approved',
       id: `${prefix}${(users.length + 1).toString().padStart(7, '0')}-0000-0000-0000-000000000001`
     };
     const updated = [...users, created];
     saveState('pt_users', updated, setUsers);
     triggerEvent('user.registered', created);
     return created;
+  };
+
+  const updateUserKycStatus = (id: string, status: 'pending' | 'approved' | 'rejected') => {
+    const updated = users.map(u => u.id === id ? { ...u, kyc_status: status } : u);
+    saveState('pt_users', updated, setUsers);
+    const updatedUser = updated.find(u => u.id === id);
+    if (updatedUser) {
+      triggerEvent('user.kyc_updated', { id, status, name: updatedUser.name, role: updatedUser.role });
+    }
+  };
+
+  const updateTradeCorridor = (id: string, updates: Partial<TradeCorridor>) => {
+    const updated = tradeCorridors.map(c => c.id === id ? { ...c, ...updates } : c);
+    saveState('pt_trade_corridors', updated, setTradeCorridors);
+    triggerEvent('trade.corridor_updated', { id, ...updates });
   };
 
   const resetAllData = () => {
@@ -1144,7 +1360,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem('pt_api_keys');
       localStorage.removeItem('pt_event_logs');
       localStorage.removeItem('pt_current_user');
-
+      localStorage.removeItem('pt_trade_agreements');
+      localStorage.removeItem('pt_trade_corridors');
+ 
       setUsers(SEED_USERS);
       setFarms(SEED_FARMS);
       setListings(SEED_LISTINGS);
@@ -1157,12 +1375,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setWebhooks(SEED_WEBHOOKS);
       setApiKeys(SEED_API_KEYS);
       setEventLogs(SEED_EVENT_LOGS);
+      setTradeAgreements(SEED_TRADE_AGREEMENTS);
+      setTradeCorridors(SEED_TRADE_CORRIDORS);
       setCurrentUser(SEED_USERS[0]);
-
+ 
       window.location.reload();
     }
   };
-
+ 
   return (
     <AppContext.Provider value={{
       users,
@@ -1177,6 +1397,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       webhooks,
       apiKeys,
       eventLogs,
+      tradeAgreements,
+      tradeCorridors,
       currentUser,
       setCurrentUser: handleSetCurrentUser,
       addListing,
@@ -1196,7 +1418,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       revokeApiKey,
       triggerEvent,
       addFarm,
-      registerUser
+      registerUser,
+      updateUserKycStatus,
+      updateTradeCorridor
     }}>
       {children}
     </AppContext.Provider>
