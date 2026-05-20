@@ -17,15 +17,44 @@ import { LogisticsHub } from '@/components/LogisticsHub';
 import { OnboardingPortal } from '@/components/OnboardingPortal';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
-  HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus
+  HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus,
+  Shield, Lock, Unlock
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function Home() {
   const { currentUser, users, setCurrentUser } = useApp();
   const [view, setView] = useState<'landing' | 'app'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding'>('dashboard');
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const handleAdminSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'admin123' || password === 'pulatrade2026') {
+      const adminUser = users.find(u => u.role === 'admin');
+      if (adminUser) {
+        setCurrentUser(adminUser);
+        setIsAdminModalOpen(false);
+        setView('app');
+        setAppSubTab('dashboard');
+      } else {
+        setPasswordError('Admin account not found.');
+      }
+    } else {
+      setPasswordError('Invalid password. Try admin123');
+    }
+  };
 
   const handleLaunchApp = (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding') => {
     if (userId && users && setCurrentUser) {
@@ -152,6 +181,32 @@ export default function Home() {
 
           {/* Action button */}
           <div className="hidden md:flex items-center gap-3">
+            {currentUser?.role === 'admin' ? (
+              <Button
+                onClick={() => {
+                  setView('app');
+                  setAppSubTab('dashboard');
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-xs px-3.5 py-2 flex items-center gap-1.5 shadow-md"
+              >
+                <Shield className="h-3.5 w-3.5 animate-pulse" />
+                Admin Portal
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  setPassword('');
+                  setPasswordError('');
+                  setIsAdminModalOpen(true);
+                }}
+                variant="outline"
+                className="border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-xs px-3.5 py-2 flex items-center gap-1.5"
+              >
+                <Lock className="h-3.5 w-3.5 text-zinc-500" />
+                Admin Portal
+              </Button>
+            )}
+
             {view === 'landing' ? (
               <Button 
                 onClick={() => handleLaunchApp()}
@@ -229,14 +284,42 @@ export default function Home() {
             >
               Bilateral Docs <ExternalLink className="h-3 w-3" />
             </a>
-            <div className="pt-2 border-t border-zinc-900">
+            <div className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
+              {currentUser?.role === 'admin' ? (
+                <Button
+                  onClick={() => {
+                    setView('app');
+                    setAppSubTab('dashboard');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-xs flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  <Shield className="h-3.5 w-3.5 animate-pulse" />
+                  Admin Portal (Active)
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setPassword('');
+                    setPasswordError('');
+                    setIsAdminModalOpen(true);
+                  }}
+                  variant="outline"
+                  className="w-full border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-xs flex items-center justify-center gap-1.5"
+                >
+                  <Lock className="h-3.5 w-3.5 text-zinc-500" />
+                  Admin Portal
+                </Button>
+              )}
+
               {view === 'landing' ? (
                 <Button 
                   onClick={() => {
                     handleLaunchApp();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full bg-emerald-600 text-white"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs"
                 >
                   Launch App Console
                 </Button>
@@ -247,7 +330,7 @@ export default function Home() {
                     setMobileMenuOpen(false);
                   }}
                   variant="outline"
-                  className="w-full border-zinc-800 text-zinc-300"
+                  className="w-full border-zinc-800 text-zinc-300 text-xs hover:bg-zinc-900"
                 >
                   Back to Landing
                 </Button>
@@ -368,6 +451,60 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Admin Password Dialog */}
+      <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
+        <DialogContent className="bg-zinc-950 border border-zinc-900 text-zinc-100 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-zinc-100 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-amber-500" />
+              SADC Operations Authentication
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 text-xs">
+              Access to administrative registries, event streams, and network configurations requires biosecurity corridor clearance.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleAdminSubmit} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label htmlFor="admin-pass-header" className="text-xs font-semibold text-zinc-400">
+                Operations Password
+              </label>
+              <input
+                id="admin-pass-header"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password..."
+                className="w-full bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 rounded-lg px-3 py-2 text-xs text-zinc-100 outline-none transition-colors"
+                autoFocus
+              />
+              {passwordError && (
+                <p className="text-[10px] text-red-400 mt-1 font-semibold">
+                  ⚠️ {passwordError}
+                </p>
+              )}
+              <p className="text-[9px] text-zinc-500 mt-1 font-mono">
+                Hint: admin123 or pulatrade2026
+              </p>
+            </div>
+            <DialogFooter className="flex gap-2 justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setIsAdminModalOpen(false)}
+                className="px-3.5 py-1.5 text-xs rounded-lg border border-zinc-800 text-zinc-400 hover:bg-zinc-900 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-3.5 py-1.5 text-xs rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium border border-emerald-500 shadow-md transition-colors"
+              >
+                Authenticate
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
