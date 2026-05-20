@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { LandingPage } from '@/components/LandingPage';
+import { DocsPage } from '@/components/DocsPage';
 import { RoleSwitcher } from '@/components/RoleSwitcher';
 import { FarmerDashboard } from '@/components/FarmerDashboard';
 import { BuyerDashboard } from '@/components/BuyerDashboard';
@@ -32,7 +33,7 @@ import {
 
 export default function Home() {
   const { currentUser, users, setCurrentUser } = useApp();
-  const [view, setView] = useState<'landing' | 'app'>('landing');
+  const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding'>('dashboard');
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -56,20 +57,107 @@ export default function Home() {
     }
   };
 
+  const handleGoHome = () => {
+    setView('landing');
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', '/');
+    }
+  };
+
   const handleLaunchApp = (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding') => {
+    let role = '';
+    let region = '';
+    let fleet = '';
+
     if (userId && users && setCurrentUser) {
       const targetUser = users.find(u => u.id === userId);
       if (targetUser) {
         setCurrentUser(targetUser);
+        role = targetUser.role;
+        // Determine region/fleet based on role
+        if (role === 'farmer') region = 'chobe';
+        else if (role === 'transporter') {
+          role = 'logistics';
+          fleet = 'kalahari';
+        }
+        else if (role === 'exporter') region = 'beitbridge';
+        else if (role === 'buyer') region = 'gaborone';
+        else if (role === 'admin') region = 'sadc';
       }
     }
+
     setView('app');
     if (targetTab) {
       setAppSubTab(targetTab);
     } else {
       setAppSubTab('dashboard'); // Reset subtab when entering app
     }
+
+    // Update query params in URL
+    if (typeof window !== 'undefined') {
+      let queryStr = '';
+      if (role) {
+        queryStr = `?role=${role}`;
+        if (region) queryStr += `&region=${region}`;
+        if (fleet) queryStr += `&fleet=${fleet}`;
+      }
+      window.history.pushState(null, '', `/sandbox${queryStr}`);
+    }
   };
+
+  // Sync initial URL on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+      const role = params.get('role');
+
+      if (path === '/docs') {
+        setView('docs');
+      } else if (path.startsWith('/sandbox') || role) {
+        setView('app');
+        if (role && users) {
+          const roleMap: Record<string, string> = {
+            farmer: 'f1000000-0000-0000-0000-000000000001',
+            buyer: 'b2000000-0000-0000-0000-000000000001',
+            logistics: 't3000000-0000-0000-0000-000000000001',
+            exporter: 'e4000000-0000-0000-0000-000000000001',
+            admin: 'a5000000-0000-0000-0000-000000000001',
+          };
+          const targetUserId = roleMap[role.toLowerCase()];
+          if (targetUserId) {
+            const targetUser = users.find(u => u.id === targetUserId);
+            if (targetUser) {
+              setCurrentUser(targetUser);
+            }
+          }
+        }
+      }
+    }
+  }, [users, setCurrentUser]);
+
+  // Sync role switching inside app back to URL query parameters
+  useEffect(() => {
+    if (typeof window !== 'undefined' && view === 'app' && currentUser) {
+      const role = currentUser.role;
+      let region = '';
+      let fleet = '';
+      if (role === 'farmer') region = 'chobe';
+      else if (role === 'transporter') {
+        region = '';
+        fleet = 'kalahari';
+      }
+      else if (role === 'exporter') region = 'beitbridge';
+      else if (role === 'buyer') region = 'gaborone';
+      else if (role === 'admin') region = 'sadc';
+
+      let queryStr = `?role=${role === 'transporter' ? 'logistics' : role}`;
+      if (region) queryStr += `&region=${region}`;
+      if (fleet) queryStr += `&fleet=${fleet}`;
+
+      window.history.pushState(null, '', `/sandbox${queryStr}`);
+    }
+  }, [currentUser, view]);
 
   const renderActiveDashboard = () => {
     if (!currentUser) return null;
@@ -115,7 +203,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
           <div 
-            onClick={() => setView('landing')}
+            onClick={handleGoHome}
             className="flex items-center gap-2 cursor-pointer select-none group"
           >
             <div className="p-1.5 rounded-lg bg-emerald-950/80 border border-emerald-900/60 text-emerald-400 group-hover:scale-105 transition-transform">
@@ -129,7 +217,7 @@ export default function Home() {
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-zinc-400">
             <button 
-              onClick={() => setView('landing')}
+              onClick={handleGoHome}
               className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
                 view === 'landing' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
               }`}
@@ -169,14 +257,19 @@ export default function Home() {
             >
               App Sandbox Desk
             </button>
-            <a 
-              href="https://github.com" 
-              target="_blank" 
-              rel="noreferrer"
-              className="hover:text-zinc-100 transition-colors flex items-center gap-1"
+            <button 
+              onClick={() => {
+                setView('docs');
+                if (typeof window !== 'undefined') {
+                  window.history.pushState(null, '', '/docs');
+                }
+              }}
+              className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
+                view === 'docs' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
+              }`}
             >
-              Bilateral Docs <ExternalLink className="h-3 w-3" />
-            </a>
+              Bilateral Docs
+            </button>
           </nav>
 
           {/* Action button */}
@@ -200,7 +293,7 @@ export default function Home() {
                   setIsAdminModalOpen(true);
                 }}
                 variant="outline"
-                className="border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-xs px-3.5 py-2 flex items-center gap-1.5"
+                className="border-zinc-800 text-zinc-450 hover:text-zinc-100 hover:bg-zinc-900 text-xs flex items-center gap-1.5"
               >
                 <Lock className="h-3.5 w-3.5 text-zinc-500" />
                 Admin Portal
@@ -210,131 +303,167 @@ export default function Home() {
             {view === 'landing' ? (
               <Button 
                 onClick={() => handleLaunchApp()}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs px-4 py-2"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs shadow-md"
               >
                 Launch App Console
               </Button>
             ) : (
               <Button 
-                onClick={() => setView('landing')}
+                onClick={handleGoHome}
                 variant="outline"
                 className="border-zinc-800 text-zinc-300 text-xs hover:bg-zinc-900"
               >
-                Back to Landing Page
+                Back to Landing
               </Button>
             )}
           </div>
 
-          {/* Mobile menu trigger */}
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-zinc-400 hover:text-zinc-100 transition-colors"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-2">
+            {currentUser?.role === 'admin' ? (
+              <Button
+                onClick={() => {
+                  setView('app');
+                  setAppSubTab('dashboard');
+                }}
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-[10px] h-8 px-2.5 flex items-center gap-1 shadow-md"
+              >
+                <Shield className="h-3 w-3" />
+                Admin
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  setPassword('');
+                  setPasswordError('');
+                  setIsAdminModalOpen(true);
+                }}
+                size="sm"
+                variant="outline"
+                className="border-zinc-800 text-zinc-450 hover:text-zinc-100 hover:bg-zinc-900 text-[10px] h-8 px-2.5 flex items-center gap-1"
+              >
+                <Lock className="h-3 w-3" />
+                Admin
+              </Button>
+            )}
+            
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-1.5 rounded-lg border border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-zinc-900 bg-zinc-950 p-4 space-y-3 flex flex-col text-sm font-medium text-zinc-400">
-            <button 
-              onClick={() => {
-                setView('landing');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-left py-2 px-3 rounded-lg ${view === 'landing' ? 'bg-zinc-900 text-zinc-100' : ''}`}
-            >
-              Home
-            </button>
-            <button 
-              onClick={() => {
-                setView('app');
-                setAppSubTab('marketplace');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'marketplace' ? 'bg-zinc-900 text-zinc-100' : ''}`}
-            >
-              Marketplace
-            </button>
-            <button 
-              onClick={() => {
-                setView('app');
-                setAppSubTab('logistics');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'logistics' ? 'bg-zinc-900 text-zinc-100' : ''}`}
-            >
-              Logistics
-            </button>
-            <button 
-              onClick={() => {
-                setView('app');
-                setAppSubTab('dashboard');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'dashboard' ? 'bg-zinc-900 text-zinc-100' : ''}`}
-            >
-              App Sandbox Desk
-            </button>
-            <a 
-              href="https://github.com" 
-              target="_blank" 
-              rel="noreferrer"
-              className="py-2 px-3 flex items-center gap-1.5"
-            >
-              Bilateral Docs <ExternalLink className="h-3 w-3" />
-            </a>
-            <div className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
-              {currentUser?.role === 'admin' ? (
-                <Button
-                  onClick={() => {
-                    setView('app');
-                    setAppSubTab('dashboard');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-xs flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  <Shield className="h-3.5 w-3.5 animate-pulse" />
-                  Admin Portal (Active)
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setPassword('');
-                    setPasswordError('');
-                    setIsAdminModalOpen(true);
-                  }}
-                  variant="outline"
-                  className="w-full border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-xs flex items-center justify-center gap-1.5"
-                >
-                  <Lock className="h-3.5 w-3.5 text-zinc-500" />
-                  Admin Portal
-                </Button>
-              )}
+          <div className="md:hidden border-t border-zinc-900 bg-zinc-950 px-4 py-4 space-y-3 animate-in slide-in-from-top-4 duration-200">
+            <div className="flex flex-col gap-2 text-xs font-semibold text-zinc-400">
+              <button 
+                onClick={() => {
+                  handleGoHome();
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'landing' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => {
+                  setView('app');
+                  setAppSubTab('marketplace');
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'marketplace' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                Marketplace
+              </button>
+              <button 
+                onClick={() => {
+                  setView('app');
+                  setAppSubTab('logistics');
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'logistics' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                Logistics
+              </button>
+              <button 
+                onClick={() => {
+                  setView('app');
+                  setAppSubTab('dashboard');
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'dashboard' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                App Sandbox Desk
+              </button>
+              <button 
+                onClick={() => {
+                  setView('docs');
+                  if (typeof window !== 'undefined') {
+                    window.history.pushState(null, '', '/docs');
+                  }
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'docs' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                Bilateral Docs
+              </button>
+              <div className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
+                {currentUser?.role === 'admin' ? (
+                  <Button
+                    onClick={() => {
+                      setView('app');
+                      setAppSubTab('dashboard');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-xs flex items-center justify-center gap-1.5 shadow-md"
+                  >
+                    <Shield className="h-3.5 w-3.5 animate-pulse" />
+                    Admin Portal (Active)
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      setPassword('');
+                      setPasswordError('');
+                      setIsAdminModalOpen(true);
+                    }}
+                    variant="outline"
+                    className="w-full border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <Lock className="h-3.5 w-3.5 text-zinc-500" />
+                    Admin Portal
+                  </Button>
+                )}
 
-              {view === 'landing' ? (
-                <Button 
-                  onClick={() => {
-                    handleLaunchApp();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs"
-                >
-                  Launch App Console
-                </Button>
-              ) : (
-                <Button 
-                  onClick={() => {
-                    setView('landing');
-                    setMobileMenuOpen(false);
-                  }}
-                  variant="outline"
-                  className="w-full border-zinc-800 text-zinc-300 text-xs hover:bg-zinc-900"
-                >
-                  Back to Landing
-                </Button>
-              )}
+                {view === 'landing' ? (
+                  <Button 
+                    onClick={() => {
+                      handleLaunchApp();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs"
+                  >
+                    Launch App Console
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      handleGoHome();
+                      setMobileMenuOpen(false);
+                    }}
+                    variant="outline"
+                    className="w-full border-zinc-800 text-zinc-300 text-xs hover:bg-zinc-900"
+                  >
+                    Back to Landing
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -344,6 +473,8 @@ export default function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
         {view === 'landing' ? (
           <LandingPage onLaunchApp={handleLaunchApp} />
+        ) : view === 'docs' ? (
+          <DocsPage onBackToLanding={handleGoHome} />
         ) : (
           <div className="space-y-6">
             {/* Persona Switcher for interactive presentation */}
@@ -445,9 +576,29 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 border-t border-zinc-900/60 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-zinc-600">
           <div>© {new Date().getFullYear()} PulaTrade Technologies Inc. All Rights Reserved.</div>
           <div className="flex gap-4">
-            <span className="hover:text-zinc-400 cursor-pointer">Bilateral Treaty Terms</span>
+            <button 
+              onClick={() => {
+                setView('docs');
+                if (typeof window !== 'undefined') {
+                  window.history.pushState(null, '', '/docs');
+                }
+              }}
+              className="hover:text-zinc-400 cursor-pointer"
+            >
+              Bilateral Treaty Terms
+            </button>
             <span>•</span>
-            <span className="hover:text-zinc-400 cursor-pointer">Biosecurity Audits Code</span>
+            <button 
+              onClick={() => {
+                setView('docs');
+                if (typeof window !== 'undefined') {
+                  window.history.pushState(null, '', '/docs');
+                }
+              }}
+              className="hover:text-zinc-400 cursor-pointer"
+            >
+              Biosecurity Audits Code
+            </button>
           </div>
         </div>
       </footer>

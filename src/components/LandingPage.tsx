@@ -16,6 +16,20 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
   const [activeHeroTab, setActiveHeroTab] = useState<'marketplace' | 'logistics' | 'buyers'>('marketplace');
+  const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'BWP' | 'ZAR'>('USD');
+  const [showApiResponse, setShowApiResponse] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+
+  const formatPrice = (usdVal: number) => {
+    if (selectedCurrency === 'BWP') {
+      return `P${(usdVal * 13.5).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    }
+    if (selectedCurrency === 'ZAR') {
+      return `R${(usdVal * 18.5).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    }
+    return `$${usdVal.toLocaleString()}`;
+  };
 
   return (
     <div className="relative text-zinc-300 min-h-screen">
@@ -81,7 +95,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
-                  <span className="text-[10px] text-zinc-500 font-mono ml-2">platform-preview.sadc</span>
+                  <span className="text-[10px] text-zinc-500 font-mono ml-2 cursor-default">platform-preview.sadc</span>
                 </div>
                 
                 {/* 3 tabs: Marketplace, Logistics, Buyers */}
@@ -133,9 +147,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                         <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Live Commodity Exchange</h3>
                         <p className="text-[10px] text-zinc-500">Real-time SADC agricultural bulk produce listings</p>
                       </div>
-                      <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-900/60 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live Exchange
-                      </span>
+                      <div className="flex items-center gap-3">
+                        {/* Currency Toggle */}
+                        <div className="flex rounded bg-zinc-900 border border-zinc-800 p-0.5 text-[9px] gap-0.5">
+                          {(['USD', 'BWP', 'ZAR'] as const).map(curr => (
+                            <button
+                              key={curr}
+                              onClick={() => setSelectedCurrency(curr)}
+                              className={`px-1.5 py-0.5 rounded transition-all font-semibold ${
+                                selectedCurrency === curr 
+                                  ? 'bg-zinc-800 text-zinc-100 border border-zinc-700' 
+                                  : 'text-zinc-550 hover:text-zinc-300'
+                              }`}
+                            >
+                              {curr}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-900/60 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live Exchange
+                          </span>
+                          <span className="text-[9px] text-zinc-500">Updated 2 mins ago</span>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -151,7 +186,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-extrabold text-emerald-400">$320 / Ton</div>
+                          <div className="text-xs font-extrabold text-emerald-400">{formatPrice(320)} / Ton</div>
                           <div className="text-[10px] text-zinc-400">50 Tons Left</div>
                         </div>
                       </div>
@@ -168,7 +203,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-extrabold text-emerald-400">$295 / Ton</div>
+                          <div className="text-xs font-extrabold text-emerald-400">{formatPrice(295)} / Ton</div>
                           <div className="text-[10px] text-zinc-400">20 Tons Left</div>
                         </div>
                       </div>
@@ -185,14 +220,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-extrabold text-emerald-400">$4,500 / Ton</div>
+                          <div className="text-xs font-extrabold text-emerald-400">{formatPrice(4500)} / Ton</div>
                           <div className="text-[10px] text-zinc-400">15 Tons Left</div>
                         </div>
                       </div>
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-500">Phytosanitary & SADC exemption pre-validated</span>
+                      <span className="text-[10px] text-zinc-550">Phytosanitary & SADC exemption pre-validated</span>
                       <Button 
                         onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'marketplace')}
                         className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
@@ -264,7 +299,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-550">SADC digital border passes integrated</span>
+                      <span className="text-[10px] text-zinc-555">SADC digital border passes integrated</span>
                       <Button 
                         onClick={() => onLaunchApp('t3000000-0000-0000-0000-000000000001', 'logistics')}
                         className="bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
@@ -296,7 +331,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                           <div className="text-xs font-bold text-zinc-200">SADC Food Distributors (SA) ⇆ Chobe Valley (BW)</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-extrabold text-amber-400">$16,000.00</div>
+                          <div className="text-xs font-extrabold text-amber-400">{formatPrice(16000)}</div>
                           <div className="text-[9px] text-zinc-500">Escrow Locked</div>
                         </div>
                       </div>
@@ -313,16 +348,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
 
                         {/* Milestone indicators */}
                         <div className="grid grid-cols-4 gap-1 pt-1 text-[8px] font-mono text-center">
-                          <div className="text-emerald-400 font-bold font-semibold">Deposit [✓]</div>
-                          <div className="text-emerald-400 font-bold font-semibold">Phytosanitary [✓]</div>
-                          <div className="text-emerald-400 font-bold font-semibold">In Transit [✓]</div>
-                          <div className="text-zinc-650 font-bold font-semibold">Payout [ ]</div>
+                          <div className="text-emerald-400 font-semibold">Deposit [✓]</div>
+                          <div className="text-emerald-400 font-semibold">Phytosanitary [✓]</div>
+                          <div className="text-emerald-400 font-semibold">In Transit [✓]</div>
+                          <div className="text-zinc-650 font-semibold">Payout [ ]</div>
                         </div>
                       </div>
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-550">Escrows automatically release via digital milestone triggers</span>
+                      <span className="text-[10px] text-zinc-555">Escrows automatically release via digital milestone triggers</span>
                       <Button 
                         onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'dashboard')}
                         className="bg-amber-600/10 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
@@ -397,7 +432,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           </div>
           <div className="p-4 space-y-1 border-l border-zinc-800/80">
             <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">Role Simulation</div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold font-semibold">Sandbox Active</div>
+            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Sandbox Active</div>
           </div>
           <div className="p-4 space-y-1 border-l border-zinc-800/80">
             <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Active Prototype</div>
@@ -503,7 +538,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           </div>
 
           {/* Admin Card */}
-          <div className="group flex flex-col justify-between p-5 rounded-xl border border-zinc-800 bg-zinc-950/40 hover:border-zinc-700/60 hover:bg-zinc-950 transition-all duration-300 relative overflow-hidden">
+          <div className="group flex flex-col justify-between p-5 rounded-xl border border-zinc-800 bg-zinc-950/40 hover:border-zinc-700/60 hover:bg-zinc-950 transition-all duration-305 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-zinc-500/10"></div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -619,10 +654,71 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             <p className="text-xs text-zinc-400 leading-relaxed">
               PulaTrade integrates verification checks, payments, transit logistics, and regulatory filing into a single API-driven solution for cross-border trade.
             </p>
-            <div className="pt-2">
-              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-900 text-[11px] text-zinc-400 font-mono">
-                <span className="text-emerald-400">// API Validation Endpoint</span><br/>
-                GET /api/v1/sadc/corridors/validate?id=PULA-1049
+            
+            {/* Interactive API Validation Endpoint block */}
+            <div className="pt-2 space-y-2">
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-900 text-[11px] font-mono relative overflow-hidden group">
+                <div className="flex justify-between items-center mb-2 border-b border-zinc-900 pb-2">
+                  <span className="text-zinc-500">HTTP/1.1 Endpoint</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (typeof navigator !== 'undefined') {
+                          navigator.clipboard.writeText("GET /api/v1/sadc/corridors/validate?id=PULA-1049");
+                        }
+                        setIsCopied(true);
+                        setTimeout(() => setIsCopied(false), 2000);
+                      }}
+                      className="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-450 hover:text-zinc-200 transition-colors text-[10px] cursor-pointer"
+                    >
+                      {isCopied ? 'Copied!' : 'Copy Code'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsTesting(true);
+                        setTimeout(() => {
+                          setIsTesting(false);
+                          setShowApiResponse(prev => !prev);
+                        }, 800);
+                      }}
+                      className="px-2 py-0.5 rounded bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-900/60 transition-colors text-[10px] cursor-pointer"
+                    >
+                      {isTesting ? 'Testing...' : showApiResponse ? 'Hide Response' : 'Test Endpoint'}
+                    </button>
+                  </div>
+                </div>
+                <div className="text-zinc-400">
+                  <span className="text-emerald-500">// API Validation Endpoint</span><br/>
+                  <span className="text-zinc-500">GET</span> <span className="text-zinc-200">/api/v1/sadc/corridors/validate?id=PULA-1049</span>
+                </div>
+
+                {showApiResponse && (
+                  <div className="mt-3 pt-3 border-t border-zinc-900 text-zinc-400 space-y-1 animate-in slide-in-from-top duration-250">
+                    <div className="text-[10px] text-zinc-500">HTTP/1.1 200 OK</div>
+                    <pre className="text-[10px] leading-relaxed text-zinc-350 overflow-x-auto scrollbar-none font-mono">
+{`{
+  "status": "VALIDATED",
+  "escrow_id": "PULA-1049",
+  "corridor": "Trans-Kalahari",
+  "parties": {
+    "exporter": "AfriTrade Group (ZW)",
+    "importer": "SADC Food Distributors (SA)"
+  },
+  "compliance": {
+    "phytosanitary_permit": "APPROVED_SADC_9022",
+    "biosecurity_score": 98.4,
+    "exemption_status": "GRANTED"
+  },
+  "milestones": {
+    "deposit_locked": true,
+    "customs_cleared": true,
+    "transit_active": true,
+    "payout_triggered": false
+  }
+}`}
+                    </pre>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -701,7 +797,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 <p className="text-[10px] text-zinc-400">Over $120B in requested trade credit goes unserved annually due to lack of verifiable supplier transaction history.</p>
               </div>
               <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
-                <div className="font-bold text-zinc-200">Food Security Insecurity</div>
+                <div className="font-bold text-zinc-200">Regional Food Insecurity</div>
                 <p className="text-[10px] text-zinc-400">Regional supply mismatches lead to food security spikes in some nations while adjacent markets experience surplus decay.</p>
               </div>
               <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
@@ -711,7 +807,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </div>
           </div>
 
-          <div className="lg:col-span-6 p-6 rounded-2xl border border-zinc-800 bg-zinc-950/65 relative overflow-hidden text-left flex flex-col justify-between min-h-[350px]">
+          <div className="lg:col-span-6 p-6 rounded-2xl border border-zinc-800 bg-zinc-955 relative overflow-hidden text-left flex flex-col justify-between min-h-[350px]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="space-y-4">
@@ -829,7 +925,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <div className="space-y-3 text-xs text-zinc-300">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-500" />
-              Automated Border queues notifications
+              Automated Border Queue Notifications
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-500" />
@@ -842,7 +938,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           </div>
         </div>
         <div className="flex-1 w-full bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-center min-h-[300px]">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
           <div className="text-center space-y-4">
             <Globe className="h-16 w-16 mx-auto text-emerald-500/80 animate-pulse" />
             <h3 className="font-bold text-zinc-200">Bilateral Customs Integration</h3>

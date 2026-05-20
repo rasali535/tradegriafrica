@@ -282,7 +282,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-10',
-      photos: ['https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/beef.png'],
       storage_availability: 'Cold Storage (Okahandja)',
       country_of_origin: 'Namibia',
       created_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString()
@@ -296,7 +296,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-12',
-      photos: ['https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/beef.png'],
       storage_availability: 'Cold Storage (Windhoek)',
       country_of_origin: 'Namibia',
       created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
@@ -310,7 +310,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-15',
-      photos: ['https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/beef.png'],
       storage_availability: 'Cold Storage (Gaborone)',
       country_of_origin: 'Botswana',
       created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
@@ -324,7 +324,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'reserved',
       export_ready: true,
       harvest_date: '2026-05-08',
-      photos: ['https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/beef.png'],
       storage_availability: 'Cold Storage (Walvis Bay)',
       country_of_origin: 'Namibia',
       created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
@@ -338,7 +338,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'sold',
       export_ready: true,
       harvest_date: '2026-04-20',
-      photos: ['https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/beef.png'],
       storage_availability: 'Cold Storage (Windhoek)',
       country_of_origin: 'Namibia',
       created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString()
@@ -352,7 +352,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-01',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'Silo (Bloemfontein)',
       country_of_origin: 'South Africa',
       created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
@@ -366,7 +366,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-02',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'Silo (Kroonstad)',
       country_of_origin: 'South Africa',
       created_at: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString()
@@ -380,7 +380,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: false,
       harvest_date: '2026-05-05',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'On-farm Barn (Mazowe)',
       country_of_origin: 'Zimbabwe',
       created_at: new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString()
@@ -394,7 +394,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-04-28',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'Cooperative Silo (Lusaka)',
       country_of_origin: 'Zambia',
       created_at: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
@@ -408,7 +408,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: false,
       harvest_date: '2026-05-14',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'Silo (Pandamatenga)',
       country_of_origin: 'Botswana',
       created_at: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString()
@@ -422,7 +422,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'reserved',
       export_ready: true,
       harvest_date: '2026-04-15',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'Silo (Welkom)',
       country_of_origin: 'South Africa',
       created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString()
@@ -436,7 +436,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'sold',
       export_ready: true,
       harvest_date: '2026-04-10',
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/maize.png'],
       storage_availability: 'Cooperative Silo (Choma)',
       country_of_origin: 'Zambia',
       created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString()
@@ -450,7 +450,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-02',
-      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/sorghum.png'],
       storage_availability: 'Silo (Pandamatenga)',
       country_of_origin: 'Botswana',
       created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
@@ -464,7 +464,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-05',
-      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/sorghum.png'],
       storage_availability: 'Silo (Bethlehem)',
       country_of_origin: 'South Africa',
       created_at: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString()
@@ -478,7 +478,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-06',
-      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/sorghum.png'],
       storage_availability: 'Silo (Kabwe)',
       country_of_origin: 'Zambia',
       created_at: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
@@ -492,7 +492,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: false,
       harvest_date: '2026-05-10',
-      photos: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/sorghum.png'],
       storage_availability: 'On-farm Barn (Gweru)',
       country_of_origin: 'Zimbabwe',
       created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
@@ -506,7 +506,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-01',
-      photos: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/poultry_feed.png'],
       storage_availability: 'Warehouse (Harare)',
       country_of_origin: 'Zimbabwe',
       created_at: new Date(Date.now() - 11 * 24 * 3600 * 1000).toISOString()
@@ -520,7 +520,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-04',
-      photos: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/poultry_feed.png'],
       storage_availability: 'Warehouse (Pretoria)',
       country_of_origin: 'South Africa',
       created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
@@ -534,7 +534,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-07',
-      photos: ['https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/poultry_feed.png'],
       storage_availability: 'Warehouse (Lusaka)',
       country_of_origin: 'Zambia',
       created_at: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString()
@@ -548,7 +548,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: false,
       harvest_date: '2026-05-18',
-      photos: ['https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/horticulture.png'],
       storage_availability: 'Cold room (Francistown)',
       country_of_origin: 'Botswana',
       created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()
@@ -562,7 +562,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-16',
-      photos: ['https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/horticulture.png'],
       storage_availability: 'Cold Storage (Mutare)',
       country_of_origin: 'Zimbabwe',
       created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
@@ -576,7 +576,7 @@ const generateListings = (): CommodityListing[] => {
       status: 'available',
       export_ready: true,
       harvest_date: '2026-05-15',
-      photos: ['https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80'],
+      photos: ['/horticulture.png'],
       storage_availability: 'Cold Depot (Nelspruit)',
       country_of_origin: 'South Africa',
       created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
@@ -596,11 +596,11 @@ const generateListings = (): CommodityListing[] => {
     'fa100000-0000-0000-0000-000000000005'
   ];
   const images = {
-    Beef: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80',
-    Maize: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80',
-    Sorghum: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80',
-    Horticulture: 'https://images.unsplash.com/photo-1610348725531-843dff147217?auto=format&fit=crop&w=400&q=80',
-    'Poultry feed products': 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80'
+    Beef: '/beef.png',
+    Maize: '/maize.png',
+    Sorghum: '/sorghum.png',
+    Horticulture: '/horticulture.png',
+    'Poultry feed products': '/poultry_feed.png'
   };
 
   for (let i = result.length + 1; i <= 50; i++) {

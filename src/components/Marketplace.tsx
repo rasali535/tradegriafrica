@@ -274,7 +274,13 @@ export const Marketplace: React.FC = () => {
                     {/* Produce Card Header Image preview */}
                     <div className="w-full h-32 rounded-lg bg-zinc-900 border border-zinc-800/80 overflow-hidden relative">
                       <img 
-                        src={listing.photos[0] || 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'} 
+                        src={listing.photos[0] || (
+                          listing.commodity === 'Beef' ? '/beef.png' :
+                          listing.commodity === 'Maize' ? '/maize.png' :
+                          listing.commodity === 'Sorghum' ? '/sorghum.png' :
+                          listing.commodity === 'Horticulture' ? '/horticulture.png' :
+                          '/poultry_feed.png'
+                        )} 
                         alt={listing.commodity} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-350"
                       />

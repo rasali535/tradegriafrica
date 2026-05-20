@@ -88,7 +88,13 @@ export const FarmerDashboard: React.FC = () => {
       status: 'available',
       export_ready: exportReady,
       harvest_date: harvestDate,
-      photos: ['https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=400&q=80'],
+      photos: [
+        commodity === 'Beef' ? '/beef.png' :
+        commodity === 'Maize' ? '/maize.png' :
+        commodity === 'Sorghum' ? '/sorghum.png' :
+        commodity === 'Horticulture' ? '/horticulture.png' :
+        '/poultry_feed.png'
+      ],
       storage_availability: storage || 'Standard Barn Storage',
       country_of_origin: currentUser?.country || 'Botswana'
     });
