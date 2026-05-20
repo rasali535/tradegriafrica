@@ -162,6 +162,7 @@ interface AppContextType {
   revokeApiKey: (id: string) => void;
   triggerEvent: (event: string, payload: any) => void;
   addFarm: (farm: Omit<Farm, 'id'>) => Farm;
+  registerUser: (user: Omit<User, 'id'>) => User;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -1116,6 +1117,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return created;
   };
 
+  const registerUser = (newUser: Omit<User, 'id'>) => {
+    const prefix = newUser.role === 'farmer' ? 'f' : newUser.role === 'buyer' ? 'b' : newUser.role === 'transporter' ? 't' : 'u';
+    const created: User = {
+      ...newUser,
+      id: `${prefix}${(users.length + 1).toString().padStart(7, '0')}-0000-0000-0000-000000000001`
+    };
+    const updated = [...users, created];
+    saveState('pt_users', updated, setUsers);
+    triggerEvent('user.registered', created);
+    return created;
+  };
+
   const resetAllData = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('pt_users');
@@ -1182,7 +1195,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       generateApiKey,
       revokeApiKey,
       triggerEvent,
-      addFarm
+      addFarm,
+      registerUser
     }}>
       {children}
     </AppContext.Provider>

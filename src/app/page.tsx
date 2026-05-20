@@ -12,9 +12,12 @@ import { CooperativeDashboard } from '@/components/CooperativeDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
 import { GovernmentDashboard } from '@/components/GovernmentDashboard';
 import { BankDashboard } from '@/components/BankDashboard';
+import { Marketplace } from '@/components/Marketplace';
+import { LogisticsHub } from '@/components/LogisticsHub';
+import { OnboardingPortal } from '@/components/OnboardingPortal';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
-  HelpCircle, ExternalLink, Menu, X, Star
+  HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
@@ -22,6 +25,7 @@ export default function Home() {
   const { currentUser, users, setCurrentUser } = useApp();
   const [view, setView] = useState<'landing' | 'app'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding'>('dashboard');
 
   const handleLaunchApp = (userId?: string) => {
     if (userId && users && setCurrentUser) {
@@ -31,6 +35,7 @@ export default function Home() {
       }
     }
     setView('app');
+    setAppSubTab('dashboard'); // Reset subtab when entering app
   };
 
   const renderActiveDashboard = () => {
@@ -54,6 +59,19 @@ export default function Home() {
         return <AdminPanel />;
       default:
         return <FarmerDashboard />;
+    }
+  };
+
+  const renderActiveSubTab = () => {
+    switch (appSubTab) {
+      case 'dashboard':
+        return renderActiveDashboard();
+      case 'marketplace':
+        return <Marketplace />;
+      case 'logistics':
+        return <LogisticsHub />;
+      case 'onboarding':
+        return <OnboardingPortal />;
     }
   };
 
@@ -197,10 +215,61 @@ export default function Home() {
           <div className="space-y-6">
             {/* Persona Switcher for interactive presentation */}
             <RoleSwitcher />
+
+            {/* Premium Sandbox Tab Bar */}
+            <div className="flex border-b border-zinc-900 gap-2 md:gap-4 overflow-x-auto scrollbar-none">
+              <button
+                onClick={() => setAppSubTab('dashboard')}
+                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                  appSubTab === 'dashboard'
+                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Role Dashboard
+              </button>
+
+              <button
+                onClick={() => setAppSubTab('marketplace')}
+                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                  appSubTab === 'marketplace'
+                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Produce Marketplace
+              </button>
+
+              <button
+                onClick={() => setAppSubTab('logistics')}
+                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                  appSubTab === 'logistics'
+                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Truck className="h-4 w-4" />
+                Logistics Registry
+              </button>
+
+              <button
+                onClick={() => setAppSubTab('onboarding')}
+                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                  appSubTab === 'onboarding'
+                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <UserPlus className="h-4 w-4" />
+                Onboarding Portal
+              </button>
+            </div>
             
-            {/* Active role-based dashboard layout */}
+            {/* Active subtab view */}
             <div className="pt-2">
-              {renderActiveDashboard()}
+              {renderActiveSubTab()}
             </div>
           </div>
         )}
@@ -225,6 +294,7 @@ export default function Home() {
               <li>Plumtree Customs Post (Botswana & Zimbabwe)</li>
               <li>Beitbridge Corridor (South Africa & Zimbabwe)</li>
               <li>Kazungula Ferry Checkpoint (Botswana & Zambia)</li>
+              <li>Walvis Bay Route (Namibia & Zambia)</li>
             </ul>
           </div>
           <div>
