@@ -156,7 +156,7 @@ export const RoleSwitcher: React.FC = () => {
               SADC Operations Authentication
             </DialogTitle>
             <DialogDescription className="text-zinc-400 text-xs">
-              Access to administrative ledgers, event streams, and network configurations requires biosecurity corridor clearance.
+              Access to administrative registries, event streams, and network configurations requires biosecurity corridor clearance.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAdminSubmit} className="space-y-4 pt-2">

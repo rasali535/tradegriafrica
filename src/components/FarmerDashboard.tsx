@@ -257,7 +257,7 @@ export const FarmerDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-zinc-100">${pendingRevenue.toLocaleString()}</div>
-            <p className="text-xs text-zinc-400 mt-1">Funds locked in SADC Smart Contracts</p>
+            <p className="text-xs text-zinc-400 mt-1">Funds locked in SADC Digital Escrows</p>
           </CardContent>
         </Card>
 

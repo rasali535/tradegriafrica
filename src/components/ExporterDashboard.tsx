@@ -149,7 +149,7 @@ export const ExporterDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-zinc-100">2.5 min</div>
-            <p className="text-xs text-blue-400 mt-1">Under digital smart contract rules</p>
+            <p className="text-xs text-blue-400 mt-1">Under digital compliance registry rules</p>
           </CardContent>
         </Card>
       </div>

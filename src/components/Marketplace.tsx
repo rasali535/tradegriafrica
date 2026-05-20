@@ -89,7 +89,7 @@ export const Marketplace: React.FC = () => {
     };
 
     setCustomBids([newBid, ...customBids]);
-    alert(`Success! Counter-offer bid of $${bidPrice}/Ton for ${purchaseQty} Tons has been dispatched to the Cooperative Farmer via smart contract negotiation node.`);
+    alert(`Success! Counter-offer bid of $${bidPrice}/Ton for ${purchaseQty} Tons has been dispatched to the Cooperative Farmer via digital negotiation engine.`);
     setSelectedListing(null);
     setIsPlacingBid(false);
   };
@@ -145,7 +145,7 @@ export const Marketplace: React.FC = () => {
             SADC Produce Marketplace
           </h2>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Sovereign agricultural commodity exchange. Lock trades in bilateral smart contract escrows with automated phytosanitary compliance clearance.
+            Sovereign agricultural commodity exchange. Lock trades in bilateral digital escrows with automated phytosanitary compliance clearance.
           </p>
         </div>
         <div className="flex gap-2 z-10">

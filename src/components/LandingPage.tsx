@@ -38,7 +38,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </h1>
             
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              PulaTrade connects farmers, buyers, exporters, and transporters through smart escrow contracts, automated phytosanitary compliance, and transparent border tracking.
+              PulaTrade connects farmers, buyers, exporters, and transporters through digital escrow engines, automated phytosanitary compliance registries, and transparent border tracking.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -59,12 +59,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             {/* Quick Metrics */}
             <div className="grid grid-cols-2 gap-4 pt-6 border-t border-zinc-900">
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">5 Nations</div>
-                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Connected in Corridor</div>
+                <div className="text-xl font-bold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">5 SADC Countries</div>
+                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Operational Target</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">$14.2M+</div>
-                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Escrow Trade Value</div>
+                <div className="text-xl font-bold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Interactive</div>
+                <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">B2B Sandbox Model</div>
               </div>
             </div>
           </div>
@@ -280,7 +280,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                   <div className="space-y-4 animate-in fade-in duration-200">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Escrow Contracts Ledger</h3>
+                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Escrow Contracts Registry</h3>
                         <p className="text-[10px] text-zinc-500">Secured B2B purchasing accounts with autonomous release</p>
                       </div>
                       <span className="text-[9px] bg-amber-950 text-amber-400 border border-amber-900/60 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -322,7 +322,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-550">Escrows automatically execute via smart contracts</span>
+                      <span className="text-[10px] text-zinc-550">Escrows automatically release via digital milestone triggers</span>
                       <Button 
                         onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'dashboard')}
                         className="bg-amber-600/10 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
@@ -340,24 +340,68 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         </div>
       </section>
 
+      {/* Problem Block Section */}
+      <section className="max-w-7xl mx-auto px-4 pb-16">
+        <div className="p-8 rounded-2xl border border-zinc-800/60 bg-zinc-950/40 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-5 space-y-4 text-left">
+              <Badge className="bg-red-950/40 text-red-400 border border-red-900/60 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5">
+                The Friction Point
+              </Badge>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-zinc-100 leading-tight">
+                African agricultural trade loses value because of corridor friction
+              </h2>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Physical and operational fragmentation blocks economic growth across SADC trade routes. Border delays decay crops before they reach markets, while trust deficits restrict transaction volume.
+              </p>
+              <div className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 pt-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                PulaTrade solves this.
+              </div>
+            </div>
+            
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
+                <div className="text-sm font-bold text-zinc-200">Fragmented Buyers</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">Lack of structured aggregation prevents smallholders from matching bulk supply contracts.</p>
+              </div>
+              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
+                <div className="text-sm font-bold text-zinc-200">Border Delays</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">Manual phytosanitary documentation causes severe queue hold-ups, causing post-harvest loss.</p>
+              </div>
+              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
+                <div className="text-sm font-bold text-zinc-200">Transport Inefficiencies</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">Unverified logistics options result in insecure transshipment runs and untracked freight.</p>
+              </div>
+              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
+                <div className="text-sm font-bold text-zinc-200">Export Complexity & Payment Risk</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">Absence of secure cross-border escrow engines exposes sellers and buyers to payment default.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Counter Metrics / Stats */}
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 p-6 rounded-2xl glass-card border-zinc-900 text-center">
           <div className="p-4 space-y-1">
-            <div className="text-3xl md:text-4xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">50K+</div>
-            <div className="text-xs text-zinc-400 uppercase tracking-wider font-bold">Farmers Connected</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">5 SADC Nations</div>
+            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Demo Network</div>
           </div>
           <div className="p-4 space-y-1 border-l border-zinc-800/80">
-            <div className="text-3xl md:text-4xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">5 Nations</div>
-            <div className="text-xs text-zinc-400 uppercase tracking-wider font-bold">SADC Corridor Corridor</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Cross-Border</div>
+            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Pilot Ready Infrastructure</div>
           </div>
           <div className="p-4 space-y-1 border-l border-zinc-800/80">
-            <div className="text-3xl md:text-4xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">1M+ Tons</div>
-            <div className="text-xs text-zinc-400 uppercase tracking-wider font-bold">Commodities Traded</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">Role Simulation</div>
+            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold font-semibold">Sandbox Active</div>
           </div>
           <div className="p-4 space-y-1 border-l border-zinc-800/80">
-            <div className="text-3xl md:text-4xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">10K+</div>
-            <div className="text-xs text-zinc-400 uppercase tracking-wider font-bold">Secured Transactions</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Active Prototype</div>
+            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Escrow Engine Enabled</div>
           </div>
         </div>
       </section>
@@ -521,7 +565,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </div>
               <h3 className="text-base font-bold text-zinc-100">Escrow Trade tracking</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Mitigate risk with smart contract security escrow. Funds are locked at purchase and auto-released upon verified cargo receipt.
+                Mitigate risk with digital security escrow. Funds are locked at purchase and auto-released upon verified cargo receipt.
               </p>
             </CardContent>
           </Card>
@@ -561,6 +605,216 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </p>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Platform Architecture Section */}
+      <section className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-4 text-left">
+            <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">Technical Moat</Badge>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-zinc-100 leading-tight">
+              A Unified Regional Infrastructure Stack
+            </h2>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              PulaTrade integrates verification checks, payments, transit logistics, and regulatory filing into a single API-driven solution for cross-border trade.
+            </p>
+            <div className="pt-2">
+              <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-900 text-[11px] text-zinc-400 font-mono">
+                <span className="text-emerald-400">// API Validation Endpoint</span><br/>
+                GET /api/v1/sadc/corridors/validate?id=PULA-1049
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 flex flex-col items-center">
+            <div className="w-full max-w-md space-y-3 relative">
+              {/* Connector line behind */}
+              <div className="absolute top-4 bottom-4 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-emerald-500/25 via-amber-500/25 to-blue-500/25 pointer-events-none"></div>
+
+              {/* Layer 5 */}
+              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-emerald-600/50 transition-colors shadow-lg">
+                <div className="text-[9px] uppercase font-bold tracking-wider text-emerald-400 mb-0.5">Layer 5</div>
+                <div className="text-sm font-extrabold text-zinc-200">Marketplace Layer</div>
+                <p className="text-[10px] text-zinc-500">SADC spot price board, cooperative aggregation, & buyer order desks</p>
+              </div>
+
+              <div className="flex justify-center text-zinc-600">↓</div>
+
+              {/* Layer 4 */}
+              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-amber-600/50 transition-colors shadow-lg">
+                <div className="text-[9px] uppercase font-bold tracking-wider text-amber-400 mb-0.5">Layer 4</div>
+                <div className="text-sm font-extrabold text-zinc-200">Escrow Layer</div>
+                <p className="text-[10px] text-zinc-500">Bilateral deposit holding, inspection locking, & automated milestone payouts</p>
+              </div>
+
+              <div className="flex justify-center text-zinc-600">↓</div>
+
+              {/* Layer 3 */}
+              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-blue-600/50 transition-colors shadow-lg">
+                <div className="text-[9px] uppercase font-bold tracking-wider text-blue-400 mb-0.5">Layer 3</div>
+                <div className="text-sm font-extrabold text-zinc-200">Logistics Layer</div>
+                <p className="text-[10px] text-zinc-500">Authorized transit carriers, real-time GPS check-ins, & border congestion tracking</p>
+              </div>
+
+              <div className="flex justify-center text-zinc-600">↓</div>
+
+              {/* Layer 2 */}
+              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-purple-600/50 transition-colors shadow-lg">
+                <div className="text-[9px] uppercase font-bold tracking-wider text-purple-400 mb-0.5">Layer 2</div>
+                <div className="text-sm font-extrabold text-zinc-200">Compliance Registry</div>
+                <p className="text-[10px] text-zinc-500">Phytosanitary automated validation, biosecurity score monitoring, & customs clearances</p>
+              </div>
+
+              <div className="flex justify-center text-zinc-600">↓</div>
+
+              {/* Layer 1 */}
+              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-emerald-600/50 transition-colors shadow-lg">
+                <div className="text-[9px] uppercase font-bold tracking-wider text-emerald-300 mb-0.5">Layer 1</div>
+                <div className="text-sm font-extrabold text-zinc-200">Trade Intelligence Layer</div>
+                <p className="text-[10px] text-zinc-500">Bilateral border wait-time analytics & SADC agricultural demand forecasts</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Market Opportunity & Partner Section */}
+      <section className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-6 space-y-6 text-left">
+            <Badge className="bg-amber-950 text-amber-400 border border-amber-900 text-xs">Market Opportunity</Badge>
+            <h2 className="text-3xl font-extrabold text-zinc-100 leading-tight">
+              Unlocking the $300B+ African Agribusiness Sector
+            </h2>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Sub-Saharan Africa possesses 60% of the world's uncultivated arable land, yet cross-border food distribution remains severely bottlenecked by paper-based processes and logistics fragmentation.
+            </p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
+                <div className="font-bold text-zinc-200">Cross-Border Inefficiency</div>
+                <p className="text-[10px] text-zinc-400">Average customs processing times at SADC borders exceed 18 hours, resulting in substantial product spoilage.</p>
+              </div>
+              <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
+                <div className="font-bold text-zinc-200">Trade Finance Gap</div>
+                <p className="text-[10px] text-zinc-400">Over $120B in requested trade credit goes unserved annually due to lack of verifiable supplier transaction history.</p>
+              </div>
+              <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
+                <div className="font-bold text-zinc-200">Food Security Insecurity</div>
+                <p className="text-[10px] text-zinc-400">Regional supply mismatches lead to food security spikes in some nations while adjacent markets experience surplus decay.</p>
+              </div>
+              <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
+                <div className="font-bold text-zinc-200">Expanding Digital Coverage</div>
+                <p className="text-[10px] text-zinc-400">Internet connectivity along trade corridors is up 400% since 2020, enabling real-time mobile tracking.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6 p-6 rounded-2xl border border-zinc-800 bg-zinc-950/65 relative overflow-hidden text-left flex flex-col justify-between min-h-[350px]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
+                <Briefcase className="h-5 w-5 text-emerald-400" />
+                Partner With PulaTrade
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Join our regional network. Choose your integration track below to request a pilot demonstration, partner with our customs biosecurity systems, or view investor packages.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-6">
+              {/* Option 1: Request Pilot */}
+              <button 
+                onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'onboarding')}
+                className="w-full p-3.5 rounded-xl border border-zinc-900 bg-zinc-900/60 hover:bg-emerald-950/20 hover:border-emerald-800 text-left transition-all duration-200 flex items-center justify-between group cursor-pointer"
+              >
+                <div>
+                  <div className="text-xs font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Request Pilot</div>
+                  <p className="text-[10px] text-zinc-500">Register cooperative aggregation hubs or food importing accounts.</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+              </button>
+
+              {/* Option 2: Gov */}
+              <button 
+                onClick={() => onLaunchApp('e4000000-0000-0000-0000-000000000001', 'onboarding')}
+                className="w-full p-3.5 rounded-xl border border-zinc-900 bg-zinc-900/60 hover:bg-amber-950/20 hover:border-amber-800 text-left transition-all duration-200 flex items-center justify-between group cursor-pointer"
+              >
+                <div>
+                  <div className="text-xs font-bold text-zinc-200 group-hover:text-amber-400 transition-colors">Government Partnership</div>
+                  <p className="text-[10px] text-zinc-500">Integrate biosecurity checkpoints and border manifest automation.</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
+              </button>
+
+              {/* Option 3: Investors */}
+              <button 
+                onClick={() => onLaunchApp('a5000000-0000-0000-0000-000000000001', 'dashboard')}
+                className="w-full p-3.5 rounded-xl border border-zinc-900 bg-zinc-900/60 hover:bg-blue-950/20 hover:border-blue-800 text-left transition-all duration-200 flex items-center justify-between group cursor-pointer"
+              >
+                <div>
+                  <div className="text-xs font-bold text-zinc-200 group-hover:text-blue-400 transition-colors">Investor Access</div>
+                  <p className="text-[10px] text-zinc-500">Review deployment metrics, trade volume projections, and seed targets.</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Institutional CTA Section */}
+      <section className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">
+        <div className="text-center space-y-2 mb-12">
+          <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">Collaborative Networks</Badge>
+          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Tailored Partnerships for SADC Development</h2>
+          <p className="text-xs text-zinc-400 max-w-xl mx-auto">PulaTrade integrates multi-sector institutions into a unified digital corridor.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* For Governments */}
+          <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-950/60 transition-all duration-300 space-y-4 text-left">
+            <h3 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              For Governments
+            </h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Unlock biosecurity compliance automation, food security analytics, and cross-border customs data feeds to optimize trade flow.
+            </p>
+            <div className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 w-fit px-2 py-0.5 rounded">
+              Food security + trade intelligence
+            </div>
+          </div>
+
+          {/* For Banks */}
+          <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-950/60 transition-all duration-300 space-y-4 text-left">
+            <h3 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              For Banks
+            </h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Integrate with authenticated digital escrows, view transaction logs, and assess biosecurity audit histories for risk-scoring trade finance.
+            </p>
+            <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/30 border border-amber-900/40 w-fit px-2 py-0.5 rounded">
+              Trade finance + risk scoring
+            </div>
+          </div>
+
+          {/* For Cooperatives */}
+          <div className="p-6 rounded-xl border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-950/60 transition-all duration-300 space-y-4 text-left">
+            <h3 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              For Cooperatives
+            </h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Access regional bulk buyer networks, verify exporter biosecurity standards, and coordinate transport fleets from local agricultural aggregation centers.
+            </p>
+            <div className="text-[10px] font-semibold text-blue-400 bg-blue-950/30 border border-blue-900/40 w-fit px-2 py-0.5 rounded">
+              Aggregation + logistics
+            </div>
+          </div>
         </div>
       </section>
 
