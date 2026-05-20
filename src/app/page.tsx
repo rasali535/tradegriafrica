@@ -27,7 +27,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding'>('dashboard');
 
-  const handleLaunchApp = (userId?: string) => {
+  const handleLaunchApp = (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding') => {
     if (userId && users && setCurrentUser) {
       const targetUser = users.find(u => u.id === userId);
       if (targetUser) {
@@ -35,7 +35,11 @@ export default function Home() {
       }
     }
     setView('app');
-    setAppSubTab('dashboard'); // Reset subtab when entering app
+    if (targetTab) {
+      setAppSubTab(targetTab);
+    } else {
+      setAppSubTab('dashboard'); // Reset subtab when entering app
+    }
   };
 
   const renderActiveDashboard = () => {
