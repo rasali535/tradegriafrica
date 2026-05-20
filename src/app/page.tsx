@@ -105,12 +105,37 @@ export default function Home() {
                 view === 'landing' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
               }`}
             >
-              Corridor Infrastructure
+              Home
             </button>
             <button 
-              onClick={() => setView('app')}
+              onClick={() => {
+                setView('app');
+                setAppSubTab('marketplace');
+              }}
               className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
-                view === 'app' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
+                view === 'app' && appSubTab === 'marketplace' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
+              }`}
+            >
+              Marketplace
+            </button>
+            <button 
+              onClick={() => {
+                setView('app');
+                setAppSubTab('logistics');
+              }}
+              className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
+                view === 'app' && appSubTab === 'logistics' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
+              }`}
+            >
+              Logistics
+            </button>
+            <button 
+              onClick={() => {
+                setView('app');
+                setAppSubTab('dashboard');
+              }}
+              className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
+                view === 'app' && appSubTab === 'dashboard' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
               }`}
             >
               App Sandbox Desk
@@ -164,14 +189,35 @@ export default function Home() {
               }}
               className={`text-left py-2 px-3 rounded-lg ${view === 'landing' ? 'bg-zinc-900 text-zinc-100' : ''}`}
             >
-              Corridor Infrastructure
+              Home
             </button>
             <button 
               onClick={() => {
                 setView('app');
+                setAppSubTab('marketplace');
                 setMobileMenuOpen(false);
               }}
-              className={`text-left py-2 px-3 rounded-lg ${view === 'app' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'marketplace' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+            >
+              Marketplace
+            </button>
+            <button 
+              onClick={() => {
+                setView('app');
+                setAppSubTab('logistics');
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'logistics' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+            >
+              Logistics
+            </button>
+            <button 
+              onClick={() => {
+                setView('app');
+                setAppSubTab('dashboard');
+                setMobileMenuOpen(false);
+              }}
+              className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'dashboard' ? 'bg-zinc-900 text-zinc-100' : ''}`}
             >
               App Sandbox Desk
             </button>
