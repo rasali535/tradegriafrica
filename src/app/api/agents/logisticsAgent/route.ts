@@ -12,58 +12,75 @@ export async function POST(req: NextRequest) {
   }
 
   const origin = input.origin || "Botswana";
-  const destination = input.destination || "UAE";
+  const destination = input.destination || "South Africa";
   const cargoType = input.cargo_type || "agricultural";
-  const weight = input.weight_tons || 10;
+  const weight = parseFloat(input.weight_tons) || 10;
 
   const fallbackOutput = {
     routes: [
       {
-        route: "Gaborone → Durban (Road) → Jebel Ali (Sea)",
-        cost_estimate: 4200,
-        transit_time_days: 18
+        route: "Gaborone to Johannesburg via Pioneer Gate (Trans-Kalahari Corridor)",
+        estimated_cost_usd: "3500",
+        transit_time_days: "4",
+        mode: "road"
       },
       {
-        route: "Gaborone → Walvis Bay (Rail) → Jebel Ali (Sea)",
-        cost_estimate: 4900,
-        transit_time_days: 22
+        route: "Gaborone to Johannesburg (Rail link)",
+        estimated_cost_usd: "4100",
+        transit_time_days: "6",
+        mode: "rail"
       }
     ],
-    recommended_port: "Durban",
-    risk_factors: [
-      "Durban port terminal congestion",
-      "Queue backlogs at Pioneer Gate border crossing"
-    ]
+    recommended_port: "Durban Port",
+    logistics_risks: [
+      "Customs inspection delays at the Pioneer Gate border crossing",
+      "Diesel fuel price fluctuations across corridors"
+    ],
+    confidence_score: 0.95
   };
 
-  const prompt = `You are the Pula Logistics Agent. Your purpose is to plan shipping routes and cost estimation.
-Given the input:
-Origin: ${origin}
-Destination: ${destination}
-Cargo Type: ${cargoType}
-Weight: ${weight} tons
+  const prompt = `You are the Logistics Optimization Agent for global commodity trade.
+You design shipping routes, estimate costs, and evaluate logistics feasibility.
+You are NOT a freight forwarder. You are a logistics intelligence system.
 
-Plan at least 2 potential transport routes (multimodal road, rail, and sea). Calculate realistic cost estimates and transit times based on current SADC routing.
-Provide the recommended port for sea shipping and key risk factors.
-Return ONLY a JSON object of the format:
+INPUT:
+${JSON.stringify({ origin, destination, cargo_type: cargoType, weight_tons: weight }, null, 2)}
+
+TASK:
+1. Suggest optimal shipping routes (multi-modal if needed)
+2. Estimate cost range
+3. Estimate transit time
+4. Recommend ports
+5. Identify risks (delays, customs, distance)
+
+RULES:
+* Use realistic global trade geography
+* Prefer major ports and corridors
+* Do not fabricate exact shipping company quotes
+* Provide ranges, not exact pricing
+
+OUTPUT FORMAT (STRICT JSON ONLY):
 {
   "routes": [
     {
       "route": "string",
-      "cost_estimate": number,
-      "transit_time_days": number
+      "estimated_cost_usd": "string",
+      "transit_time_days": "string",
+      "mode": "sea" | "road" | "rail" | "air" | "multimodal"
     }
   ],
   "recommended_port": "string",
-  "risk_factors": ["string"]
+  "logistics_risks": ["string"],
+  "confidence_score": number (0.0 to 1.0)
 }`;
 
   const result = await callGemini(prompt, fallbackOutput);
+  const data = result.data || fallbackOutput;
 
   return Response.json({
     input,
-    output: result.data,
-    confidence_score: result.confidence_score,
+    output: data,
+    confidence_score: data.confidence_score || result.confidence_score || 0.9,
     sources: [result.source, "SADC Logistics Corridor Performance Registry", "Port Authority Tariffs"],
     timestamp
   });

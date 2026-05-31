@@ -3,36 +3,41 @@ import { callGemini } from "@/lib/gemini";
 
 // Helper to run Trade Discovery logic
 async function runTradeDiscovery(product: string, quantity: number, origin: string) {
-  const prompt = `You are the Pula Trade Discovery Agent. Given the input:
-Product: ${product}
-Quantity: ${quantity} tons
-Origin Country: ${origin}
+  const prompt = `You are the Trade Discovery Agent inside an AI-powered export platform for African SMEs.
+Your job is to identify realistic international buyers, markets, and pricing opportunities for agricultural and commodity exports.
+You are NOT a chatbot. You are a structured trade intelligence engine.
 
-Research and generate a realistic trade opportunities report. Provide at least 2 potential buyers with their types, estimated price per ton, and demand strength.
-Specify recommended markets, best export window, and key risks.
-Return ONLY a JSON object:
+INPUT:
+${JSON.stringify({ product, quantity: quantity.toString(), origin_country: origin }, null, 2)}
+
+OUTPUT FORMAT (STRICT JSON ONLY):
 {
   "buyers": [
     {
       "country": "string",
       "buyer_type": "string",
-      "estimated_price_per_ton": number,
-      "demand_strength": "high" | "medium" | "low"
+      "estimated_price_per_unit": number,
+      "currency": "USD",
+      "demand_strength": "low" | "medium" | "high"
     }
   ],
   "recommended_markets": ["string"],
-  "best_export_window": "string",
-  "risks": ["string"]
+  "pricing_insight": "string",
+  "best_export_windows": "string",
+  "risks": ["string"],
+  "confidence_score": number (0.0 to 1.0)
 }`;
 
   const fallback = {
     buyers: [
-      { country: "South Africa", buyer_type: "food distributor", estimated_price_per_ton: 320, demand_strength: "high" },
-      { country: "Zimbabwe", buyer_type: "milling co", estimated_price_per_ton: 310, demand_strength: "medium" }
+      { country: "South Africa", buyer_type: "food distributor", estimated_price_per_unit: 320, currency: "USD", demand_strength: "high" },
+      { country: "Namibia", buyer_type: "mill operator", estimated_price_per_unit: 340, currency: "USD", demand_strength: "medium" }
     ],
-    recommended_markets: ["South Africa", "Zimbabwe"],
-    best_export_window: "Q3 2026",
-    risks: ["Border backlog at Pioneer Gate"]
+    recommended_markets: ["South Africa", "Namibia", "Zimbabwe"],
+    pricing_insight: "Prices are stable with slight upward pressure.",
+    best_export_windows: "Q3 2026",
+    risks: ["Plumtree border post backlog"],
+    confidence_score: 0.94
   };
 
   return callGemini(prompt, fallback);
@@ -40,27 +45,29 @@ Return ONLY a JSON object:
 
 // Helper to run Compliance logic
 async function runCompliance(product: string, origin: string, destination: string) {
-  const prompt = `You are the Pula Compliance Agent. Given the input:
-Product: ${product}
-Origin Country: ${origin}
-Destination Country: ${destination}
+  const prompt = `You are the Trade Compliance Agent for an international export platform.
+Your role is to ensure that any cross-border trade complies with import/export regulations, agricultural and sanitary rules, tariffs, and trade agreements.
 
-Research required documents, tariff rate, SPS requirements, whether the commodity is restricted, and any special notes.
-Return ONLY a JSON object:
+INPUT:
+${JSON.stringify({ product, origin_country: origin, destination_country: destination }, null, 2)}
+
+OUTPUT FORMAT (STRICT JSON ONLY):
 {
   "required_documents": ["string"],
-  "tariffs": "string",
+  "tariffs_estimate": "string",
   "sps_requirements": ["string"],
   "restricted": boolean,
-  "notes": "string"
+  "risk_summary": "string",
+  "confidence_score": number (0.0 to 1.0)
 }`;
 
   const fallback = {
-    required_documents: ["Phytosanitary Certificate", "Commercial Invoice", "Certificate of Origin"],
-    tariffs: "0% SADC Preferential",
+    required_documents: ["Phytosanitary Certificate", "Commercial Invoice", "SADC Certificate of Origin (Form 61)", "Bilateral Import Permit"],
+    tariffs_estimate: "0% Preferential SADC Tariff Rate",
     sps_requirements: ["Aflatoxin limit validation"],
     restricted: false,
-    notes: "Duty free under SADC trade rules."
+    risk_summary: "Low regulatory restrictions, standard border checks apply.",
+    confidence_score: 0.96
   };
 
   return callGemini(prompt, fallback);
@@ -68,33 +75,34 @@ Return ONLY a JSON object:
 
 // Helper to run Logistics logic
 async function runLogistics(origin: string, destination: string, weight: number) {
-  const prompt = `You are the Pula Logistics Agent. Given the input:
-Origin: ${origin}
-Destination: ${destination}
-Cargo Type: agricultural
-Weight: ${weight} tons
+  const prompt = `You are the Logistics Optimization Agent for global commodity trade.
+You design shipping routes, estimate costs, and evaluate logistics feasibility.
 
-Plan at least 2 potential transport routes (multimodal road, rail, and sea). Calculate realistic cost estimates and transit times.
-Provide the recommended port for sea shipping and key risk factors.
-Return ONLY a JSON object:
+INPUT:
+${JSON.stringify({ origin, destination, cargo_type: "agricultural", weight_tons: weight }, null, 2)}
+
+OUTPUT FORMAT (STRICT JSON ONLY):
 {
   "routes": [
     {
       "route": "string",
-      "cost_estimate": number,
-      "transit_time_days": number
+      "estimated_cost_usd": "string",
+      "transit_time_days": "string",
+      "mode": "sea" | "road" | "rail" | "air" | "multimodal"
     }
   ],
   "recommended_port": "string",
-  "risk_factors": ["string"]
+  "logistics_risks": ["string"],
+  "confidence_score": number (0.0 to 1.0)
 }`;
 
   const fallback = {
     routes: [
-      { route: `${origin} to ${destination} via Trans-Kalahari Corridor`, cost_estimate: 3500, transit_time_days: 4 }
+      { route: "Gaborone to Johannesburg via Pioneer Gate (Trans-Kalahari Corridor)", estimated_cost_usd: "3500", transit_time_days: "4", mode: "road" }
     ],
-    recommended_port: "Durban",
-    risk_factors: ["Fuel price updates"]
+    recommended_port: "Durban Port",
+    logistics_risks: ["Pioneer Gate border queue congestion"],
+    confidence_score: 0.95
   };
 
   return callGemini(prompt, fallback);
@@ -102,34 +110,100 @@ Return ONLY a JSON object:
 
 // Helper to run Documentation logic
 async function runDocumentation(seller: string, buyer: string, product: string, quantity: number, price: number) {
-  const query = `?seller=${encodeURIComponent(seller)}&buyer=${encodeURIComponent(buyer)}&product=${encodeURIComponent(product)}&quantity=${quantity}&price=${price}`;
-  return {
-    data: {
-      documents: {
-        invoice: `/api/documents/invoice${query}`,
-        packing_list: `/api/documents/packing_list${query}`,
-        certificate_of_origin: `/api/documents/certificate_of_origin${query}`
-      },
-      status: "generated"
+  const prompt = `You are the Trade Documentation Agent.
+You generate structured export documents used in international trade transactions.
+
+INPUT:
+${JSON.stringify({ seller, buyer, product, quantity: quantity.toString(), price_per_unit: price.toString() }, null, 2)}
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+{
+  "commercial_invoice": {
+    "seller": "string",
+    "buyer": "string",
+    "product": "string",
+    "quantity": number,
+    "unit_price": number,
+    "total_value": number,
+    "currency": "USD"
+  },
+  "packing_list": {
+    "items": [
+      {
+        "item_name": "string",
+        "quantity": "string",
+        "package_type": "string"
+      }
+    ],
+    "weight_estimate": "string"
+  },
+  "certificate_of_origin": {
+    "origin_country": "string",
+    "certification_note": "string"
+  },
+  "document_status": "generated"
+}`;
+
+  const fallback = {
+    commercial_invoice: {
+      seller,
+      buyer,
+      product,
+      quantity,
+      unit_price: price,
+      total_value: quantity * price,
+      currency: "USD"
     },
-    confidence_score: 0.98,
-    source: "SADC Document Compiler Agent"
+    packing_list: {
+      items: [{ item_name: product, quantity: `${quantity} Tons`, package_type: "50kg Polypropylene bags" }],
+      weight_estimate: `${quantity} metric tons`
+    },
+    certificate_of_origin: {
+      origin_country: "Botswana",
+      certification_note: "Generated for export facilitation under SADC Rules of Origin"
+    },
+    document_status: "generated"
   };
+
+  return callGemini(prompt, fallback);
 }
 
 // Helper to run Deal Closing logic
 async function runDealClosing(buyer: string, seller: string, product: string, price: number) {
-  const query = `?buyer=${encodeURIComponent(buyer)}&seller=${encodeURIComponent(seller)}&product=${encodeURIComponent(product)}&price=${price}`;
-  return {
-    data: {
-      contract_draft: `/api/documents/contract${query}`,
-      negotiation_message: `Deal Closing Agent has compiled terms: $${price}/ton under PulaTrade Smart Escrow.`,
-      deal_status: "pending",
-      next_steps: ["Confirm contract terms with buyer", "Setup escrow in SADC registry"]
+  const prompt = `You are the Deal Closing Agent in an AI-powered export platform.
+Your job is to convert trade opportunities into structured business deals.
+
+INPUT:
+${JSON.stringify({ buyer, seller, product, price_per_unit: price }, null, 2)}
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+{
+  "negotiation_message": "string",
+  "deal_summary": {
+    "buyer": "string",
+    "seller": "string",
+    "product": "string",
+    "agreed_price": number,
+    "status": "draft" | "negotiation" | "ready" | "closed"
+  },
+  "next_steps": ["string"],
+  "deal_readiness_score": number (0.0 to 1.0)
+}`;
+
+  const fallback = {
+    negotiation_message: `Deal Closing Agent has drafted contract at $${price}/ton.`,
+    deal_summary: {
+      buyer,
+      seller,
+      product,
+      agreed_price: price,
+      status: "ready"
     },
-    confidence_score: 0.95,
-    source: "Pula Deal Closing Counsel"
+    next_steps: ["Confirm contract terms with buyer", "Setup escrow in SADC registry"],
+    deal_readiness_score: 0.95
   };
+
+  return callGemini(prompt, fallback);
 }
 
 export async function POST(req: NextRequest) {
@@ -147,8 +221,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Query is required" }, { status: 400 });
   }
 
-  const parseStartTime = Date.now();
-  // Call Gemini to parse parameters
+  // Parse natural language command
   const parsePrompt = `You are the Pula Orchestration Engine. Parse this natural language trade request:
 "${query}"
 
@@ -181,11 +254,10 @@ Return ONLY a JSON object:
   const discoveryResult = await runTradeDiscovery(parsed.product, parsed.quantity, parsed.origin_country);
   const discoveryLatency = Date.now() - discoveryStartTime;
 
-  // Identify recommended buyer and destination
-  const buyers = discoveryResult.data.buyers || [];
-  const primaryBuyer = buyers[0] || { country: parsed.destination_country, buyer_type: "food distributor", estimated_price_per_ton: 320 };
+  const buyers = discoveryResult.data?.buyers || [];
+  const primaryBuyer = buyers[0] || { country: parsed.destination_country, buyer_type: "food distributor", estimated_price_per_unit: 320 };
   const targetDestination = primaryBuyer.country || parsed.destination_country;
-  const pricePerTon = primaryBuyer.estimated_price_per_ton || 320;
+  const pricePerUnit = primaryBuyer.estimated_price_per_unit || 320;
 
   // Run Step 2: Compliance
   const complianceStartTime = Date.now();
@@ -201,31 +273,31 @@ Return ONLY a JSON object:
   const docStartTime = Date.now();
   const docResult = await runDocumentation(
     "ABC Farmers Co-op",
-    "Dubai Foods LLC",
+    primaryBuyer.buyer_type || "Dubai Foods LLC",
     parsed.product,
     parsed.quantity,
-    pricePerTon
+    pricePerUnit
   );
   const docLatency = Date.now() - docStartTime;
 
   // Run Step 5: Deal Closing
   const closingStartTime = Date.now();
   const closingResult = await runDealClosing(
-    "Dubai Foods LLC",
+    primaryBuyer.buyer_type || "Dubai Foods LLC",
     "ABC Farmers Co-op",
     parsed.product,
-    pricePerTon
+    pricePerUnit
   );
   const closingLatency = Date.now() - closingStartTime;
 
-  // Compile full pipeline logs
+  // Compile logs matching the agent outputs
   const logs = [
     {
       agent: "tradeDiscoveryAgent",
-      input: { product: parsed.product, quantity: parsed.quantity, origin_country: parsed.origin_country },
+      input: { product: parsed.product, quantity: parsed.quantity.toString(), origin_country: parsed.origin_country },
       output: discoveryResult.data,
       latency_ms: discoveryResult.latency_ms || discoveryLatency,
-      confidence_score: discoveryResult.confidence_score,
+      confidence_score: discoveryResult.data?.confidence_score || discoveryResult.confidence_score,
       timestamp: new Date().toISOString()
     },
     {
@@ -233,7 +305,7 @@ Return ONLY a JSON object:
       input: { product: parsed.product, origin_country: parsed.origin_country, destination_country: targetDestination },
       output: complianceResult.data,
       latency_ms: complianceResult.latency_ms || complianceLatency,
-      confidence_score: complianceResult.confidence_score,
+      confidence_score: complianceResult.data?.confidence_score || complianceResult.confidence_score,
       timestamp: new Date().toISOString()
     },
     {
@@ -241,12 +313,12 @@ Return ONLY a JSON object:
       input: { origin: parsed.origin_country, destination: targetDestination, cargo_type: "agricultural", weight_tons: parsed.quantity },
       output: logisticsResult.data,
       latency_ms: logisticsResult.latency_ms || logisticsLatency,
-      confidence_score: logisticsResult.confidence_score,
+      confidence_score: logisticsResult.data?.confidence_score || logisticsResult.confidence_score,
       timestamp: new Date().toISOString()
     },
     {
       agent: "documentationAgent",
-      input: { seller: "ABC Farmers Co-op", buyer: "Dubai Foods LLC", product: parsed.product, quantity: parsed.quantity, price_per_ton: pricePerTon },
+      input: { seller: "ABC Farmers Co-op", buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", product: parsed.product, quantity: parsed.quantity.toString(), price_per_unit: pricePerUnit.toString() },
       output: docResult.data,
       latency_ms: docLatency,
       confidence_score: docResult.confidence_score,
@@ -254,10 +326,10 @@ Return ONLY a JSON object:
     },
     {
       agent: "dealClosingAgent",
-      input: { buyer: "Dubai Foods LLC", seller: "ABC Farmers Co-op", product: parsed.product, price: pricePerTon },
+      input: { buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", seller: "ABC Farmers Co-op", product: parsed.product, price_per_unit: pricePerUnit },
       output: closingResult.data,
       latency_ms: closingLatency,
-      confidence_score: closingResult.confidence_score,
+      confidence_score: closingResult.data?.deal_readiness_score || closingResult.confidence_score,
       timestamp: new Date().toISOString()
     }
   ];

@@ -108,8 +108,8 @@ export const AIAgentCenter: React.FC = () => {
 
     try {
       const parsed = pipelineData.parsed_request;
-      // Get price per ton from discovery buyers, or default
-      const price = pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_ton || 320;
+      // Get price per unit from discovery buyers, or default
+      const price = pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_unit || 320;
       
       // Create listing first or place order directly
       // Since placeOrder handles both, let's trigger it!
@@ -314,7 +314,7 @@ export const AIAgentCenter: React.FC = () => {
                               <span className="font-semibold text-zinc-200">{buyer.buyer_type}</span>
                               <div className="flex justify-between text-[10px] text-zinc-400 mt-1">
                                 <span>Country: {buyer.country}</span>
-                                <span className="font-mono font-bold text-emerald-400">${buyer.estimated_price_per_ton}/ton</span>
+                                <span className="font-mono font-bold text-emerald-400">${buyer.estimated_price_per_unit}/unit</span>
                               </div>
                             </div>
                           ))}
@@ -322,7 +322,7 @@ export const AIAgentCenter: React.FC = () => {
                         <div className="flex flex-wrap gap-2 text-[10px] text-zinc-400 mt-1">
                           <span>Markets: <strong>{pipelineData.trade_opportunity.recommended_markets?.join(', ')}</strong></span>
                           <span>•</span>
-                          <span>Export Window: <strong>{pipelineData.trade_opportunity.best_export_window}</strong></span>
+                          <span>Export Window: <strong>{pipelineData.trade_opportunity.best_export_windows}</strong></span>
                         </div>
                       </div>
                     )}
@@ -341,7 +341,7 @@ export const AIAgentCenter: React.FC = () => {
                       <div className="space-y-2 mt-2 pt-2 border-t border-zinc-800 text-xs">
                         <div className="flex justify-between items-center text-[10px]">
                           <span className="text-zinc-500 font-mono">Customs Tariff Duty:</span>
-                          <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px] font-mono">{pipelineData.compliance.tariffs}</Badge>
+                          <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-[10px] font-mono">{pipelineData.compliance.tariffs_estimate}</Badge>
                         </div>
                         
                         <div className="space-y-1">
@@ -387,8 +387,8 @@ export const AIAgentCenter: React.FC = () => {
                                 <span className="text-zinc-500">Port Gateway: {pipelineData.logistics.recommended_port}</span>
                               </div>
                               <div className="text-right">
-                                <span className="font-mono font-bold text-amber-400 block">${route.cost_estimate} USD</span>
-                                <span className="text-zinc-400 block font-mono">{route.transit_time_days} days transit</span>
+                                <span className="font-mono font-bold text-amber-400 block">${route.estimated_cost_usd} USD</span>
+                                <span className="text-zinc-400 block font-mono">{route.transit_time_days} days ({route.mode})</span>
                               </div>
                             </div>
                           ))}
@@ -406,39 +406,51 @@ export const AIAgentCenter: React.FC = () => {
                     loading={loading && currentStep === 4}
                     data={pipelineData}
                   >
-                    {pipelineData?.documents_ready && pipelineData?.pipeline_logs?.[3]?.output?.documents && (
-                      <div className="space-y-2 mt-2 pt-2 border-t border-zinc-800 text-xs">
-                        <span className="text-zinc-500 text-[10px] font-mono block">Generated Certificates & Filings:</span>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <a 
-                            href={pipelineData.pipeline_logs[3].output.documents.invoice}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-2 border border-zinc-800 hover:border-emerald-800 bg-zinc-950/60 hover:bg-emerald-950/20 text-zinc-300 hover:text-emerald-400 rounded flex items-center justify-between transition-all"
-                          >
-                            <span className="truncate">Commercial Invoice</span>
-                            <Download className="h-3.5 w-3.5 shrink-0 ml-1.5" />
-                          </a>
-                          <a 
-                            href={pipelineData.pipeline_logs[3].output.documents.packing_list}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-2 border border-zinc-800 hover:border-emerald-800 bg-zinc-950/60 hover:bg-emerald-950/20 text-zinc-300 hover:text-emerald-400 rounded flex items-center justify-between transition-all"
-                          >
-                            <span className="truncate">Packing List</span>
-                            <Download className="h-3.5 w-3.5 shrink-0 ml-1.5" />
-                          </a>
-                          <a 
-                            href={pipelineData.pipeline_logs[3].output.documents.certificate_of_origin}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-2 border border-zinc-800 hover:border-emerald-800 bg-zinc-950/60 hover:bg-emerald-950/20 text-zinc-300 hover:text-emerald-400 rounded flex items-center justify-between transition-all"
-                          >
-                            <span className="truncate">SADC Certificate</span>
-                            <Download className="h-3.5 w-3.5 shrink-0 ml-1.5" />
-                          </a>
-                        </div>
-                      </div>
+                    {pipelineData?.documents_ready && (
+                      (() => {
+                        const parsed = pipelineData.parsed_request;
+                        const seller = "ABC Farmers Co-op";
+                        const buyer = pipelineData.trade_opportunity?.buyers?.[0]?.buyer_type || "Dubai Foods LLC";
+                        const product = parsed.product;
+                        const quantity = parsed.quantity;
+                        const price = pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_unit || 320;
+                        const queryParams = `?seller=${encodeURIComponent(seller)}&buyer=${encodeURIComponent(buyer)}&product=${encodeURIComponent(product)}&quantity=${quantity}&price=${price}`;
+                        
+                        return (
+                          <div className="space-y-2 mt-2 pt-2 border-t border-zinc-800 text-xs">
+                            <span className="text-zinc-500 text-[10px] font-mono block">Generated Certificates & Filings:</span>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              <a 
+                                href={`/api/documents/invoice${queryParams}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 border border-zinc-800 hover:border-emerald-800 bg-zinc-950/60 hover:bg-emerald-950/20 text-zinc-300 hover:text-emerald-400 rounded flex items-center justify-between transition-all"
+                              >
+                                <span className="truncate">Commercial Invoice</span>
+                                <Download className="h-3.5 w-3.5 shrink-0 ml-1.5" />
+                              </a>
+                              <a 
+                                href={`/api/documents/packing_list${queryParams}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 border border-zinc-800 hover:border-emerald-800 bg-zinc-950/60 hover:bg-emerald-950/20 text-zinc-300 hover:text-emerald-400 rounded flex items-center justify-between transition-all"
+                              >
+                                <span className="truncate">Packing List</span>
+                                <Download className="h-3.5 w-3.5 shrink-0 ml-1.5" />
+                              </a>
+                              <a 
+                                href={`/api/documents/certificate_of_origin${queryParams}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 border border-zinc-800 hover:border-emerald-800 bg-zinc-950/60 hover:bg-emerald-950/20 text-zinc-300 hover:text-emerald-400 rounded flex items-center justify-between transition-all"
+                              >
+                                <span className="truncate">SADC Certificate</span>
+                                <Download className="h-3.5 w-3.5 shrink-0 ml-1.5" />
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })()
                     )}
                   </AgentStepCard>
 
@@ -468,7 +480,7 @@ export const AIAgentCenter: React.FC = () => {
                           </div>
                           <div className="flex flex-col justify-end gap-2">
                             <a
-                              href={pipelineData.pipeline_logs[4].output.contract_draft}
+                              href={`/api/documents/contract?buyer=${encodeURIComponent(pipelineData.trade_opportunity?.buyers?.[0]?.buyer_type || "Dubai Foods LLC")}&seller=ABC+Farmers+Co-op&product=${encodeURIComponent(pipelineData.parsed_request.product)}&price=${pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_unit || 320}`}
                               target="_blank"
                               rel="noreferrer"
                               className="p-2 border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-zinc-300 hover:text-zinc-100 rounded text-center flex items-center justify-center gap-1.5 transition-all text-[11px]"

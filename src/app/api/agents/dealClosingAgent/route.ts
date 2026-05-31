@@ -14,49 +14,64 @@ export async function POST(req: NextRequest) {
   const buyer = input.buyer || "Dubai Foods LLC";
   const seller = input.seller || "ABC Farmers Co-op";
   const product = input.product || "maize";
-  const price = input.price || 320;
-
-  const query = `?buyer=${encodeURIComponent(buyer)}&seller=${encodeURIComponent(seller)}&product=${encodeURIComponent(product)}&price=${price}`;
+  const price = parseFloat(input.price_per_unit) || 320;
 
   const fallbackOutput = {
-    contract_draft: `/api/documents/contract${query}`,
     negotiation_message: `Deal Closing Agent has drafted the bilateral trade contract. Recommended terms: $${price}/ton under SADC preferential terms, payment secured via PulaTrade Digital Escrow.`,
-    deal_status: "pending",
+    deal_summary: {
+      buyer,
+      seller,
+      product,
+      agreed_price: price,
+      status: "ready"
+    },
     next_steps: [
       "Confirm contract terms with buyer",
       "Setup digital escrow in standard registry",
       "Assign biosecurity inspection corridor"
-    ]
+    ],
+    deal_readiness_score: 0.95
   };
 
-  const prompt = `You are the Pula Deal Closing Agent. Your purpose is to convert trade opportunities into binding legal transactions.
-Given the input:
-Buyer: ${buyer}
-Seller: ${seller}
-Product: ${product}
-Price: ${price}
+  const prompt = `You are the Deal Closing Agent in an AI-powered export platform.
+Your job is to convert trade opportunities into structured business deals.
+You help users move from interest to negotiation to agreement.
 
-Formulate the contract status, negotiation message, and next steps for both parties.
-Recommend the contract draft endpoint: /api/documents/contract${query}
-Return ONLY a JSON object of the format:
+INPUT:
+${JSON.stringify({ buyer, seller, product, price_per_unit: price }, null, 2)}
+
+TASK:
+1. Draft structured trade agreement summary
+2. Generate negotiation message
+3. Identify next steps to close deal
+4. Assess deal readiness
+
+RULES:
+* Do NOT generate legally binding contracts
+* Keep tone professional and commercial
+* Focus on deal progression logic
+
+OUTPUT FORMAT (STRICT JSON ONLY):
 {
-  "contract_draft": "string",
   "negotiation_message": "string",
-  "deal_status": "pending" | "signed" | "approved",
-  "next_steps": ["string"]
+  "deal_summary": {
+    "buyer": "string",
+    "seller": "string",
+    "product": "string",
+    "agreed_price": number,
+    "status": "draft" | "negotiation" | "ready" | "closed"
+  },
+  "next_steps": ["string"],
+  "deal_readiness_score": number (0.0 to 1.0)
 }`;
 
   const result = await callGemini(prompt, fallbackOutput);
-
-  // Normalize structure
-  const data = result.data;
-  data.contract_draft = `/api/documents/contract${query}`;
-  if (!data.deal_status) data.deal_status = "pending";
+  const data = result.data || fallbackOutput;
 
   return Response.json({
     input,
     output: data,
-    confidence_score: result.confidence_score,
+    confidence_score: data.deal_readiness_score || result.confidence_score || 0.9,
     sources: [result.source, "SADC Bilateral Trade Contract Template 2026", "LMA Trade Guidelines"],
     timestamp
   });
