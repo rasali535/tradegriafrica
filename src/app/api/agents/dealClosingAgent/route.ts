@@ -65,14 +65,17 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   "deal_readiness_score": number (0.0 to 1.0)
 }`;
 
-  const result = await callGemini(prompt, fallbackOutput);
-  const data = result.data || fallbackOutput;
-
-  return Response.json({
-    input,
-    output: data,
-    confidence_score: data.deal_readiness_score || result.confidence_score || 0.9,
-    sources: [result.source, "SADC Bilateral Trade Contract Template 2026", "LMA Trade Guidelines"],
-    timestamp
-  });
+  try {
+    const result = await callGemini(prompt, fallbackOutput);
+    const data = result.data || fallbackOutput;
+    return Response.json({
+      input,
+      output: data,
+      confidence_score: data.deal_readiness_score || result.confidence_score || 0.9,
+      sources: [result.source, "SADC Bilateral Trade Contract Template 2026", "LMA Trade Guidelines"],
+      timestamp
+    });
+  } catch (err: any) {
+    return Response.json({ error: err.message || "Deal Closing Agent failed" }, { status: 500 });
+  }
 }

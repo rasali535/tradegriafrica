@@ -93,14 +93,17 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   "document_status": "generated"
 }`;
 
-  const result = await callGemini(prompt, fallbackOutput);
-  const data = result.data || fallbackOutput;
-
-  return Response.json({
-    input,
-    output: data,
-    confidence_score: 0.98,
-    sources: [result.source, "SADC Digital Document Standard v1.2", "UN Layout Key for Trade Docs"],
-    timestamp
-  });
+  try {
+    const result = await callGemini(prompt, fallbackOutput);
+    const data = result.data || fallbackOutput;
+    return Response.json({
+      input,
+      output: data,
+      confidence_score: 0.98,
+      sources: [result.source, "SADC Digital Document Standard v1.2", "UN Layout Key for Trade Docs"],
+      timestamp
+    });
+  } catch (err: any) {
+    return Response.json({ error: err.message || "Documentation Agent failed" }, { status: 500 });
+  }
 }

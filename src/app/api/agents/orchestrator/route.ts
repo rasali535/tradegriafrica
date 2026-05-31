@@ -246,103 +246,108 @@ Return ONLY a JSON object:
     destination_country: "South Africa"
   };
 
-  const parseResult = await callGemini(parsePrompt, parseFallback);
-  const parsed = parseResult.data || parseFallback;
+  try {
+    const parseResult = await callGemini(parsePrompt, parseFallback);
+    const parsed = parseResult.data || parseFallback;
 
-  // Run Step 1: Trade Discovery
-  const discoveryStartTime = Date.now();
-  const discoveryResult = await runTradeDiscovery(parsed.product, parsed.quantity, parsed.origin_country);
-  const discoveryLatency = Date.now() - discoveryStartTime;
+    // Run Step 1: Trade Discovery
+    const discoveryStartTime = Date.now();
+    const discoveryResult = await runTradeDiscovery(parsed.product, parsed.quantity, parsed.origin_country);
+    const discoveryLatency = Date.now() - discoveryStartTime;
 
-  const buyers = discoveryResult.data?.buyers || [];
-  const primaryBuyer = buyers[0] || { country: parsed.destination_country, buyer_type: "food distributor", estimated_price_per_unit: 320 };
-  const targetDestination = primaryBuyer.country || parsed.destination_country;
-  const pricePerUnit = primaryBuyer.estimated_price_per_unit || 320;
+    const buyers = discoveryResult.data?.buyers || [];
+    const primaryBuyer = buyers[0] || { country: parsed.destination_country, buyer_type: "food distributor", estimated_price_per_unit: 320 };
+    const targetDestination = primaryBuyer.country || parsed.destination_country;
+    const pricePerUnit = primaryBuyer.estimated_price_per_unit || 320;
 
-  // Run Step 2: Compliance
-  const complianceStartTime = Date.now();
-  const complianceResult = await runCompliance(parsed.product, parsed.origin_country, targetDestination);
-  const complianceLatency = Date.now() - complianceStartTime;
+    // Run Step 2: Compliance
+    const complianceStartTime = Date.now();
+    const complianceResult = await runCompliance(parsed.product, parsed.origin_country, targetDestination);
+    const complianceLatency = Date.now() - complianceStartTime;
 
-  // Run Step 3: Logistics
-  const logisticsStartTime = Date.now();
-  const logisticsResult = await runLogistics(parsed.origin_country, targetDestination, parsed.quantity);
-  const logisticsLatency = Date.now() - logisticsStartTime;
+    // Run Step 3: Logistics
+    const logisticsStartTime = Date.now();
+    const logisticsResult = await runLogistics(parsed.origin_country, targetDestination, parsed.quantity);
+    const logisticsLatency = Date.now() - logisticsStartTime;
 
-  // Run Step 4: Documentation
-  const docStartTime = Date.now();
-  const docResult = await runDocumentation(
-    "ABC Farmers Co-op",
-    primaryBuyer.buyer_type || "Dubai Foods LLC",
-    parsed.product,
-    parsed.quantity,
-    pricePerUnit
-  );
-  const docLatency = Date.now() - docStartTime;
+    // Run Step 4: Documentation
+    const docStartTime = Date.now();
+    const docResult = await runDocumentation(
+      "ABC Farmers Co-op",
+      primaryBuyer.buyer_type || "Dubai Foods LLC",
+      parsed.product,
+      parsed.quantity,
+      pricePerUnit
+    );
+    const docLatency = Date.now() - docStartTime;
 
-  // Run Step 5: Deal Closing
-  const closingStartTime = Date.now();
-  const closingResult = await runDealClosing(
-    primaryBuyer.buyer_type || "Dubai Foods LLC",
-    "ABC Farmers Co-op",
-    parsed.product,
-    pricePerUnit
-  );
-  const closingLatency = Date.now() - closingStartTime;
+    // Run Step 5: Deal Closing
+    const closingStartTime = Date.now();
+    const closingResult = await runDealClosing(
+      primaryBuyer.buyer_type || "Dubai Foods LLC",
+      "ABC Farmers Co-op",
+      parsed.product,
+      pricePerUnit
+    );
+    const closingLatency = Date.now() - closingStartTime;
 
-  // Compile logs matching the agent outputs
-  const logs = [
-    {
-      agent: "tradeDiscoveryAgent",
-      input: { product: parsed.product, quantity: parsed.quantity.toString(), origin_country: parsed.origin_country },
-      output: discoveryResult.data,
-      latency_ms: discoveryResult.latency_ms || discoveryLatency,
-      confidence_score: discoveryResult.data?.confidence_score || discoveryResult.confidence_score,
-      timestamp: new Date().toISOString()
-    },
-    {
-      agent: "complianceAgent",
-      input: { product: parsed.product, origin_country: parsed.origin_country, destination_country: targetDestination },
-      output: complianceResult.data,
-      latency_ms: complianceResult.latency_ms || complianceLatency,
-      confidence_score: complianceResult.data?.confidence_score || complianceResult.confidence_score,
-      timestamp: new Date().toISOString()
-    },
-    {
-      agent: "logisticsAgent",
-      input: { origin: parsed.origin_country, destination: targetDestination, cargo_type: "agricultural", weight_tons: parsed.quantity },
-      output: logisticsResult.data,
-      latency_ms: logisticsResult.latency_ms || logisticsLatency,
-      confidence_score: logisticsResult.data?.confidence_score || logisticsResult.confidence_score,
-      timestamp: new Date().toISOString()
-    },
-    {
-      agent: "documentationAgent",
-      input: { seller: "ABC Farmers Co-op", buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", product: parsed.product, quantity: parsed.quantity.toString(), price_per_unit: pricePerUnit.toString() },
-      output: docResult.data,
-      latency_ms: docLatency,
-      confidence_score: docResult.confidence_score,
-      timestamp: new Date().toISOString()
-    },
-    {
-      agent: "dealClosingAgent",
-      input: { buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", seller: "ABC Farmers Co-op", product: parsed.product, price_per_unit: pricePerUnit },
-      output: closingResult.data,
-      latency_ms: closingLatency,
-      confidence_score: closingResult.data?.deal_readiness_score || closingResult.confidence_score,
-      timestamp: new Date().toISOString()
-    }
-  ];
+    // Compile logs matching the agent outputs
+    const logs = [
+      {
+        agent: "tradeDiscoveryAgent",
+        input: { product: parsed.product, quantity: parsed.quantity.toString(), origin_country: parsed.origin_country },
+        output: discoveryResult.data,
+        latency_ms: discoveryResult.latency_ms || discoveryLatency,
+        confidence_score: discoveryResult.data?.confidence_score || discoveryResult.confidence_score,
+        timestamp: new Date().toISOString()
+      },
+      {
+        agent: "complianceAgent",
+        input: { product: parsed.product, origin_country: parsed.origin_country, destination_country: targetDestination },
+        output: complianceResult.data,
+        latency_ms: complianceResult.latency_ms || complianceLatency,
+        confidence_score: complianceResult.data?.confidence_score || complianceResult.confidence_score,
+        timestamp: new Date().toISOString()
+      },
+      {
+        agent: "logisticsAgent",
+        input: { origin: parsed.origin_country, destination: targetDestination, cargo_type: "agricultural", weight_tons: parsed.quantity },
+        output: logisticsResult.data,
+        latency_ms: logisticsResult.latency_ms || logisticsLatency,
+        confidence_score: logisticsResult.data?.confidence_score || logisticsResult.confidence_score,
+        timestamp: new Date().toISOString()
+      },
+      {
+        agent: "documentationAgent",
+        input: { seller: "ABC Farmers Co-op", buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", product: parsed.product, quantity: parsed.quantity.toString(), price_per_unit: pricePerUnit.toString() },
+        output: docResult.data,
+        latency_ms: docLatency,
+        confidence_score: docResult.confidence_score,
+        timestamp: new Date().toISOString()
+      },
+      {
+        agent: "dealClosingAgent",
+        input: { buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", seller: "ABC Farmers Co-op", product: parsed.product, price_per_unit: pricePerUnit },
+        output: closingResult.data,
+        latency_ms: closingLatency,
+        confidence_score: closingResult.data?.deal_readiness_score || closingResult.confidence_score,
+        timestamp: new Date().toISOString()
+      }
+    ];
 
-  return Response.json({
-    parsed_request: parsed,
-    trade_opportunity: discoveryResult.data,
-    compliance: complianceResult.data,
-    logistics: logisticsResult.data,
-    documents_ready: true,
-    deal_ready: true,
-    recommended_next_action: "contact_buyer",
-    pipeline_logs: logs,
-    timestamp
-  });
+    return Response.json({
+      parsed_request: parsed,
+      trade_opportunity: discoveryResult.data,
+      compliance: complianceResult.data,
+      logistics: logisticsResult.data,
+      documents_ready: true,
+      deal_ready: true,
+      recommended_next_action: "contact_buyer",
+      pipeline_logs: logs,
+      timestamp
+    });
+  } catch (err: any) {
+    return Response.json({ error: err.message || "Orchestrator pipeline failed" }, { status: 500 });
+  }
 }
+

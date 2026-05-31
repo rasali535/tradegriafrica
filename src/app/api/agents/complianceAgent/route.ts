@@ -63,14 +63,17 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   "confidence_score": number (0.0 to 1.0)
 }`;
 
-  const result = await callGemini(prompt, fallbackOutput);
-  const data = result.data || fallbackOutput;
-
-  return Response.json({
-    input,
-    output: data,
-    confidence_score: data.confidence_score || result.confidence_score || 0.9,
-    sources: [result.source, "SADC Sanitary and Phytosanitary Annex", "WTO Tariff Databases"],
-    timestamp
-  });
+  try {
+    const result = await callGemini(prompt, fallbackOutput);
+    const data = result.data || fallbackOutput;
+    return Response.json({
+      input,
+      output: data,
+      confidence_score: data.confidence_score || result.confidence_score || 0.9,
+      sources: [result.source, "SADC Sanitary and Phytosanitary Annex", "WTO Tariff Databases"],
+      timestamp
+    });
+  } catch (err: any) {
+    return Response.json({ error: err.message || "Compliance Agent failed" }, { status: 500 });
+  }
 }
