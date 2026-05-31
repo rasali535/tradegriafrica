@@ -16,10 +16,11 @@ import { BankDashboard } from '@/components/BankDashboard';
 import { Marketplace } from '@/components/Marketplace';
 import { LogisticsHub } from '@/components/LogisticsHub';
 import { OnboardingPortal } from '@/components/OnboardingPortal';
+import { AIAgentCenter } from '@/components/AIAgentCenter';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
   HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus,
-  Shield, Lock, Unlock
+  Shield, Lock, Unlock, Bot
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +36,7 @@ export default function Home() {
   const { currentUser, users, setCurrentUser } = useApp();
   const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding'>('dashboard');
+  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -193,6 +194,8 @@ export default function Home() {
         return <LogisticsHub />;
       case 'onboarding':
         return <OnboardingPortal />;
+      case 'ai_agents':
+        return <AIAgentCenter />;
     }
   };
 
@@ -245,6 +248,17 @@ export default function Home() {
               }`}
             >
               Logistics
+            </button>
+            <button 
+              onClick={() => {
+                setView('app');
+                setAppSubTab('ai_agents');
+              }}
+              className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
+                view === 'app' && appSubTab === 'ai_agents' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
+              }`}
+            >
+              AI Agents
             </button>
             <button 
               onClick={() => {
@@ -393,6 +407,16 @@ export default function Home() {
               <button 
                 onClick={() => {
                   setView('app');
+                  setAppSubTab('ai_agents');
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'ai_agents' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                AI Agents
+              </button>
+              <button 
+                onClick={() => {
+                  setView('app');
                   setAppSubTab('dashboard');
                   setMobileMenuOpen(false);
                 }}
@@ -528,6 +552,18 @@ export default function Home() {
               >
                 <UserPlus className="h-4 w-4" />
                 Onboarding Portal
+              </button>
+
+              <button
+                onClick={() => setAppSubTab('ai_agents')}
+                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                  appSubTab === 'ai_agents'
+                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Bot className="h-4 w-4" />
+                AI Agent Center
               </button>
             </div>
             
