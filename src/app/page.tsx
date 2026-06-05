@@ -40,12 +40,27 @@ export default function Home() {
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
   const [isNdaUnlocked, setIsNdaUnlocked] = useState<boolean>(false);
 
+  // Synchronize signing gate based on active user role requirements
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const signed = localStorage.getItem('pt_nda_signed') === 'true';
-      setIsNdaUnlocked(signed);
+      if (!currentUser) {
+        setIsNdaUnlocked(false);
+        return;
+      }
+      const ndaSigned = localStorage.getItem('pt_nda_signed') === 'true';
+      const termsSigned = localStorage.getItem('pt_terms_signed') === 'true';
+      
+      const isHighClearance = currentUser.role === 'admin' || currentUser.role === 'bank' || currentUser.role === 'government';
+      
+      if (isHighClearance) {
+        // Admins, banks, and border inspectors must sign the Mutual NDA
+        setIsNdaUnlocked(ndaSigned);
+      } else {
+        // Traders, farmers, and carriers sign the platform Terms & Conditions
+        setIsNdaUnlocked(termsSigned || ndaSigned);
+      }
     }
-  }, []);
+  }, [currentUser]);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -508,82 +523,89 @@ export default function Home() {
           <LandingPage onLaunchApp={handleLaunchApp} />
         ) : view === 'docs' ? (
           <DocsPage onBackToLanding={handleGoHome} />
-        ) : !isNdaUnlocked ? (
-          <NdaSignSystem 
-            onSignSuccess={() => setIsNdaUnlocked(true)} 
-            currentUserData={currentUser} 
-          />
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 relative">
             {/* Persona Switcher for interactive presentation */}
-            <RoleSwitcher />
-
-            {/* Premium Sandbox Tab Bar */}
-            <div className="flex border-b border-zinc-900 gap-2 md:gap-4 overflow-x-auto scrollbar-none">
-              <button
-                onClick={() => setAppSubTab('dashboard')}
-                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
-                  appSubTab === 'dashboard'
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Role Dashboard
-              </button>
-
-              <button
-                onClick={() => setAppSubTab('marketplace')}
-                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
-                  appSubTab === 'marketplace'
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Produce Marketplace
-              </button>
-
-              <button
-                onClick={() => setAppSubTab('logistics')}
-                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
-                  appSubTab === 'logistics'
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                <Truck className="h-4 w-4" />
-                Logistics Registry
-              </button>
-
-              <button
-                onClick={() => setAppSubTab('onboarding')}
-                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
-                  appSubTab === 'onboarding'
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                <UserPlus className="h-4 w-4" />
-                Onboarding Portal
-              </button>
-
-              <button
-                onClick={() => setAppSubTab('ai_agents')}
-                className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
-                  appSubTab === 'ai_agents'
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                <Bot className="h-4 w-4" />
-                AI Agent Center
-              </button>
+            <div className="relative z-50">
+              <RoleSwitcher />
             </div>
-            
-            {/* Active subtab view */}
-            <div className="pt-2">
-              {renderActiveSubTab()}
+
+            {/* Gating Overlay for T&C / Mutual NDA */}
+            {!isNdaUnlocked && (
+              <NdaSignSystem 
+                onSignSuccess={() => setIsNdaUnlocked(true)} 
+                currentUserData={currentUser} 
+              />
+            )}
+
+            {/* Premium Sandbox Tab Bar & Content (blurred if locked) */}
+            <div className={`space-y-6 transition-all duration-300 ${!isNdaUnlocked ? 'opacity-30 blur-sm pointer-events-none' : ''}`}>
+              <div className="flex border-b border-zinc-900 gap-2 md:gap-4 overflow-x-auto scrollbar-none">
+                <button
+                  onClick={() => setAppSubTab('dashboard')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'dashboard'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Role Dashboard
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('marketplace')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'marketplace'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Produce Marketplace
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('logistics')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'logistics'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Truck className="h-4 w-4" />
+                  Logistics Registry
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('onboarding')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'onboarding'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Onboarding Portal
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('ai_agents')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'ai_agents'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Bot className="h-4 w-4" />
+                  AI Agent Center
+                </button>
+              </div>
+              
+              {/* Active subtab view */}
+              <div className="pt-2">
+                {renderActiveSubTab()}
+              </div>
             </div>
           </div>
         )}

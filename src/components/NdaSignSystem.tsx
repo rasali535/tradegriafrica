@@ -21,6 +21,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
   const [sigType, setSigType] = useState<"draw" | "type">("draw");
   const [typedName, setTypedName] = useState("");
   const [selectedFont, setSelectedFont] = useState("font-signature-1");
+  const [agreementType, setAgreementType] = useState<"nda" | "terms">("terms");
 
   // Form Fields
   const [fullName, setFullName] = useState("");
@@ -55,6 +56,10 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
           ? `${currentUserData.name} Farms` 
           : `${currentUserData.name} Co.`
       );
+      
+      // Auto-toggle agreement type: admin/bank/government gets NDA, standard traders get terms
+      const isHighClearance = currentUserData.role === "admin" || currentUserData.role === "bank" || currentUserData.role === "government";
+      setAgreementType(isHighClearance ? "nda" : "terms");
     }
   }, [currentUserData]);
 
@@ -210,6 +215,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
           country,
           purpose,
           signature_data: signatureImage,
+          agreement_type: agreementType,
         }),
       });
 
@@ -222,10 +228,17 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
 
       setSignedNda(resData.nda);
       setEmailLogs(resData.simulatedEmailDetails);
-      localStorage.setItem("pt_nda_signed", "true");
-      localStorage.setItem("pt_nda_details", JSON.stringify(resData.nda));
+      
+      if (agreementType === "terms") {
+        localStorage.setItem("pt_terms_signed", "true");
+        localStorage.setItem("pt_terms_details", JSON.stringify(resData.nda));
+      } else {
+        localStorage.setItem("pt_nda_signed", "true");
+        localStorage.setItem("pt_nda_details", JSON.stringify(resData.nda));
+      }
       
       setIsSubmitting(false);
+      onSignSuccess(resData.nda);
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "An unexpected error occurred during submission.");
@@ -485,369 +498,466 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
 
   // Render Signing Form
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="p-6 rounded-2xl bg-zinc-950/60 border border-zinc-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
-        <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="space-y-1 z-10">
-          <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
-            <Shield className="h-5 w-5 text-emerald-400" />
-            Digital NDA Signing Portal
-          </h2>
-          <p className="text-xs text-zinc-400 max-w-xl">
-            You must execute the Mutual Non-Disclosure Agreement in order to gain clearance and unlock the PulaTrade App Sandbox Desk.
-          </p>
+    <div className="fixed inset-0 z-40 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="w-full max-w-5xl bg-zinc-900/95 border border-zinc-850 rounded-2xl shadow-2xl p-6 relative my-8 max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800">
+        
+        {/* Dynamic Tab Selector for Agreements */}
+        <div className="flex border-b border-zinc-850 mb-6 bg-zinc-950 p-1 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setAgreementType("terms")}
+            className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all ${
+              agreementType === "terms"
+                ? "bg-zinc-900 text-emerald-400 border border-zinc-800 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-350"
+            }`}
+          >
+            Standard Trader Agreement (T&C & Privacy)
+          </button>
+          <button
+            type="button"
+            onClick={() => setAgreementType("nda")}
+            className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all ${
+              agreementType === "nda"
+                ? "bg-zinc-900 text-emerald-400 border border-zinc-800 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-350"
+            }`}
+          >
+            Investor & Partner Agreement (Mutual NDA)
+          </button>
         </div>
-        <Badge className="bg-amber-950/80 text-amber-400 border border-amber-900 z-10">
-          Clearance Required
-        </Badge>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Form (7 cols) */}
-        <form onSubmit={handleSubmit} className="lg:col-span-7 space-y-6">
-          {/* Intake details */}
-          <Card className="glass-card border-zinc-900 p-6 space-y-4">
-            <div className="border-b border-zinc-900 pb-2 flex items-center gap-2">
-              <span className="p-1 bg-zinc-900 border border-zinc-800 text-emerald-400 rounded-lg"><FileText className="h-4 w-4" /></span>
-              <div className="text-left">
-                <h3 className="font-bold text-zinc-200 text-xs uppercase tracking-wide">NDA Intake Information</h3>
-                <p className="text-[10px] text-zinc-500">Your details are bound to the signed document dynamically</p>
-              </div>
-            </div>
+        <div className="p-6 rounded-2xl bg-zinc-950/60 border border-zinc-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden mb-6">
+          <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="space-y-1 z-10">
+            <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-emerald-400" />
+              {agreementType === "terms" ? "Terms of Service & Data Protection Portal" : "Digital NDA Signing Portal"}
+            </h2>
+            <p className="text-xs text-zinc-400 max-w-xl">
+              {agreementType === "terms"
+                ? "Please review and acknowledge the terms of use and data security policy to access the PulaTrade marketplace."
+                : "You must execute the Mutual Non-Disclosure Agreement in order to gain clearance and unlock the PulaTrade App Sandbox Desk."
+              }
+            </p>
+          </div>
+          <Badge className={`${agreementType === "terms" ? "bg-emerald-950/80 text-emerald-400 border border-emerald-900" : "bg-amber-950/80 text-amber-400 border border-amber-900"} z-10`}>
+            {agreementType === "terms" ? "Acknowledgment Required" : "Clearance Required"}
+          </Badge>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Full Name</label>
-                <Input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                  placeholder="e.g. John Doe"
-                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Company Name</label>
-                <Input
-                  type="text"
-                  required
-                  value={companyName}
-                  onChange={e => setCompanyName(e.target.value)}
-                  placeholder="e.g. AgriCorp SADC"
-                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Role/Title</label>
-                <select
-                  value={role}
-                  onChange={e => setRole(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9 animate-none"
-                >
-                  <option value="farmer">Farmer / Cooperative</option>
-                  <option value="buyer">Procurement Officer / Buyer</option>
-                  <option value="transporter">Logistics & Freight Carrier</option>
-                  <option value="exporter">Agribusiness Exporter</option>
-                  <option value="bank">Structured Trade Banker</option>
-                  <option value="government">SADC Border Inspector</option>
-                  <option value="admin">Operations Administrator</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Email Address</label>
-                <Input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="e.g. contact@entity.com"
-                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Phone Number</label>
-                <Input
-                  type="text"
-                  required
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  placeholder="e.g. +267 71 123 456"
-                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Country</label>
-                <select
-                  value={country}
-                  onChange={e => setCountry(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
-                >
-                  <option value="Botswana">Botswana</option>
-                  <option value="Zimbabwe">Zimbabwe</option>
-                  <option value="Zambia">Zambia</option>
-                  <option value="Namibia">Namibia</option>
-                  <option value="South Africa">South Africa</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5 col-span-2">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase">Purpose of access</label>
-                <select
-                  value={purpose}
-                  onChange={e => setPurpose(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
-                >
-                  <option value="Agribusiness Trading">Agribusiness Trading & Marketplace Listing</option>
-                  <option value="Logistics Coordination">Logistics Coordination & Corridor Gate Dispatch</option>
-                  <option value="Platform Administration">Platform Administration & Audit Verification</option>
-                  <option value="Marketplace Auditing">Marketplace Auditing & Biosecurity Inspections</option>
-                  <option value="Investor Demo Review">Investor Demonstration & Partner Review</option>
-                </select>
-              </div>
-            </div>
-          </Card>
-
-          {/* Interactive Signature Area */}
-          <Card className="glass-card border-zinc-900 p-6 space-y-4">
-            <div className="border-b border-zinc-900 pb-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="p-1 bg-zinc-900 border border-zinc-800 text-emerald-400 rounded-lg"><PenTool className="h-4 w-4" /></span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Form (7 cols) */}
+          <form onSubmit={handleSubmit} className="lg:col-span-7 space-y-6">
+            {/* Intake details */}
+            <Card className="glass-card border-zinc-900 p-6 space-y-4">
+              <div className="border-b border-zinc-900 pb-2 flex items-center gap-2">
+                <span className="p-1 bg-zinc-900 border border-zinc-800 text-emerald-400 rounded-lg"><FileText className="h-4 w-4" /></span>
                 <div className="text-left">
-                  <h3 className="font-bold text-zinc-200 text-xs uppercase tracking-wide">Digital Signature Pad</h3>
-                  <p className="text-[10px] text-zinc-500">Sign directly on screen to bind your execution authority</p>
+                  <h3 className="font-bold text-zinc-200 text-xs uppercase tracking-wide">
+                    {agreementType === "terms" ? "Terms Intake Information" : "NDA Intake Information"}
+                  </h3>
+                  <p className="text-[10px] text-zinc-500">Your details are bound to the signed document dynamically</p>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Full Name</label>
+                  <Input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    placeholder="e.g. John Doe"
+                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Company Name</label>
+                  <Input
+                    type="text"
+                    required
+                    value={companyName}
+                    onChange={e => setCompanyName(e.target.value)}
+                    placeholder="e.g. AgriCorp SADC"
+                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Role/Title</label>
+                  <select
+                    value={role}
+                    onChange={e => setRole(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9 animate-none"
+                  >
+                    <option value="farmer">Farmer / Cooperative</option>
+                    <option value="buyer">Procurement Officer / Buyer</option>
+                    <option value="transporter">Logistics & Freight Carrier</option>
+                    <option value="exporter">Agribusiness Exporter</option>
+                    <option value="bank">Structured Trade Banker</option>
+                    <option value="government">SADC Border Inspector</option>
+                    <option value="admin">Operations Administrator</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Email Address</label>
+                  <Input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="e.g. contact@entity.com"
+                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Phone Number</label>
+                  <Input
+                    type="text"
+                    required
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="e.g. +267 71 123 456"
+                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Country</label>
+                  <select
+                    value={country}
+                    onChange={e => setCountry(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
+                  >
+                    <option value="Botswana">Botswana</option>
+                    <option value="Zimbabwe">Zimbabwe</option>
+                    <option value="Zambia">Zambia</option>
+                    <option value="Namibia">Namibia</option>
+                    <option value="South Africa">South Africa</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5 col-span-2">
+                  <label className="text-[10px] text-zinc-400 font-bold uppercase">Purpose of access</label>
+                  <select
+                    value={purpose}
+                    onChange={e => setPurpose(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
+                  >
+                    <option value="Agribusiness Trading">Agribusiness Trading & Marketplace Listing</option>
+                    <option value="Logistics Coordination">Logistics Coordination & Corridor Gate Dispatch</option>
+                    <option value="Platform Administration">Platform Administration & Audit Verification</option>
+                    <option value="Marketplace Auditing">Marketplace Auditing & Biosecurity Inspections</option>
+                    <option value="Investor Demo Review">Investor Demonstration & Partner Review</option>
+                  </select>
+                </div>
+              </div>
+            </Card>
+
+            {/* Interactive Signature Area */}
+            <Card className="glass-card border-zinc-900 p-6 space-y-4">
+              <div className="border-b border-zinc-900 pb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="p-1 bg-zinc-900 border border-zinc-800 text-emerald-400 rounded-lg"><PenTool className="h-4 w-4" /></span>
+                  <div className="text-left">
+                    <h3 className="font-bold text-zinc-200 text-xs uppercase tracking-wide">Digital Signature Pad</h3>
+                    <p className="text-[10px] text-zinc-500">Sign directly on screen to bind your execution authority</p>
+                  </div>
+                </div>
+                
+                {/* Type/Draw Toggles */}
+                <div className="flex bg-zinc-950 border border-zinc-900 p-0.5 rounded-lg text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSigType("draw");
+                      clearSignature();
+                    }}
+                    className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 font-semibold ${
+                      sigType === "draw" ? "bg-emerald-950 text-emerald-400 border border-emerald-900/60" : "text-zinc-500"
+                    }`}
+                  >
+                    <PenTool className="h-3 w-3" /> Draw
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSigType("type");
+                      clearSignature();
+                    }}
+                    className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 font-semibold ${
+                      sigType === "type" ? "bg-emerald-950 text-emerald-400 border border-emerald-900/60" : "text-zinc-500"
+                    }`}
+                  >
+                    <Type className="h-3 w-3" /> Type
+                  </button>
+                </div>
+              </div>
+
+              {/* Signature Draw Pad */}
+              <div className="space-y-3">
+                {sigType === "type" && (
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="col-span-2 space-y-1">
+                      <label className="text-[9px] text-zinc-500 block uppercase">Type Full Name</label>
+                      <Input
+                        type="text"
+                        value={typedName}
+                        onChange={e => setTypedName(e.target.value)}
+                        placeholder="Type signature name..."
+                        className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-8 text-xs font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] text-zinc-500 block uppercase">Select Style</label>
+                      <select
+                        value={selectedFont}
+                        onChange={e => setSelectedFont(e.target.value)}
+                        className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-1.5 text-zinc-300 focus:border-emerald-800 outline-none h-8 font-sans"
+                      >
+                        <option value="font-signature-1">Georgia Italic</option>
+                        <option value="font-signature-2">Brush Script</option>
+                        <option value="font-signature-3">Times Roman</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="relative border border-zinc-900 bg-zinc-950 rounded-xl p-2 h-44 flex items-center justify-center select-none overflow-hidden">
+                  <canvas
+                    ref={canvasRef}
+                    width={500}
+                    height={160}
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                    onTouchStart={startDrawing}
+                    onTouchMove={draw}
+                    onTouchEnd={stopDrawing}
+                    className={`bg-zinc-950 w-full h-full rounded-lg cursor-crosshair ${
+                      sigType === "type" ? "pointer-events-none" : ""
+                    }`}
+                  />
+                  
+                  {sigType === "draw" && (
+                    <div className="absolute top-2 right-2 text-[8px] text-zinc-600 bg-zinc-950/60 px-1.5 py-0.5 rounded border border-zinc-900 font-mono">
+                      DRAW ZONE
+                    </div>
+                  )}
+                  {sigType === "type" && !typedName && (
+                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-[11px] pointer-events-none italic">
+                      Type your name above to generate signature stamp
+                    </div>
+                  )}
+                </div>
+
+                {/* Clear Canvas */}
+                <div className="flex justify-between items-center text-xs">
+                  <button
+                    type="button"
+                    onClick={clearSignature}
+                    className="text-zinc-500 hover:text-zinc-355 flex items-center gap-1 transition-colors text-[10px]"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" /> Clear Signature
+                  </button>
+                  <div className="text-[9px] text-zinc-500 font-mono flex items-center gap-1">
+                    <Server className="h-3 w-3 text-emerald-500/80" /> Vault Anchored ECC-256
+                  </div>
+                </div>
+              </div>
+
+              {/* Verification details checkboxes */}
+              <div className="space-y-3.5 pt-4 border-t border-zinc-900/60">
+                <label className="flex items-start gap-2.5 text-xs text-zinc-400 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={agreeTerms}
+                    onChange={e => setAgreeTerms(e.target.checked)}
+                    className="mt-0.5 accent-emerald-500 h-4 w-4 rounded bg-zinc-950 border-zinc-900 cursor-pointer focus:ring-0 focus:ring-offset-0"
+                  />
+                  <span>
+                    {agreementType === "terms" 
+                      ? "I agree to the PulaTrade Platform Terms of Service, User Guidelines, and SADC-compliant Data Protection Policy."
+                      : "I agree to the PulaTrade Platform Mutual NDA terms, confidentiality constraints, IP protection clauses, and governing laws."
+                    }
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2.5 text-xs text-zinc-400 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={confirmAuthority}
+                    onChange={e => setConfirmAuthority(e.target.checked)}
+                    className="mt-0.5 accent-emerald-500 h-4 w-4 rounded bg-zinc-950 border-zinc-900 cursor-pointer focus:ring-0 focus:ring-offset-0"
+                  />
+                  <span>
+                    {agreementType === "terms"
+                      ? "I confirm that I am registering a valid account on behalf of the business entity or smallholding listed."
+                      : "I confirm that I possess the legal execution authority to sign on behalf of the registered business or cooperative entity listed."
+                    }
+                  </span>
+                </label>
               </div>
               
-              {/* Type/Draw Toggles */}
-              <div className="flex bg-zinc-950 border border-zinc-900 p-0.5 rounded-lg text-[10px]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSigType("draw");
-                    clearSignature();
-                  }}
-                  className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 font-semibold ${
-                    sigType === "draw" ? "bg-emerald-950 text-emerald-400 border border-emerald-900/60" : "text-zinc-500"
-                  }`}
-                >
-                  <PenTool className="h-3 w-3" /> Draw
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSigType("type");
-                    clearSignature();
-                  }}
-                  className={`px-2 py-1 rounded-md transition-all flex items-center gap-1 font-semibold ${
-                    sigType === "type" ? "bg-emerald-950 text-emerald-400 border border-emerald-900/60" : "text-zinc-500"
-                  }`}
-                >
-                  <Type className="h-3 w-3" /> Type
-                </button>
-              </div>
-            </div>
-
-            {/* Signature Draw Pad */}
-            <div className="space-y-3">
-              {sigType === "type" && (
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="col-span-2 space-y-1">
-                    <label className="text-[9px] text-zinc-500 block uppercase">Type Full Name</label>
-                    <Input
-                      type="text"
-                      value={typedName}
-                      onChange={e => setTypedName(e.target.value)}
-                      placeholder="Type signature name..."
-                      className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-8 text-xs font-mono"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] text-zinc-500 block uppercase">Select Style</label>
-                    <select
-                      value={selectedFont}
-                      onChange={e => setSelectedFont(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-1.5 text-zinc-300 focus:border-emerald-800 outline-none h-8 font-sans"
-                    >
-                      <option value="font-signature-1">Georgia Italic</option>
-                      <option value="font-signature-2">Brush Script</option>
-                      <option value="font-signature-3">Times Roman</option>
-                    </select>
-                  </div>
-                </div>
+              {errorMsg && (
+                <p className="text-[10px] text-red-400 mt-2 font-semibold bg-red-950/20 p-2 rounded border border-red-900/40">
+                  ⚠️ {errorMsg}
+                </p>
               )}
 
-              <div className="relative border border-zinc-900 bg-zinc-950 rounded-xl p-2 h-44 flex items-center justify-center select-none overflow-hidden">
-                <canvas
-                  ref={canvasRef}
-                  width={500}
-                  height={160}
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing}
-                  onTouchStart={startDrawing}
-                  onTouchMove={draw}
-                  onTouchEnd={stopDrawing}
-                  className={`bg-zinc-950 w-full h-full rounded-lg cursor-crosshair ${
-                    sigType === "type" ? "pointer-events-none" : ""
-                  }`}
-                />
-                
-                {sigType === "draw" && (
-                  <div className="absolute top-2 right-2 text-[8px] text-zinc-600 bg-zinc-950/60 px-1.5 py-0.5 rounded border border-zinc-900 font-mono">
-                    DRAW ZONE
-                  </div>
-                )}
-                {sigType === "type" && !typedName && (
-                  <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-[11px] pointer-events-none italic">
-                    Type your name above to generate signature stamp
-                  </div>
-                )}
-              </div>
-
-              {/* Clear Canvas */}
-              <div className="flex justify-between items-center text-xs">
-                <button
-                  type="button"
-                  onClick={clearSignature}
-                  className="text-zinc-500 hover:text-zinc-350 flex items-center gap-1 transition-colors text-[10px]"
+              {/* Submit btn */}
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={!agreeTerms || !confirmAuthority}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold border border-emerald-500 shadow-md text-xs py-2.5 transition-all flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:hover:bg-emerald-600 disabled:cursor-not-allowed"
                 >
-                  <RotateCcw className="h-3.5 w-3.5" /> Clear Signature
-                </button>
-                <div className="text-[9px] text-zinc-500 font-mono flex items-center gap-1">
-                  <Server className="h-3 w-3 text-emerald-500/80" /> Vault Anchored ECC-256
+                  <ShieldCheck className="h-4.5 w-4.5" /> Sign & Continue
+                </Button>
+              </div>
+            </Card>
+          </form>
+
+          {/* Right Preview of legal texts (5 cols) */}
+          <div className="lg:col-span-5 h-full flex flex-col">
+            <Card className="glass-card border-zinc-900 flex-1 flex flex-col">
+              <CardHeader className="border-b border-zinc-900/60 pb-3">
+                <CardTitle className="text-sm font-bold text-zinc-300 flex items-center gap-1.5">
+                  <FileText className="h-4 w-4 text-emerald-500" /> 
+                  {agreementType === "terms" ? "Terms & Privacy Policy Preview" : "Mutual NDA Terms Preview"}
+                </CardTitle>
+              </CardHeader>
+              <div className="p-4 overflow-y-auto max-h-[580px] text-[10.5px] text-zinc-400 space-y-3.5 leading-relaxed font-sans scrollbar-thin scrollbar-thumb-zinc-900">
+                <h3 className="font-extrabold text-zinc-200 text-center uppercase tracking-wide">
+                  {agreementType === "terms" ? "TERMS OF SERVICE & PRIVACY POLICY" : "MUTUAL NON-DISCLOSURE AGREEMENT"}
+                </h3>
+                
+                <div className="space-y-2 text-[10px]">
+                  <p>
+                    <strong>EFFECTIVE DATE:</strong> {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                  </p>
+                  <p>
+                    <strong>{agreementType === "terms" ? "COMPLIANCE FRAMEWORK" : "GOVERNING JURISDICTION"}:</strong> {agreementType === "terms" ? "SADC Regional Data Privacy & Fair Agribusiness Protocol" : "Republic of Botswana (Gaborone)"}
+                  </p>
+                  <p>
+                    {agreementType === "terms"
+                      ? "This Terms of Service and Data Protection Agreement governs standard user interactions, crop listing declarations, carrier bookings, and escrow transactions on the Pula Trade Platform."
+                      : "This Mutual Non-Disclosure Agreement (the \"Agreement\") is entered into by and between PulaTrade Technologies Inc. and the registered Signatory Representative representing the registered Cooperative, Transporter, Buyer, or Agribusiness entity (the \"Recipient\")."
+                    }
+                  </p>
+                </div>
+
+                <div className="border-b border-zinc-900 my-2"></div>
+
+                <div className="space-y-3 font-sans text-[10.5px]">
+                  {agreementType === "terms" ? (
+                    <>
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          1. Platform Usage & Crop Registry
+                        </strong>
+                        <p>
+                          The User agrees to list crop yields, logistics capacity, and pricing parameters in good faith. False declarations of biosecurity clearance or cargo capability are grounds for immediate account suspension.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          2. SADC Privacy Alignment
+                        </strong>
+                        <p>
+                          Pula Trade protects personal and agribusiness data under the SADC Model Law on Computer Crime and Cybercrime and SADC data privacy guidelines. All contact details and escrow transaction values are encrypted.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          3. Secure Escrow Usage
+                        </strong>
+                        <p>
+                          Users agree that any trade finalized using the platform's matching system must clear through Pula Trade's registered regional escrow bank channels.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          4. Anti-Money Laundering (AML)
+                        </strong>
+                        <p>
+                          The User covenants that no transaction completed via the platform corridor will violate regional anti-money laundering, smuggling, or illegal crop transport regulations.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          5. Disputes & Resolution
+                        </strong>
+                        <p>
+                          Platform usage issues shall be resolved via standard arbitration in accordance with regional SADC trade panel regulations.
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          1. Confidential Information
+                        </strong>
+                        <p>
+                          "Confidential Information" refers to any proprietary, sensitive, trade, or technical data disclosed by PulaTrade, including agricultural demand matrices, transaction escrows, regional price listings, cross-border custom certificates, multimodal freight volumes, and AI agent orchestrator schemas. The Recipient agrees to restrict access to employees on a strict "need-to-know" basis.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          2. Intellectual Property (IP)
+                        </strong>
+                        <p>
+                          All rights, titles, and interests in the platform’s structural codebase, custom APIs, regional biosecurity filters, database layouts, visual dashboard assets, and trade-negotiation workflows are reserved exclusively by PulaTrade. Platform access grants a non-exclusive, revocable, and limited evaluation license. Copying, reverse-engineering, or replicating any architecture is strictly prohibited.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          3. Non-Circumvention
+                        </strong>
+                        <p>
+                          The Recipient covenants that they shall not directly bypass or circumvent the platform to negotiate, structure, or conclude business transactions (produce buying/selling, cargo transport, or trade credit financing) with any counterparty, grower, cooperative, or logistics operator introduced through the platform network. All transaction clearing must utilize the PulaTrade Secure Escrow.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          4. Non-Use Restrictions
+                        </strong>
+                        <p>
+                          Confidential Information shall not be utilized for any speculative commercial actions, competitive development of alternative trade matching systems, or any purposes detrimental to the operations, pricing integrity, and security of the PulaTrade regional agricultural corridor.
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
+                          5. Governing Law & Dispute Resolution
+                        </strong>
+                        <p>
+                          This Agreement shall be interpreted and governed in accordance with the laws of the Republic of Botswana. Any dispute, arbitration, or litigation arising out of platform access, compliance breaches, or non-circumvention violations shall be submitted exclusively to the competent courts of Gaborone, Botswana.
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-            </div>
-
-            {/* Verification details checkboxes */}
-            <div className="space-y-3.5 pt-4 border-t border-zinc-900/60">
-              <label className="flex items-start gap-2.5 text-xs text-zinc-400 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={agreeTerms}
-                  onChange={e => setAgreeTerms(e.target.checked)}
-                  className="mt-0.5 accent-emerald-500 h-4 w-4 rounded bg-zinc-950 border-zinc-900 cursor-pointer focus:ring-0 focus:ring-offset-0"
-                />
-                <span>
-                  I agree to the PulaTrade Platform Mutual NDA terms, confidentiality constraints, IP protection clauses, and governing laws.
-                </span>
-              </label>
-
-              <label className="flex items-start gap-2.5 text-xs text-zinc-400 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={confirmAuthority}
-                  onChange={e => setConfirmAuthority(e.target.checked)}
-                  className="mt-0.5 accent-emerald-500 h-4 w-4 rounded bg-zinc-950 border-zinc-900 cursor-pointer focus:ring-0 focus:ring-offset-0"
-                />
-                <span>
-                  I confirm that I possess the legal execution authority to sign on behalf of the registered business or cooperative entity listed.
-                </span>
-              </label>
-            </div>
-            
-            {errorMsg && (
-              <p className="text-[10px] text-red-400 mt-2 font-semibold bg-red-950/20 p-2 rounded border border-red-900/40">
-                ⚠️ {errorMsg}
-              </p>
-            )}
-
-            {/* Submit btn */}
-            <div className="pt-2">
-              <Button
-                type="submit"
-                disabled={!agreeTerms || !confirmAuthority}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold border border-emerald-500 shadow-md text-xs py-2.5 transition-all flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:hover:bg-emerald-600 disabled:cursor-not-allowed"
-              >
-                <ShieldCheck className="h-4.5 w-4.5" /> Sign & Continue
-              </Button>
-            </div>
-          </Card>
-        </form>
-
-        {/* Right Preview of legal texts (5 cols) */}
-        <div className="lg:col-span-5 h-full flex flex-col">
-          <Card className="glass-card border-zinc-900 flex-1 flex flex-col">
-            <CardHeader className="border-b border-zinc-900/60 pb-3">
-              <CardTitle className="text-sm font-bold text-zinc-300 flex items-center gap-1.5">
-                <FileText className="h-4 w-4 text-emerald-500" /> Mutual NDA Terms Preview
-              </CardTitle>
-            </CardHeader>
-            <div className="p-4 overflow-y-auto max-h-[580px] text-[10.5px] text-zinc-400 space-y-3.5 leading-relaxed font-sans scrollbar-thin scrollbar-thumb-zinc-900">
-              <h3 className="font-extrabold text-zinc-200 text-center uppercase tracking-wide">
-                MUTUAL NON-DISCLOSURE AGREEMENT
-              </h3>
-              
-              <div className="space-y-2 text-[10px]">
-                <p>
-                  <strong>EFFECTIVE DATE:</strong> {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                </p>
-                <p>
-                  <strong>GOVERNING JURISDICTION:</strong> Republic of Botswana (Gaborone)
-                </p>
-                <p>
-                  This Mutual Non-Disclosure Agreement (the "Agreement") is entered into by and between PulaTrade Technologies Inc. and the registered Signatory Representative representing the registered Cooperative, Transporter, Buyer, or Agribusiness entity (the "Recipient").
-                </p>
+              <div className="p-3 border-t border-zinc-900 bg-zinc-950/60 text-[9px] text-zinc-500 text-center font-mono flex items-center justify-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" /> Standard SADC Regulatory Framework
               </div>
-
-              <div className="border-b border-zinc-900 my-2"></div>
-
-              <div>
-                <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
-                  1. Confidential Information
-                </strong>
-                <p>
-                  "Confidential Information" refers to any proprietary, sensitive, trade, or technical data disclosed by PulaTrade, including agricultural demand matrices, transaction escrows, regional price listings, cross-border custom certificates, multimodal freight volumes, and AI agent orchestrator schemas. The Recipient agrees to restrict access to employees on a strict "need-to-know" basis.
-                </p>
-              </div>
-
-              <div>
-                <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
-                  2. Intellectual Property (IP)
-                </strong>
-                <p>
-                  All rights, titles, and interests in the platform’s structural codebase, custom APIs, regional biosecurity filters, database layouts, visual dashboard assets, and trade-negotiation workflows are reserved exclusively by PulaTrade. Platform access grants a non-exclusive, revocable, and limited evaluation license. Copying, reverse-engineering, or replicating any architecture is strictly prohibited.
-                </p>
-              </div>
-
-              <div>
-                <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
-                  3. Non-Circumvention
-                </strong>
-                <p>
-                  The Recipient covenants that they shall not directly bypass or circumvent the platform to negotiate, structure, or conclude business transactions (produce buying/selling, cargo transport, or trade credit financing) with any counterparty, grower, cooperative, or logistics operator introduced through the platform network. All transaction clearing must utilize the PulaTrade Secure Escrow.
-                </p>
-              </div>
-
-              <div>
-                <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
-                  4. Non-Use Restrictions
-                </strong>
-                <p>
-                  Confidential Information shall not be utilized for any speculative commercial actions, competitive development of alternative trade matching systems, or any purposes detrimental to the operations, pricing integrity, and security of the PulaTrade regional agricultural corridor.
-                </p>
-              </div>
-
-              <div>
-                <strong className="text-zinc-200 block mb-1 uppercase tracking-wide text-[9.5px]">
-                  5. Governing Law & Dispute Resolution
-                </strong>
-                <p>
-                  This Agreement shall be interpreted and governed in accordance with the laws of the Republic of Botswana. Any dispute, arbitration, or litigation arising out of platform access, compliance breaches, or non-circumvention violations shall be submitted exclusively to the competent courts of Gaborone, Botswana.
-                </p>
-              </div>
-            </div>
-            <div className="p-3 border-t border-zinc-900 bg-zinc-950/60 text-[9px] text-zinc-550 text-center font-mono flex items-center justify-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" /> Standard SADC Regulatory Framework
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

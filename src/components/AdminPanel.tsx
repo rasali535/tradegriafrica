@@ -1148,8 +1148,8 @@ export const AdminPanel: React.FC = () => {
             <Card className="lg:col-span-2 glass-card border-zinc-900">
               <CardHeader className="p-4 border-b border-zinc-850 flex flex-row items-center justify-between space-y-0">
                 <div>
-                  <CardTitle className="text-sm font-bold text-zinc-300">Signed NDAs Registry</CardTitle>
-                  <CardDescription className="text-xs text-zinc-500">Cryptographically signed Mutual Non-Disclosure agreements database</CardDescription>
+                  <CardTitle className="text-sm font-bold text-zinc-300">Signed Agreements Registry</CardTitle>
+                  <CardDescription className="text-xs text-zinc-500">Cryptographically signed platform Terms and Mutual Non-Disclosure agreements database</CardDescription>
                 </div>
                 <Button 
                   size="sm" 
@@ -1162,54 +1162,68 @@ export const AdminPanel: React.FC = () => {
               </CardHeader>
               <CardContent className="p-0 overflow-x-auto">
                 {loadingNda ? (
-                  <div className="text-center py-12 text-zinc-500 text-xs">Loading signed NDAs...</div>
+                  <div className="text-center py-12 text-zinc-500 text-xs">Loading signed agreements...</div>
                 ) : ndaList.length === 0 ? (
-                  <div className="text-center py-12 text-zinc-500 text-xs">No signed NDAs registered.</div>
+                  <div className="text-center py-12 text-zinc-500 text-xs">No signed agreements registered.</div>
                 ) : (
                   <table className="w-full text-left text-[11px] border-collapse">
                     <thead>
                       <tr className="border-b border-zinc-800 bg-zinc-900/40 text-zinc-400 font-semibold uppercase tracking-wider text-[9px]">
                         <th className="p-3">Signee Identity</th>
+                        <th className="p-3">Agreement Type</th>
                         <th className="p-3">Entity & Purpose</th>
                         <th className="p-3">Audit Details</th>
                         <th className="p-3 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {ndaList.map((nda: any) => (
-                        <tr key={nda.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/10 text-zinc-300">
-                          <td className="p-3">
-                            <div className="font-semibold text-zinc-200">{nda.full_name}</div>
-                            <div className="text-[10px] text-zinc-500 mt-0.5">{nda.email}</div>
-                          </td>
-                          <td className="p-3">
-                            <div className="text-zinc-200">{nda.company_name} ({nda.role})</div>
-                            <div className="text-[10px] text-zinc-500 mt-0.5">{nda.purpose}</div>
-                          </td>
-                          <td className="p-3">
-                            <div>IP: <span className="font-mono text-zinc-400">{nda.ip_address}</span></div>
-                            <div className="text-[9px] text-zinc-550 mt-0.5">Signed: {new Date(nda.signed_at).toLocaleString()}</div>
-                          </td>
-                          <td className="p-3 text-right">
-                            {nda.pdf_url && (
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  const link = document.createElement("a");
-                                  link.href = nda.pdf_url;
-                                  link.download = `Signed_NDA_PulaTrade_${nda.full_name.replace(/\s+/g, "_")}.pdf`;
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                }}
-                                className="h-6 text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-900/60 hover:bg-emerald-900/25 flex items-center gap-1 ml-auto"
-                              >
-                                <Download className="h-3 w-3" /> Download PDF
-                              </Button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {ndaList.map((nda: any) => {
+                        const isTerms = nda.agreement_type === "terms";
+                        return (
+                          <tr key={nda.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/10 text-zinc-300">
+                            <td className="p-3">
+                              <div className="font-semibold text-zinc-200">{nda.full_name}</div>
+                              <div className="text-[10px] text-zinc-500 mt-0.5">{nda.email}</div>
+                            </td>
+                            <td className="p-3">
+                              <Badge className={`text-[8.5px] font-mono px-2 py-0.5 ${
+                                isTerms 
+                                  ? "bg-blue-950/80 text-blue-400 border border-blue-900" 
+                                  : "bg-amber-950/80 text-amber-400 border border-amber-900"
+                              }`}>
+                                {isTerms ? "Terms & Privacy" : "Mutual NDA"}
+                              </Badge>
+                            </td>
+                            <td className="p-3">
+                              <div className="text-zinc-200">{nda.company_name} ({nda.role})</div>
+                              <div className="text-[10px] text-zinc-500 mt-0.5">{nda.purpose}</div>
+                            </td>
+                            <td className="p-3">
+                              <div>IP: <span className="font-mono text-zinc-400">{nda.ip_address}</span></div>
+                              <div className="text-[9px] text-zinc-550 mt-0.5">Signed: {new Date(nda.signed_at).toLocaleString()}</div>
+                            </td>
+                            <td className="p-3 text-right">
+                              {nda.pdf_url && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    const link = document.createElement("a");
+                                    link.href = nda.pdf_url;
+                                    const prefix = isTerms ? "Signed_Terms_Of_Service" : "Signed_NDA";
+                                    link.download = `${prefix}_PulaTrade_${nda.full_name.replace(/\s+/g, "_")}.pdf`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
+                                  className="h-6 text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-900/60 hover:bg-emerald-900/25 flex items-center gap-1 ml-auto"
+                                >
+                                  <Download className="h-3 w-3" /> Download PDF
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}

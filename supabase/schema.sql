@@ -131,6 +131,7 @@ CREATE TABLE IF NOT EXISTS public.ndas (
     phone VARCHAR(50) NOT NULL,
     country VARCHAR(100) NOT NULL,
     purpose VARCHAR(255) NOT NULL,
+    agreement_type VARCHAR(50) DEFAULT 'nda',
     signed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     ip_address VARCHAR(50) NOT NULL,
     device_metadata JSONB NOT NULL,

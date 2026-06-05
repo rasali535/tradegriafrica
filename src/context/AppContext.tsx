@@ -1364,6 +1364,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem('pt_trade_corridors');
       localStorage.removeItem('pt_nda_signed');
       localStorage.removeItem('pt_nda_details');
+      localStorage.removeItem('pt_terms_signed');
+      localStorage.removeItem('pt_terms_details');
  
       setUsers(SEED_USERS);
       setFarms(SEED_FARMS);
