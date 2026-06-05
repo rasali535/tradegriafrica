@@ -283,7 +283,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
   // Render Submit Stepper Loading
   if (isSubmitting) {
     return (
-      <div className="fixed inset-0 z-40 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[9999] bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-4">
         <div className="max-w-2xl w-full py-16 px-4 flex flex-col items-center justify-center space-y-8 bg-zinc-950 border border-zinc-900 rounded shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
           <div className="flex flex-col items-center space-y-3">
@@ -344,7 +344,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
   // Render Success State
   if (signedNda) {
     return (
-      <div className="fixed inset-0 z-40 bg-zinc-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-[9999] bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div className="w-full max-w-4xl bg-zinc-950 border border-zinc-900 p-6 rounded shadow-2xl relative my-8 overflow-y-auto max-h-[90vh]">
           <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
           <div className="p-8 rounded-lg bg-zinc-950/60 border border-zinc-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
@@ -515,7 +515,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
 
   // Render Signing Form (2-column layout matching screenshot)
   return (
-    <div className="fixed inset-0 z-40 bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
       <div className="w-full max-w-5xl bg-[#090d16]/95 border border-[#0091ff]/35 shadow-[0_0_25px_rgba(0,145,255,0.2)] rounded-lg p-6 relative my-8 max-h-[92vh] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 text-zinc-100 font-mono">
         
         {/* Terminal Header spanning both columns */}
