@@ -106,18 +106,13 @@ export async function POST(request: NextRequest) {
     let yOffset = height - 110;
 
     // Title & Subtitle based on agreementType
-    const titleText = agreementType === "terms" 
-      ? "TERMS OF SERVICE & DATA PROTECTION POLICY" 
-      : "MUTUAL NON-DISCLOSURE AGREEMENT (NDA)";
-      
-    const subtitleText = agreementType === "terms"
-      ? "SADC Regional Privacy Framework & Platform Fair Use Agreement"
-      : "SADC Cross-Border Agribusiness Integration Protocol";
+    const titleText = "NON-DISCLOSURE & NON-CIRCUMVENTION AGREEMENT (NCNDA)";
+    const subtitleText = "Pula Trade Platform - A Property of Pameltech Labs";
 
     page.drawText(titleText, {
       x: 45,
       y: yOffset,
-      size: agreementType === "terms" ? 13 : 15,
+      size: 13,
       font: fontBold,
       color: rgb(0.1, 0.1, 0.1),
     });
@@ -133,9 +128,7 @@ export async function POST(request: NextRequest) {
     yOffset -= 35;
 
     // Parties intro
-    const partiesIntro = agreementType === "terms"
-      ? "This agreement represents a binding commitment by the user to use the Pula Trade Platform in compliance with data privacy regulations:"
-      : "This Agreement is entered into by the undersigning party for accessing Pula Trade Platform:";
+    const partiesIntro = "This Non-Disclosure and Non-Circumvention Agreement (\"Agreement\") is entered into by and between Pameltech Labs (\"Company\") and the undersigned:";
 
     page.drawText(partiesIntro, {
       x: 45,
@@ -172,22 +165,15 @@ export async function POST(request: NextRequest) {
     });
     yOffset -= 20;
 
-    // Legal Clauses text based on agreementType
-    const legalTexts = agreementType === "terms"
-      ? [
-          "1. TERMS OF SERVICE: The user agrees to utilize the Pula Trade platform and its sandbox features for legitimate agricultural trade scoping. Users shall provide accurate crop yields, storage capacities, pricing listings, and transport documents.",
-          "2. DATA PROTECTION & PRIVACY: Pula Trade adheres to the SADC Regional Privacy Framework. Any personal data, including contact details, emails, and transaction history, is encrypted and securely stored. Data is processed solely for trade facilitation.",
-          "3. SECURITY & CREDENTIALS: Users are responsible for maintaining the confidentiality of their credentials and API keys. Any suspicious logins or biosecurity alerts must be immediately reported to the Pula Trade operations team.",
-          "4. FAIR USE POLICY: Users covenant not to engage in speculative bidding, artificial price manipulation, or loading false biosecurity clearances. All transport manifest listings must correspond to physical vehicle capacity.",
-          "5. REGULATORY COMPLIANCE: The user agrees to comply with all domestic phytosanitary, veterinary, and customs laws of both origin and destination countries when listing commodities and initiating cross-border shipments."
-        ]
-      : [
-          "1. CONFIDENTIALITY: The Recipient agrees to keep strictly confidential all business, technological, logistics, and financial information disclosed by Pula Trade, its partners, and cooperatives. This includes trade pricing matrices, carrier corridors, customs documents, and AI agent payloads.",
-          "2. INTELLECTUAL PROPERTY PROTECTION: All software components, UX designs, smart contracts, routing algorithms, database structures, and trade orchestration models are the exclusive intellectual property of Pula Trade. No title, transfer of rights, or replication is permitted.",
-          "3. NON-CIRCUMVENTION: The Recipient shall not circumvent Pula Trade by directly engaging, transacting, or concluding commercial agribusiness contracts with any registered farmer, cooperative, buyer, or transporter discovered via the platform without routing through the designated Pula Trade escrow structure.",
-          "4. NON-USE: Confidential information shall be used solely for evaluating trade corridors or performing approved agribusiness transactions within the platform sandbox, and not for any competitive, speculative, or unauthorized commercial purposes.",
-          "5. GOVERNING LAW & RESOLUTION: This agreement, its terms, and any disputes arising from platform access shall be governed exclusively by the laws of the Republic of Botswana. Any legal proceedings shall be submitted to the competent courts of Gaborone, Botswana."
-        ];
+    // Legal Clauses text based on user-supplied template
+    const legalTexts = [
+      "1. PURPOSE: The Recipient acknowledges that they may be granted access to confidential, proprietary, and commercially sensitive information relating to Pula Trade, a digital platform owned by Pameltech Labs, for the sole purpose of evaluating a potential investment, partnership, or business relationship.",
+      "2. CONFIDENTIAL INFORMATION: Includes but is not limited to: business plans and strategies, technical architecture and system design, source code, algorithms, software logic, financial projections, investor pitch decks, and any non-public info.",
+      "3. NON-DISCLOSURE OBLIGATIONS: The Recipient agrees to keep all Confidential Information strictly confidential, not disclose or share it with any third party, take security measures, and limit access to authorized internal decision-makers.",
+      "4. NON-CIRCUMVENTION: The Recipient agrees not to bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through OilProof; nor contact, engage, or contract with partners or opportunities without written consent.",
+      "5. INTELLECTUAL PROPERTY OWNERSHIP: All software systems, technical processes, business methodologies, designs, workflows, and brand assets remain the exclusive property of Pameltech Labs. No rights or licenses are granted.",
+      "6. DATA PROTECTION, TERM & REMEDIES: The Recipient agrees not to reverse engineer systems or circumvent access controls. This Agreement remains in effect indefinitely. Unauthorized misuse may cause irreparable harm, entitling Company to injunctive relief and damages."
+    ];
 
     for (const clause of legalTexts) {
       // Manual simple text wrapper

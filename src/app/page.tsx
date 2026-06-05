@@ -535,6 +535,11 @@ export default function Home() {
               <NdaSignSystem 
                 onSignSuccess={() => setIsNdaUnlocked(true)} 
                 currentUserData={currentUser} 
+                onCancel={() => {
+                  const farmerUser = users.find(u => u.role === 'farmer');
+                  if (farmerUser) setCurrentUser(farmerUser);
+                  setView('landing');
+                }}
               />
             )}
 
