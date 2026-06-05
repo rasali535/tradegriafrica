@@ -40,27 +40,24 @@ export default function Home() {
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
   const [isNdaUnlocked, setIsNdaUnlocked] = useState<boolean>(false);
 
-  // Synchronize signing gate based on active user role requirements
+  // Gate check: re-runs whenever the user or the view changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (!currentUser) {
-        setIsNdaUnlocked(false);
-        return;
-      }
+    if (typeof window === 'undefined') return;
+    if (!currentUser) { setIsNdaUnlocked(false); return; }
+
+    const isHighClearance = ['admin', 'bank', 'government'].includes(currentUser.role);
+
+    if (isHighClearance) {
+      // High-clearance roles MUST sign the Mutual NCNDA each session
+      // Always read fresh from localStorage — don't trust cached state
       const ndaSigned = localStorage.getItem('pt_nda_signed') === 'true';
-      const termsSigned = localStorage.getItem('pt_terms_signed') === 'true';
-      
-      const isHighClearance = currentUser.role === 'admin' || currentUser.role === 'bank' || currentUser.role === 'government';
-      
-      if (isHighClearance) {
-        // Admins, banks, and border inspectors must sign the Mutual NDA
-        setIsNdaUnlocked(ndaSigned);
-      } else {
-        // Traders, farmers, and carriers sign the platform Terms & Conditions
-        setIsNdaUnlocked(termsSigned || ndaSigned);
-      }
+      setIsNdaUnlocked(ndaSigned);
+    } else {
+      // Farmers, buyers, transporters, exporters — auto-unlock, no gate needed
+      setIsNdaUnlocked(true);
     }
-  }, [currentUser]);
+  }, [currentUser, view]);
+
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -148,6 +145,8 @@ export default function Home() {
             logistics: 't3000000-0000-0000-0000-000000000001',
             exporter: 'e4000000-0000-0000-0000-000000000001',
             admin: 'a5000000-0000-0000-0000-000000000001',
+            bank: 'k7000000-0000-0000-0000-000000000001',
+            government: 'g6000000-0000-0000-0000-000000000001',
           };
           const targetUserId = roleMap[role.toLowerCase()];
           if (targetUserId) {

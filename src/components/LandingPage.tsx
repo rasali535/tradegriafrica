@@ -845,9 +845,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
               </button>
 
-              {/* Option 3: Investors */}
               <button 
-                onClick={() => onLaunchApp('a5000000-0000-0000-0000-000000000001', 'dashboard')}
+                onClick={() => onLaunchApp('k7000000-0000-0000-0000-000000000001', 'dashboard')}
                 className="w-full p-3.5 rounded-xl border border-zinc-900 bg-zinc-900/60 hover:bg-blue-950/20 hover:border-blue-800 text-left transition-all duration-200 flex items-center justify-between group cursor-pointer"
               >
                 <div>
