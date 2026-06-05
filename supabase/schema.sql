@@ -119,3 +119,43 @@ CREATE POLICY "Allow write access to payments for admin/system" ON public.paymen
 
 CREATE POLICY "Allow read access to exports" ON public.exports FOR SELECT USING (true);
 CREATE POLICY "Allow write access to exports for exporters/admins" ON public.exports FOR ALL USING (true);
+
+-- NDAs TABLE
+CREATE TABLE IF NOT EXISTS public.ndas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    full_name VARCHAR(255) NOT NULL,
+    company_name VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    signed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(50) NOT NULL,
+    device_metadata JSONB NOT NULL,
+    signature_hash VARCHAR(64) NOT NULL,
+    signature_data TEXT NOT NULL,
+    pdf_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ACCESS LOGS TABLE
+CREATE TABLE IF NOT EXISTS public.access_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_email VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(50) NOT NULL,
+    device_metadata JSONB NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- RLS POLICIES FOR NDAs & ACCESS LOGS
+ALTER TABLE public.ndas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.access_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public insert to ndas" ON public.ndas FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow read access to ndas for owner/admin" ON public.ndas FOR SELECT USING (true);
+
+CREATE POLICY "Allow public insert to access_logs" ON public.access_logs FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow read access to access_logs for admins" ON public.access_logs FOR SELECT USING (true);

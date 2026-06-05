@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp, User, CommodityListing } from '@/context/AppContext';
 import { 
   ShieldAlert, ShieldCheck, Users, ShoppingBag, Truck, DollarSign,
   AlertTriangle, CheckCircle2, XCircle, Search, RefreshCw, Star, Layers, Activity,
   Terminal, Key, Link, MessageSquare, Send, Wifi, WifiOff, FileCode,
-  Sprout, Briefcase, UserCheck, UserX, FileText, Eye, Globe
+  Sprout, Briefcase, UserCheck, UserX, FileText, Eye, Globe, Download
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,31 @@ export const AdminPanel: React.FC = () => {
   const [newKeyName, setNewKeyName] = useState<string>('');
   const [newKeyRole, setNewKeyRole] = useState<string>('farmer');
   const [newWebhookUrl, setNewWebhookUrl] = useState<string>('');
+
+  // NDA & Access Logs states
+  const [ndaList, setNdaList] = useState<any[]>([]);
+  const [accessLogs, setAccessLogs] = useState<any[]>([]);
+  const [loadingNda, setLoadingNda] = useState<boolean>(true);
+
+  const fetchNdaLogs = async () => {
+    try {
+      setLoadingNda(true);
+      const res = await fetch('/api/nda/status');
+      const data = await res.json();
+      if (data.success) {
+        setNdaList(data.ndas);
+        setAccessLogs(data.logs);
+      }
+    } catch (err) {
+      console.error("Failed to load NDAs/logs", err);
+    } finally {
+      setLoadingNda(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNdaLogs();
+  }, []);
 
   // GTM & Field Operations states
   const [isOnline, setIsOnline] = useState<boolean>(true);
@@ -379,6 +404,9 @@ export const AdminPanel: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="gtm" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
             GTM & Field Ops
+          </TabsTrigger>
+          <TabsTrigger value="nda" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400 flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5" /> NDA & Security Logs
           </TabsTrigger>
         </TabsList>
 
@@ -1111,6 +1139,116 @@ export const AdminPanel: React.FC = () => {
               </div>
             </Card>
 
+          </div>
+        </TabsContent>
+
+        {/* NDA & Security Logs Tab Content */}
+        <TabsContent value="nda" className="mt-4 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-2 glass-card border-zinc-900">
+              <CardHeader className="p-4 border-b border-zinc-850 flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle className="text-sm font-bold text-zinc-300">Signed NDAs Registry</CardTitle>
+                  <CardDescription className="text-xs text-zinc-500">Cryptographically signed Mutual Non-Disclosure agreements database</CardDescription>
+                </div>
+                <Button 
+                  size="sm" 
+                  onClick={fetchNdaLogs} 
+                  className="h-7 text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-350 hover:bg-zinc-800/50"
+                  disabled={loadingNda}
+                >
+                  <RefreshCw className={`h-3 w-3 mr-1 ${loadingNda ? 'animate-spin' : ''}`} /> Refresh
+                </Button>
+              </CardHeader>
+              <CardContent className="p-0 overflow-x-auto">
+                {loadingNda ? (
+                  <div className="text-center py-12 text-zinc-500 text-xs">Loading signed NDAs...</div>
+                ) : ndaList.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-500 text-xs">No signed NDAs registered.</div>
+                ) : (
+                  <table className="w-full text-left text-[11px] border-collapse">
+                    <thead>
+                      <tr className="border-b border-zinc-800 bg-zinc-900/40 text-zinc-400 font-semibold uppercase tracking-wider text-[9px]">
+                        <th className="p-3">Signee Identity</th>
+                        <th className="p-3">Entity & Purpose</th>
+                        <th className="p-3">Audit Details</th>
+                        <th className="p-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ndaList.map((nda: any) => (
+                        <tr key={nda.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/10 text-zinc-300">
+                          <td className="p-3">
+                            <div className="font-semibold text-zinc-200">{nda.full_name}</div>
+                            <div className="text-[10px] text-zinc-500 mt-0.5">{nda.email}</div>
+                          </td>
+                          <td className="p-3">
+                            <div className="text-zinc-200">{nda.company_name} ({nda.role})</div>
+                            <div className="text-[10px] text-zinc-500 mt-0.5">{nda.purpose}</div>
+                          </td>
+                          <td className="p-3">
+                            <div>IP: <span className="font-mono text-zinc-400">{nda.ip_address}</span></div>
+                            <div className="text-[9px] text-zinc-550 mt-0.5">Signed: {new Date(nda.signed_at).toLocaleString()}</div>
+                          </td>
+                          <td className="p-3 text-right">
+                            {nda.pdf_url && (
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  const link = document.createElement("a");
+                                  link.href = nda.pdf_url;
+                                  link.download = `Signed_NDA_PulaTrade_${nda.full_name.replace(/\s+/g, "_")}.pdf`;
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                }}
+                                className="h-6 text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-900/60 hover:bg-emerald-900/25 flex items-center gap-1 ml-auto"
+                              >
+                                <Download className="h-3 w-3" /> Download PDF
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Access Logs (1 col) */}
+            <Card className="glass-card border-zinc-900">
+              <CardHeader className="p-4 border-b border-zinc-850">
+                <CardTitle className="text-sm font-bold text-zinc-300">Access & Security Logs</CardTitle>
+                <CardDescription className="text-xs text-zinc-500">Real-time gate traffic audit records</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 max-h-[400px] overflow-y-auto space-y-2.5">
+                {loadingNda ? (
+                  <div className="text-center py-6 text-zinc-500 text-xs">Loading logs...</div>
+                ) : accessLogs.length === 0 ? (
+                  <div className="text-center py-6 text-zinc-500 text-xs font-mono">No access events recorded.</div>
+                ) : (
+                  accessLogs.map((log: any) => (
+                    <div key={log.id} className="p-2.5 rounded border border-zinc-900 bg-zinc-950/40 text-[10px] space-y-1.5 font-sans leading-normal">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-zinc-300 truncate max-w-[130px]">{log.user_email}</span>
+                        <Badge className={`text-[8px] font-mono font-normal ${
+                          log.action === 'NDA_SIGNED' ? 'bg-emerald-950 text-emerald-400 border-emerald-900/50' : 
+                          log.action === 'PLATFORM_ACCESS_BLOCKED' ? 'bg-red-950/20 text-red-400 border-red-900/50' : 
+                          'bg-zinc-900 text-zinc-400 border-zinc-850'
+                        }`}>
+                          {log.action}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between text-zinc-500 text-[9px]">
+                        <span>IP: {log.ip_address}</span>
+                        <span>{new Date(log.created_at).toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>

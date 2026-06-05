@@ -17,6 +17,7 @@ import { Marketplace } from '@/components/Marketplace';
 import { LogisticsHub } from '@/components/LogisticsHub';
 import { OnboardingPortal } from '@/components/OnboardingPortal';
 import { AIAgentCenter } from '@/components/AIAgentCenter';
+import { NdaSignSystem } from '@/components/NdaSignSystem';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
   HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus,
@@ -37,6 +38,14 @@ export default function Home() {
   const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
+  const [isNdaUnlocked, setIsNdaUnlocked] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const signed = localStorage.getItem('pt_nda_signed') === 'true';
+      setIsNdaUnlocked(signed);
+    }
+  }, []);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -499,6 +508,11 @@ export default function Home() {
           <LandingPage onLaunchApp={handleLaunchApp} />
         ) : view === 'docs' ? (
           <DocsPage onBackToLanding={handleGoHome} />
+        ) : !isNdaUnlocked ? (
+          <NdaSignSystem 
+            onSignSuccess={() => setIsNdaUnlocked(true)} 
+            currentUserData={currentUser} 
+          />
         ) : (
           <div className="space-y-6">
             {/* Persona Switcher for interactive presentation */}
