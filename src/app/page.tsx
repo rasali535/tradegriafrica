@@ -44,14 +44,7 @@ export default function Home() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const alreadySigned = localStorage.getItem('pt_nda_signed') === 'true';
-    
-    if (currentUser && ['admin', 'bank', 'government'].includes(currentUser.role)) {
-      setIsNdaUnlocked(alreadySigned);
-    } else if (currentUser) {
-      setIsNdaUnlocked(true);
-    } else {
-      setIsNdaUnlocked(alreadySigned);
-    }
+    setIsNdaUnlocked(alreadySigned);
   }, [currentUser]);
 
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
