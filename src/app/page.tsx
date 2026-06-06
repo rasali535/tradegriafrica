@@ -220,6 +220,14 @@ export default function Home() {
 
   return (
     <div className="dark min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300">
+      {/* Universal NDA Gate Overlay */}
+      {!isNdaUnlocked && (
+        <NdaSignSystem 
+          onSignSuccess={() => setIsNdaUnlocked(true)} 
+          currentUserData={currentUser}
+        />
+      )}
+
       {/* Premium Header/Navigation */}
       <header className="sticky top-0 z-50 glass-nav">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -524,14 +532,6 @@ export default function Home() {
             <div className="relative z-50">
               <RoleSwitcher />
             </div>
-
-            {/* Universal NDA Gate Overlay */}
-            {!isNdaUnlocked && (
-              <NdaSignSystem 
-                onSignSuccess={() => setIsNdaUnlocked(true)} 
-                currentUserData={currentUser}
-              />
-            )}
 
             {/* Premium Sandbox Tab Bar & Content (blurred if locked) */}
             <div className={`space-y-6 transition-all duration-300 ${!isNdaUnlocked ? 'opacity-30 blur-sm pointer-events-none' : ''}`}>
