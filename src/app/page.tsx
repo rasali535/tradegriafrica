@@ -40,23 +40,19 @@ export default function Home() {
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
   const [isNdaUnlocked, setIsNdaUnlocked] = useState<boolean>(false);
 
-  // Gate check: re-runs whenever the user or the view changes
+  // Universal IP gate — every visitor must sign the NCNDA before accessing anything
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!currentUser) { setIsNdaUnlocked(false); return; }
-
-    const isHighClearance = ['admin', 'bank', 'government'].includes(currentUser.role);
-
-    if (isHighClearance) {
-      // High-clearance roles MUST sign the Mutual NCNDA each session
-      // Always read fresh from localStorage — don't trust cached state
-      const ndaSigned = localStorage.getItem('pt_nda_signed') === 'true';
-      setIsNdaUnlocked(ndaSigned);
-    } else {
-      // Farmers, buyers, transporters, exporters — auto-unlock, no gate needed
+    const alreadySigned = localStorage.getItem('pt_nda_signed') === 'true';
+    
+    if (currentUser && ['admin', 'bank', 'government'].includes(currentUser.role)) {
+      setIsNdaUnlocked(alreadySigned);
+    } else if (currentUser) {
       setIsNdaUnlocked(true);
+    } else {
+      setIsNdaUnlocked(alreadySigned);
     }
-  }, [currentUser, view]);
+  }, [currentUser]);
 
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [password, setPassword] = useState('');
@@ -529,16 +525,11 @@ export default function Home() {
               <RoleSwitcher />
             </div>
 
-            {/* Gating Overlay for T&C / Mutual NDA */}
+            {/* Universal NDA Gate Overlay */}
             {!isNdaUnlocked && (
               <NdaSignSystem 
                 onSignSuccess={() => setIsNdaUnlocked(true)} 
-                currentUserData={currentUser} 
-                onCancel={() => {
-                  const farmerUser = users.find(u => u.role === 'farmer');
-                  if (farmerUser) setCurrentUser(farmerUser);
-                  setView('landing');
-                }}
+                currentUserData={currentUser}
               />
             )}
 
@@ -650,7 +641,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 border-t border-zinc-900/60 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-zinc-600">
-          <div>© {new Date().getFullYear()} PulaTrade Technologies Inc. All Rights Reserved.</div>
+          <div className="flex flex-col gap-1">
+            <span>© {new Date().getFullYear()} PulaTrade Technologies Inc. All Rights Reserved.</span>
+            <span className="text-zinc-500 text-[10px]">Web app platform by Pameltech Labs</span>
+          </div>
           <div className="flex gap-4">
             <button 
               onClick={() => {
