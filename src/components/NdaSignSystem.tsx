@@ -33,7 +33,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
   const [country, setCountry] = useState("Botswana");
   const [purpose, setPurpose] = useState("Investor Review");
 
-  // Agreement Declarations (OilProof style)
+  // Agreement Declarations (Pula Trade style)
   const [decConfidential, setDecConfidential] = useState(false);
   const [decIp, setDecIp] = useState(false);
   const [decAuthority, setDecAuthority] = useState(false);
@@ -884,7 +884,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
                   <div>
                     <strong className="text-zinc-300 block mb-1 uppercase tracking-wide">4. NON-CIRCUMVENTION</strong>
                     <p>
-                      The Recipient agrees not to: bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through OilProof; contact, engage, or contract with any partners, stakeholders, or opportunities disclosed through the platform without written consent; or use Confidential Information to compete with or replicate the Pula Trade platform or its underlying business model.
+                      The Recipient agrees not to: bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through Pula Trade; contact, engage, or contract with any partners, stakeholders, or opportunities disclosed through the platform without written consent; or use Confidential Information to compete with or replicate the Pula Trade platform or its underlying business model.
                     </p>
                   </div>
 
