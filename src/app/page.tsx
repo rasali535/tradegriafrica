@@ -39,9 +39,11 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
   const [isNdaUnlocked, setIsNdaUnlocked] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
 
   // Universal IP gate — every visitor must sign the NCNDA before accessing anything
   useEffect(() => {
+    setIsMounted(true);
     if (typeof window === 'undefined') return;
     const alreadySigned = localStorage.getItem('pt_nda_signed') === 'true';
     setIsNdaUnlocked(alreadySigned);
@@ -214,7 +216,7 @@ export default function Home() {
   return (
     <div className="dark min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300">
       {/* Universal NDA Gate Overlay */}
-      {!isNdaUnlocked && (
+      {!isNdaUnlocked && isMounted && (
         <NdaSignSystem 
           onSignSuccess={() => setIsNdaUnlocked(true)} 
           currentUserData={currentUser}
