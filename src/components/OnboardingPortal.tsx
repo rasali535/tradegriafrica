@@ -58,6 +58,8 @@ export const OnboardingPortal: React.FC = () => {
     try {
       const companyOrName = role === 'farmer' ? name : role === 'buyer' ? companyName || `${name} Distributors` : companyName || name;
       
+      if (!supabase) throw new Error("Supabase connection is not configured.");
+
       // 1. Register base user to Supabase
       const { data: userData, error: userError } = await supabase.from('users').insert({
         name: companyOrName,

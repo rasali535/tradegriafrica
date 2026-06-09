@@ -936,6 +936,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     const fetchLiveDb = async () => {
+      if (!supabase) {
+        console.warn("Supabase is not configured. Skipping live data fetch.");
+        return;
+      }
       try {
         const { data: usersData, error: usersErr } = await supabase.from('users').select('*');
         const { data: farmsData, error: farmsErr } = await supabase.from('farms').select('*');
