@@ -584,20 +584,20 @@ export const AIAgentCenter: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Expandable JSON details */}
+                    {/* Expandable details */}
                     {isExpanded && (
-                      <div className="p-4 border-t border-zinc-900 bg-zinc-950/40 grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-[10px]">
-                        <div className="space-y-1.5">
-                          <span className="text-zinc-500 uppercase tracking-wide font-bold text-[9px] block">Input Parameters (JSON)</span>
-                          <pre className="p-2.5 bg-zinc-950 border border-zinc-900 rounded overflow-x-auto text-zinc-300 max-h-48 scrollbar-thin">
-                            {JSON.stringify(log.input, null, 2)}
-                          </pre>
+                      <div className="p-4 border-t border-zinc-900 bg-zinc-950/40 grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px]">
+                        <div className="space-y-2">
+                          <span className="text-emerald-500 uppercase tracking-wider font-bold text-[9px] block flex items-center gap-1"><ArrowUpRight className="h-3 w-3"/> Agent Parameters (Input)</span>
+                          <div className="p-3 bg-zinc-950/80 border border-zinc-800/60 rounded max-h-64 overflow-y-auto shadow-inner">
+                            <ReadableObject data={log.input} />
+                          </div>
                         </div>
-                        <div className="space-y-1.5">
-                          <span className="text-zinc-500 uppercase tracking-wide font-bold text-[9px] block">Agent Output (JSON)</span>
-                          <pre className="p-2.5 bg-zinc-950 border border-zinc-900 rounded overflow-x-auto text-zinc-300 max-h-48 scrollbar-thin">
-                            {JSON.stringify(log.output, null, 2)}
-                          </pre>
+                        <div className="space-y-2">
+                          <span className="text-emerald-500 uppercase tracking-wider font-bold text-[9px] block flex items-center gap-1"><CheckCircle2 className="h-3 w-3"/> Agent Analysis (Output)</span>
+                          <div className="p-3 bg-zinc-950/80 border border-zinc-800/60 rounded max-h-64 overflow-y-auto shadow-inner">
+                            <ReadableObject data={log.output} />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -608,6 +608,35 @@ export const AIAgentCenter: React.FC = () => {
           )}
         </Card>
       )}
+    </div>
+  );
+};
+
+// Recursive helper to render objects as readable lists instead of JSON
+const ReadableObject = ({ data }: { data: any }) => {
+  if (data === null || data === undefined) return <span className="text-zinc-500 italic">None</span>;
+  if (typeof data !== 'object') {
+    return <span className="text-zinc-200 font-medium">{String(data)}</span>;
+  }
+  if (Array.isArray(data)) {
+    return (
+      <ul className="list-disc pl-4 space-y-1 my-1">
+        {data.map((item, i) => (
+          <li key={i} className="text-zinc-300"><ReadableObject data={item} /></li>
+        ))}
+      </ul>
+    );
+  }
+  return (
+    <div className="space-y-2 my-1">
+      {Object.entries(data).map(([key, value]) => (
+        <div key={key} className="flex flex-col">
+          <span className="text-zinc-400 text-[9px] uppercase tracking-wider font-semibold">{key.replace(/_/g, ' ')}:</span>
+          <div className="pl-2 border-l border-zinc-800 ml-1 mt-0.5">
+            <ReadableObject data={value} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
