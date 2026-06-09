@@ -235,7 +235,7 @@ export default function Home() {
               <Sprout className="h-5 w-5" />
             </div>
             <span className="font-extrabold tracking-tight text-zinc-100 text-lg">
-              Pula<span className="text-emerald-500">Trade</span>
+              TradeGrid<span className="text-emerald-500">Africa</span>
             </span>
           </div>
 
