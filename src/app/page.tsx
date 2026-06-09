@@ -229,14 +229,15 @@ export default function Home() {
           {/* Logo */}
           <div 
             onClick={handleGoHome}
-            className="flex items-center gap-2 cursor-pointer select-none group"
+            className="flex items-center gap-3 cursor-pointer select-none group"
           >
-            <div className="p-1.5 rounded-lg bg-emerald-950/80 border border-emerald-900/60 text-emerald-400 group-hover:scale-105 transition-transform">
-              <Sprout className="h-5 w-5" />
+            <div className="bg-zinc-100 rounded-lg px-2.5 py-1.5 flex items-center justify-center border border-zinc-200/20 group-hover:bg-white transition-colors">
+              <img 
+                src="/logo.png" 
+                alt="TradeGrid Africa Logo" 
+                className="h-8 w-auto object-contain mix-blend-multiply group-hover:scale-105 transition-transform"
+              />
             </div>
-            <span className="font-extrabold tracking-tight text-zinc-100 text-lg">
-              TradeGrid<span className="text-emerald-500">Africa</span>
-            </span>
           </div>
 
           {/* Desktop Navigation Links */}
