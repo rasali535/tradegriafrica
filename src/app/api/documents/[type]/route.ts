@@ -289,6 +289,120 @@ export async function GET(
           <p class="font-bold text-zinc-900">${buyer}</p>
         </div>
       </div>
+      </div>
+    `;
+  } else if (type === "sad500") {
+    title = "SAD 500 - Customs Declaration";
+    documentContent = `
+      <div class="border-b-4 border-emerald-900 pb-4 mb-8 flex justify-between items-start">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 border-2 border-emerald-900 rounded-full flex flex-col items-center justify-center text-emerald-900 font-bold tracking-tighter">
+            <span class="text-[10px]">SADC</span>
+            <span class="text-sm">ZIMRA</span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-black text-emerald-950 tracking-tight">SINGLE ADMINISTRATIVE DOCUMENT</h1>
+            <p class="text-[10px] text-emerald-800 font-bold tracking-widest uppercase">Form SAD 500 - SADC Customs Union</p>
+          </div>
+        </div>
+        <div class="text-right space-y-1">
+          <div class="px-3 py-1 text-xs font-mono font-bold bg-emerald-950 text-emerald-50 rounded">ASYCUDA WORLD</div>
+          <p class="font-mono text-xs text-zinc-600 font-bold border border-zinc-300 px-2 py-0.5 rounded bg-zinc-50">REG: SAD${Math.floor(10000 + Math.random() * 90000)}BW</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="border-2 border-emerald-900 p-2 text-[10px]">
+          <p class="font-bold text-emerald-900 bg-emerald-100 px-1 mb-1">1. Declaration</p>
+          <div class="grid grid-cols-3 gap-2">
+            <div><span class="text-zinc-500">EX</span> <br> <span class="font-mono font-bold">1</span></div>
+            <div><span class="text-zinc-500">A</span> <br> <span class="font-mono font-bold">1</span></div>
+            <div><span class="text-zinc-500">T1</span> <br> <span class="font-mono font-bold">0</span></div>
+          </div>
+        </div>
+        <div class="border-2 border-emerald-900 p-2 text-[10px]">
+          <p class="font-bold text-emerald-900 bg-emerald-100 px-1 mb-1">2. Consignor / Exporter</p>
+          <p class="font-bold uppercase text-zinc-900">${seller}</p>
+          <p class="text-zinc-600">Botswana Trade Hub, Gaborone</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="col-span-2 border-2 border-emerald-900 p-2 text-[10px]">
+          <p class="font-bold text-emerald-900 bg-emerald-100 px-1 mb-1">8. Consignee</p>
+          <p class="font-bold uppercase text-zinc-900">${buyer}</p>
+          <p class="text-zinc-600">Dubai Logistics Terminal, UAE</p>
+        </div>
+        <div class="border-2 border-emerald-900 p-2 text-[10px]">
+          <p class="font-bold text-emerald-900 bg-emerald-100 px-1 mb-1">15. Country of Dispatch</p>
+          <p class="font-mono font-bold text-lg text-center mt-2">BW</p>
+        </div>
+      </div>
+
+      <div class="border-2 border-emerald-900 mb-6">
+        <div class="bg-emerald-900 text-emerald-50 p-1 text-[10px] font-bold">31. Packages and Description of Goods</div>
+        <div class="p-4 grid grid-cols-4 gap-4 text-xs">
+          <div class="col-span-3">
+            <p class="font-bold text-zinc-900 uppercase">${product} (BULK COMMODITY)</p>
+            <p class="text-zinc-600 mt-1">Phytosanitary cleared. Multimodal container transit.</p>
+            <p class="mt-2 text-[10px] text-emerald-800 font-bold">TOTAL MASS: ${numQty} METRIC TONS</p>
+          </div>
+          <div class="border-l border-emerald-900/30 pl-4">
+            <p class="text-[9px] text-zinc-500 font-bold mb-1">33. Commodity Code</p>
+            <p class="font-mono font-bold text-lg text-emerald-900">1005.90.00</p>
+          </div>
+        </div>
+      </div>
+
+      <table class="w-full text-left border-collapse mb-8 border-2 border-emerald-900">
+        <thead>
+          <tr class="bg-emerald-100 text-emerald-900 uppercase text-[9px] font-bold border-b border-emerald-900">
+            <th class="py-2 px-3 border-r border-emerald-900">47. Calculation of Taxes</th>
+            <th class="py-2 px-3 border-r border-emerald-900 text-right">Tax Base (USD)</th>
+            <th class="py-2 px-3 border-r border-emerald-900 text-right">Rate</th>
+            <th class="py-2 px-3 text-right">Amount (USD)</th>
+          </tr>
+        </thead>
+        <tbody class="text-[10px] font-mono text-zinc-800">
+          <tr class="border-b border-emerald-900/30">
+            <td class="py-2 px-3 border-r border-emerald-900 font-bold">Customs Duty (SADC PTA)</td>
+            <td class="py-2 px-3 border-r border-emerald-900 text-right">${total.toLocaleString()}</td>
+            <td class="py-2 px-3 border-r border-emerald-900 text-right">0%</td>
+            <td class="py-2 px-3 text-right">0.00</td>
+          </tr>
+          <tr class="border-b border-emerald-900/30">
+            <td class="py-2 px-3 border-r border-emerald-900 font-bold">VAT (Zero Rated Export)</td>
+            <td class="py-2 px-3 border-r border-emerald-900 text-right">${total.toLocaleString()}</td>
+            <td class="py-2 px-3 border-r border-emerald-900 text-right">0%</td>
+            <td class="py-2 px-3 text-right">0.00</td>
+          </tr>
+          <tr class="bg-emerald-50/50">
+            <td class="py-2 px-3 border-r border-emerald-900 font-bold text-right" colspan="3">TOTAL DUE</td>
+            <td class="py-2 px-3 text-right font-black text-emerald-900 text-xs">0.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="grid grid-cols-2 gap-4 mt-8">
+        <div class="border-2 border-emerald-900 p-4 text-[10px] bg-zinc-50 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 opacity-10 pointer-events-none">
+            <div class="w-32 h-32 border-8 border-emerald-900 rounded-full flex items-center justify-center transform -rotate-45">
+              <span class="text-xl font-black">CLEARED</span>
+            </div>
+          </div>
+          <p class="font-bold text-emerald-900 mb-2 uppercase">54. Place and Date</p>
+          <p class="font-mono">Ramokgwebana Border Post</p>
+          <p class="font-mono mt-1">${date}</p>
+          <div class="mt-6 border-t border-zinc-400 pt-1 text-center w-48 text-[9px] text-zinc-500">Declarant Signature</div>
+        </div>
+        <div class="border-2 border-emerald-900 p-4 text-[10px] relative">
+          <p class="font-bold text-emerald-900 mb-2 uppercase">C. Office of Departure / Clearance</p>
+          <p class="text-zinc-600">Goods released for transit. Seals checked and verified intact.</p>
+          <div class="w-24 h-24 border-4 border-emerald-800 rounded-full flex items-center justify-center text-emerald-800/80 font-black transform rotate-12 mt-4 ml-auto mr-4 text-center leading-tight">
+            ASYCUDA<br>CLEARED
+          </div>
+        </div>
+      </div>
     `;
   } else {
     title = "Official Document";

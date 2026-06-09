@@ -93,10 +93,12 @@ export const AIAgentCenter: React.FC = () => {
         await new Promise(r => setTimeout(r, 600));
         setCurrentStep(5); // Closing Agent
         await new Promise(r => setTimeout(r, 600));
+        setCurrentStep(6); // ASYCUDA Agent
+        await new Promise(r => setTimeout(r, 600));
       }
 
       setPipelineData(data);
-      setCurrentStep(6); // Done
+      setCurrentStep(7); // Done
     } catch (err: any) {
       console.error(err);
       setError(err.message || "An unexpected error occurred in the agent orchestrator.");
@@ -292,24 +294,24 @@ export const AIAgentCenter: React.FC = () => {
                     </div>
                   </div>
                   <div className="font-mono text-emerald-400 font-bold bg-emerald-950/20 border border-emerald-900/40 px-2.5 py-0.5 rounded">
-                    {currentStep === 6 ? "COMPLETED" : currentStep === 7 ? "ACTIVE" : `AGENT ${currentStep} / 5`}
+                    {currentStep === 7 ? "COMPLETED" : currentStep === 8 ? "ACTIVE" : `AGENT ${currentStep} / 6`}
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <Progress 
-                  value={currentStep === 6 || (currentStep === 7 && pipelineData) ? 100 : currentStep === 7 ? 60 : (currentStep / 5) * 100} 
+                  value={currentStep === 7 || (currentStep === 8 && pipelineData) ? 100 : currentStep === 8 ? 60 : (currentStep / 6) * 100} 
                   className="h-1 bg-zinc-900 accent-emerald-500" 
                 />
 
                 {/* Inquiry Agent View */}
-                {(pipelineData?.intent === 'inquiry' || currentStep === 7) ? (
+                {(pipelineData?.intent === 'inquiry' || currentStep === 8) ? (
                   <AgentStepCard
                     title="Regulatory Inquiry Agent"
                     description="Searching SADC trade protocols, tracking phytosanitary outbreaks, and verifying compliance rules."
-                    isActive={currentStep === 7 && !pipelineData}
+                    isActive={currentStep === 8 && !pipelineData}
                     isCompleted={!!pipelineData?.inquiry_response}
-                    loading={loading && currentStep === 7}
+                    loading={loading && currentStep === 8}
                     data={pipelineData?.inquiry_response}
                   >
                     {pipelineData?.inquiry_response && (
@@ -534,6 +536,48 @@ export const AIAgentCenter: React.FC = () => {
                               Confirm & Lock Escrow
                             </Button>
                           </div>
+                        </div>
+                      </div>
+                    )}
+                  </AgentStepCard>
+
+                  {/* Step 6: ASYCUDA Customs Filing Agent */}
+                  <AgentStepCard
+                    title="6. ASYCUDA Customs Filing Agent"
+                    description="Automatically lodges the commercial invoice and certificates to ZIMRA/BURS ASYCUDA nodes for SAD500 clearance."
+                    isActive={currentStep === 6}
+                    isCompleted={currentStep > 6}
+                    loading={loading && currentStep === 6}
+                    data={pipelineData?.asycuda_clearance}
+                  >
+                    {pipelineData?.asycuda_clearance && (
+                      <div className="space-y-3 mt-2 pt-2 border-t border-zinc-800 text-xs">
+                        <div className="grid grid-cols-2 gap-2 text-[10px]">
+                          <div className="bg-zinc-950 p-2 border border-zinc-900 rounded">
+                            <span className="text-zinc-500 font-mono block mb-0.5">SAD500 Registration:</span>
+                            <span className="font-bold text-emerald-400">{pipelineData.asycuda_clearance.sad500_registration_no}</span>
+                          </div>
+                          <div className="bg-zinc-950 p-2 border border-zinc-900 rounded">
+                            <span className="text-zinc-500 font-mono block mb-0.5">ASYCUDA Assessment:</span>
+                            <span className="font-bold text-emerald-400">{pipelineData.asycuda_clearance.asycuda_assessment_id}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center text-[10px] text-zinc-400">
+                          <span>Customs Post: <strong className="text-zinc-300">{pipelineData.asycuda_clearance.office_of_clearance}</strong></span>
+                          <span>Duty Liability: <strong className="text-zinc-300">{pipelineData.asycuda_clearance.duty_taxes_calculated}</strong></span>
+                        </div>
+                        
+                        <div className="pt-2 border-t border-zinc-800">
+                          <a
+                            href="/api/documents/sad500"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-2 w-full border border-emerald-900/50 hover:border-emerald-700 bg-emerald-950/20 text-emerald-400 hover:text-emerald-300 rounded text-center flex items-center justify-center gap-1.5 transition-all text-[11px] font-bold"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                            View Official SAD500 Declaration
+                          </a>
                         </div>
                       </div>
                     )}
