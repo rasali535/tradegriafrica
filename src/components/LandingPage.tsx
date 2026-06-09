@@ -98,7 +98,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
-                  <span className="text-[10px] text-zinc-500 font-mono ml-2 cursor-default">platform-preview.sadc</span>
+                  <span className="text-[10px] text-zinc-500 font-mono ml-2 cursor-default">sandbox.tradegrid.africa</span>
                 </div>
                 
                 {/* 3 tabs: Marketplace, Logistics, Buyers */}
