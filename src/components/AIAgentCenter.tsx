@@ -40,8 +40,8 @@ export const AIAgentCenter: React.FC = () => {
   const presets = [
     { label: "Botswana Maize Export", text: "I want to export 10 tons of maize from Botswana to South Africa" },
     { label: "Namibia Beef Export", text: "Export 25 tons of beef from Namibia to UAE" },
-    { label: "Zambia Grain Corridor", text: "Plan 100 tons sorghum export corridor from Zambia to Zimbabwe" },
-    { label: "Zimbabwe Horticulture", text: "I need to ship 15 tons of fresh horticulture from Zimbabwe to South Africa" }
+    { label: "SADC FMD Inquiry", text: "Are there any Foot-and-Mouth Disease movement bans from Botswana to South Africa?" },
+    { label: "Phyto Requirements", text: "Explain Botswana phytosanitary requirements for exporting maize to Zimbabwe" }
   ];
 
   // Run the Orchestrator pipeline
@@ -51,27 +51,10 @@ export const AIAgentCenter: React.FC = () => {
     setLoading(true);
     setError(null);
     setPipelineData(null);
+    setCurrentStep(0); // Parsing query
     
-    // Step-by-step loading simulation for premium user experience
     try {
-      setCurrentStep(0); // Parsing query
-      await new Promise(r => setTimeout(r, 800));
-
-      setCurrentStep(1); // Discovery Agent
-      await new Promise(r => setTimeout(r, 1000));
-
-      setCurrentStep(2); // Compliance Agent
-      await new Promise(r => setTimeout(r, 1000));
-
-      setCurrentStep(3); // Logistics Agent
-      await new Promise(r => setTimeout(r, 1000));
-
-      setCurrentStep(4); // Documentation Agent
-      await new Promise(r => setTimeout(r, 800));
-
-      setCurrentStep(5); // Closing Agent
-      await new Promise(r => setTimeout(r, 800));
-
+      // Hit the backend first so we know the intent
       const res = await fetch('/api/agents/orchestrator', {
         method: 'POST',
         headers: {
@@ -85,13 +68,34 @@ export const AIAgentCenter: React.FC = () => {
       }
 
       const data = await res.json();
-      setPipelineData(data);
       
-      // Update local audit logs
+      // Update local audit logs early so user sees them
       if (data.pipeline_logs) {
         setAuditLogs(prev => [...data.pipeline_logs, ...prev]);
       }
-      
+
+      // Step-by-step loading simulation for premium user experience
+      if (data.intent === 'inquiry') {
+        // Inquiry flow simulation
+        await new Promise(r => setTimeout(r, 800));
+        setCurrentStep(7); // 7: Regulatory Inquiry Agent Active
+        await new Promise(r => setTimeout(r, 1200));
+      } else {
+        // Transaction flow simulation
+        await new Promise(r => setTimeout(r, 600));
+        setCurrentStep(1); // Discovery Agent
+        await new Promise(r => setTimeout(r, 800));
+        setCurrentStep(2); // Compliance Agent
+        await new Promise(r => setTimeout(r, 800));
+        setCurrentStep(3); // Logistics Agent
+        await new Promise(r => setTimeout(r, 800));
+        setCurrentStep(4); // Documentation Agent
+        await new Promise(r => setTimeout(r, 600));
+        setCurrentStep(5); // Closing Agent
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      setPipelineData(data);
       setCurrentStep(6); // Done
     } catch (err: any) {
       console.error(err);
@@ -279,20 +283,55 @@ export const AIAgentCenter: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <Bot className="h-5 w-5 text-emerald-400" />
                     <div>
-                      <span className="font-bold text-zinc-200">Bilateral Export Agent Thread</span>
-                      <span className="text-[10px] text-zinc-500 block">Sequential analysis pipeline</span>
+                      <span className="font-bold text-zinc-200">
+                        {pipelineData?.intent === 'inquiry' || currentStep === 7 ? 'Regulatory Intelligence Agent' : 'Bilateral Export Agent Thread'}
+                      </span>
+                      <span className="text-[10px] text-zinc-500 block">
+                        {pipelineData?.intent === 'inquiry' || currentStep === 7 ? 'SADC Customs & Legal Knowledge Base' : 'Sequential analysis pipeline'}
+                      </span>
                     </div>
                   </div>
                   <div className="font-mono text-emerald-400 font-bold bg-emerald-950/20 border border-emerald-900/40 px-2.5 py-0.5 rounded">
-                    {currentStep === 6 ? "COMPLETED" : `AGENT ${currentStep} / 5`}
+                    {currentStep === 6 ? "COMPLETED" : currentStep === 7 ? "ACTIVE" : `AGENT ${currentStep} / 5`}
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <Progress 
-                  value={currentStep === 6 ? 100 : (currentStep / 5) * 100} 
+                  value={currentStep === 6 || (currentStep === 7 && pipelineData) ? 100 : currentStep === 7 ? 60 : (currentStep / 5) * 100} 
                   className="h-1 bg-zinc-900 accent-emerald-500" 
                 />
+
+                {/* Inquiry Agent View */}
+                {(pipelineData?.intent === 'inquiry' || currentStep === 7) ? (
+                  <AgentStepCard
+                    title="Regulatory Inquiry Agent"
+                    description="Searching SADC trade protocols, tracking phytosanitary outbreaks, and verifying compliance rules."
+                    isActive={currentStep === 7 && !pipelineData}
+                    isCompleted={!!pipelineData?.inquiry_response}
+                    loading={loading && currentStep === 7}
+                    data={pipelineData?.inquiry_response}
+                  >
+                    {pipelineData?.inquiry_response && (
+                      <div className="space-y-4 mt-4 pt-4 border-t border-zinc-800 text-xs">
+                        <div className="p-4 bg-zinc-950/60 border border-emerald-900/40 rounded-lg">
+                          <p className="text-zinc-200 leading-relaxed whitespace-pre-wrap">{pipelineData.inquiry_response.answer}</p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <span className="text-zinc-500 text-[10px] font-mono block uppercase tracking-wider">Verified Sources:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {pipelineData.inquiry_response.sources?.map((source: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-[10px] bg-zinc-900/50 border-zinc-700 text-zinc-400">
+                                {source}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                ) : (
+                  <div className="space-y-3">
 
                 {/* Agent Steps Stack */}
                 <div className="space-y-3">
@@ -501,6 +540,7 @@ export const AIAgentCenter: React.FC = () => {
                     )}
                   </AgentStepCard>
                 </div>
+                )}
               </div>
             )}
           </div>

@@ -66,6 +66,7 @@ export async function GET(
             <td class="py-4">
               <span class="font-bold text-zinc-900">${product}</span>
               <p class="text-[10px] text-zinc-500 mt-0.5">High-grade agricultural commodity for regional export. Phytosanitary certified.</p>
+              <p class="text-[10px] text-zinc-500 mt-1">Incoterms: <strong>DAP (Delivered at Place)</strong></p>
             </td>
             <td class="py-4 text-right font-mono">${numQty} Tons</td>
             <td class="py-4 text-right font-mono">$${numPrice.toLocaleString()}</td>
@@ -74,7 +75,13 @@ export async function GET(
         </tbody>
       </table>
 
-      <div class="flex justify-end mb-12">
+      <div class="flex justify-between items-start mb-12">
+        <div class="w-1/2 p-4 bg-zinc-50 border border-zinc-200 rounded text-xs">
+          <h3 class="font-bold text-zinc-900 mb-2 uppercase text-[10px]">Logistics & Tracking</h3>
+          <p class="text-zinc-600 mb-1"><span class="font-semibold">Carrier:</span> TradeGridAfrica Multimodal</p>
+          <p class="text-zinc-600 mb-1"><span class="font-semibold">Waybill / Tracking No:</span> <span class="font-mono text-emerald-600 font-bold">TGA-TRK-${Math.random().toString(36).substring(2, 10).toUpperCase()}</span></p>
+          <p class="text-zinc-500 text-[10px] mt-2 italic">Live GPS tracking active via SADC Trade Corridors.</p>
+        </div>
         <div class="w-64 text-xs space-y-2 border-t border-zinc-200 pt-4">
           <div class="flex justify-between">
             <span class="text-zinc-500">Subtotal:</span>
@@ -121,10 +128,12 @@ export async function GET(
         <div>
           <p><strong>Cargo Type:</strong> Bulk Agricultural Produce</p>
           <p><strong>Total Weight:</strong> ${numQty} Metric Tons</p>
+          <p class="mt-2 text-[10px] text-zinc-500"><strong class="text-zinc-700">Logistics Tracking No:</strong> <span class="font-mono text-emerald-600 bg-emerald-50 px-1 rounded">TGA-TRK-${Math.random().toString(36).substring(2, 10).toUpperCase()}</span></p>
         </div>
         <div>
           <p><strong>Packaging:</strong> 50kg export-grade polypropylene sacks</p>
           <p><strong>Container Load:</strong> Multimodal logistics container</p>
+          <p class="mt-2 text-[10px] text-zinc-500"><strong class="text-zinc-700">Customs Seal No:</strong> <span class="font-mono">SADC-SL-${Math.floor(100000 + Math.random() * 900000)}</span></p>
         </div>
       </div>
 
@@ -142,6 +151,7 @@ export async function GET(
             <td class="py-4">
               <span class="font-bold text-zinc-900">SADC-AGRI-${product.toUpperCase()}</span>
               <p class="text-[10px] text-zinc-500 mt-0.5">Origin code verified. Moisture content below 12.5%.</p>
+              <p class="text-[10px] text-zinc-500 mt-0.5">GPS Tracking enabled on all pallets.</p>
             </td>
             <td class="py-4 text-right font-mono">${(numQty * 20).toLocaleString()} bags</td>
             <td class="py-4 text-right font-mono">${(numQty * 1005).toLocaleString()}</td>
@@ -178,6 +188,17 @@ export async function GET(
         </div>
       </div>
 
+      <div class="grid grid-cols-2 gap-8 mb-8 text-xs text-zinc-700 bg-zinc-50 p-4 border border-zinc-200 rounded">
+        <div>
+          <p><strong>Transport Mode:</strong> Road/Rail Multimodal</p>
+          <p><strong>Vehicle/Wagon No:</strong> <span class="font-mono">TGA-FRT-${Math.floor(1000 + Math.random() * 9000)}</span></p>
+        </div>
+        <div>
+          <p><strong>Port of Loading:</strong> Gaborone Dry Port, Botswana</p>
+          <p><strong>Port of Discharge:</strong> Destination Hub, SADC Region</p>
+        </div>
+      </div>
+
       <div class="p-4 border border-emerald-900/20 bg-emerald-50 text-xs text-emerald-950 rounded mb-8 space-y-2">
         <p class="font-bold flex items-center gap-1">
           ✓ Certified Origin Status: SADC Origin Rules Compliant
@@ -187,7 +208,7 @@ export async function GET(
         </p>
       </div>
 
-      <table class="w-full text-left border-collapse mb-12">
+      <table class="w-full text-left border-collapse mb-8">
         <thead>
           <tr class="border-b border-zinc-850 text-zinc-500 uppercase tracking-wider text-[9px] font-bold">
             <th class="py-3">Description of Goods</th>
@@ -208,6 +229,22 @@ export async function GET(
           </tr>
         </tbody>
       </table>
+
+      <div class="border-t border-zinc-200 pt-6 mt-8 flex justify-between text-[10px] text-zinc-600">
+        <div class="w-1/2 pr-4">
+          <p class="font-bold text-zinc-800 uppercase tracking-wide mb-2">11. Customs Declaration</p>
+          <p>I declare that the above details are true and correct.</p>
+          <div class="border-b border-zinc-400 h-8 mt-4 mb-2 w-48"></div>
+          <p>Signature of Exporter / Authorized Agent</p>
+        </div>
+        <div class="w-1/2 pl-4 border-l border-zinc-200">
+          <p class="font-bold text-zinc-800 uppercase tracking-wide mb-2">12. Certificate of Customs Authority</p>
+          <p>Verification of origin in accordance with Protocol on Trade.</p>
+          <div class="w-24 h-24 border-2 border-emerald-800/30 rounded-full flex items-center justify-center text-emerald-800/20 font-bold transform -rotate-12 mt-2">
+            OFFICIAL<br>STAMP
+          </div>
+        </div>
+      </div>
     `;
   } else if (type === "contract") {
     title = "Bilateral Trade & Purchase Agreement";
@@ -227,14 +264,17 @@ export async function GET(
         <p><strong>THE SELLER:</strong> ${seller}, located in Botswana (hereafter "Consignor").</p>
         <p><strong>THE BUYER:</strong> ${buyer}, located in Dubai, UAE (hereafter "Consignee").</p>
         
-        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">1. SUBJECT MATTER</h3>
-        <p>The Seller agrees to sell, and the Buyer agrees to purchase ${numQty} Tons of ${product} at a purchase price of $${numPrice} per ton, representing a total contract valuation of $${total.toLocaleString()} USD.</p>
+        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">1. SUBJECT MATTER & INCOTERMS</h3>
+        <p>The Seller agrees to sell, and the Buyer agrees to purchase ${numQty} Tons of ${product} at a purchase price of $${numPrice} per ton, representing a total contract valuation of $${total.toLocaleString()} USD. Delivery shall be executed under <strong>DAP (Delivered at Place)</strong> Incoterms 2020.</p>
         
-        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">2. PAYMENT TERMS (SMART ESCROW)</h3>
-        <p>Payment shall be locked in the TradeGridAfrica Digital Escrow Registry upon confirmation. The bank will release funds to the Seller immediately upon proof of border crossing verification and custom biosecurity phytosanitary clearance.</p>
+        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">2. PAYMENT TERMS & SMART ESCROW TIMELINES</h3>
+        <p>Payment shall be locked in the TradeGridAfrica Digital Escrow Registry immediately upon execution of this contract. The holding bank will release funds to the Seller's account within 24 hours of receiving cryptographic proof of border crossing verification and custom biosecurity phytosanitary clearance.</p>
 
-        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">3. GOVERNING LAW & BIOCLEARANCE</h3>
-        <p>The contract is governed by standard SADC Agribusiness Trade protocols. The Seller guarantees the cargo complies with target border biosecurity rules and has been tested for standard contaminants.</p>
+        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">3. LOGISTICS TRACKING & DELIVERY</h3>
+        <p>The Seller shall initiate shipment via TradeGridAfrica Multimodal Logistics within 5 business days. A dedicated GPS Tracking ID will be provided to the Buyer. Title and risk of loss pass to the Buyer upon physical delivery at the agreed destination hub.</p>
+
+        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">4. GOVERNING LAW, BIOCLEARANCE, & DISPUTES</h3>
+        <p>The contract is governed by standard SADC Agribusiness Trade protocols. The Seller guarantees the cargo complies with target border biosecurity rules (including FMD movement restrictions) and has been tested for standard contaminants. Any disputes shall be resolved via binding arbitration under the rules of the SADC Commercial Tribunal.</p>
       </div>
 
       <div class="grid grid-cols-2 gap-12 mt-12 pt-8 border-t border-zinc-200 text-xs">

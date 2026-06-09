@@ -206,6 +206,30 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   return callGemini(prompt, fallback);
 }
 
+// Helper to run Regulatory Inquiry logic
+async function runRegulatoryInquiry(query: string) {
+  const prompt = `You are the Regulatory Inquiry Agent for TradeGrid Africa.
+Your job is to answer specific questions about SADC laws, cross-border movement bans (e.g. Foot-and-Mouth Disease outbreaks), phytosanitary requirements, and general customs protocols.
+
+INPUT QUERY:
+"${query}"
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+{
+  "answer": "string (A detailed, professional response to the query)",
+  "sources": ["string (e.g. 'SADC Protocol on Trade, Article 4', 'Botswana Meat Commission')"],
+  "confidence_score": number (0.0 to 1.0)
+}`;
+
+  const fallback = {
+    answer: "Based on current SADC regulations, there may be specific movement restrictions or phytosanitary requirements for this commodity. Please consult the local Ministry of Agriculture for real-time updates on cross-border disease control zones.",
+    sources: ["SADC Protocol on Trade", "Regional Sanitary and Phytosanitary Guidelines"],
+    confidence_score: 0.85
+  };
+
+  return callGemini(prompt, fallback);
+}
+
 export async function POST(req: NextRequest) {
   const timestamp = new Date().toISOString();
   let body: any = {};
@@ -221,11 +245,13 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Query is required" }, { status: 400 });
   }
 
-  // Parse natural language command
+  // Parse natural language command for Intent and parameters
   const parsePrompt = `You are the Pula Orchestration Engine. Parse this natural language trade request:
 "${query}"
 
-Extract:
+Classify the intent as either "transaction" (booking/exporting a trade) or "inquiry" (asking about laws, bans, regulations, or rules).
+
+Extract parameters if applicable:
 - Product (e.g. maize, beef, sorghum, horticulture)
 - Quantity (default to 10 if not mentioned)
 - Origin Country (default to Botswana if not mentioned)
@@ -233,6 +259,7 @@ Extract:
 
 Return ONLY a JSON object:
 {
+  "intent": "transaction" | "inquiry",
   "product": "string",
   "quantity": number,
   "origin_country": "string",
@@ -240,6 +267,7 @@ Return ONLY a JSON object:
 }`;
 
   const parseFallback = {
+    intent: "transaction",
     product: "maize",
     quantity: 10,
     origin_country: "Botswana",
@@ -250,7 +278,31 @@ Return ONLY a JSON object:
     const parseResult = await callGemini(parsePrompt, parseFallback);
     const parsed = parseResult.data || parseFallback;
 
-    // Run Step 1: Trade Discovery
+    // Check intent
+    if (parsed.intent === "inquiry") {
+      const inquiryStartTime = Date.now();
+      const inquiryResult = await runRegulatoryInquiry(query);
+      const inquiryLatency = Date.now() - inquiryStartTime;
+
+      return Response.json({
+        intent: "inquiry",
+        parsed_request: parsed,
+        inquiry_response: inquiryResult.data,
+        pipeline_logs: [
+          {
+            agent: "regulatoryInquiryAgent",
+            input: { query },
+            output: inquiryResult.data,
+            latency_ms: inquiryResult.latency_ms || inquiryLatency,
+            confidence_score: inquiryResult.data?.confidence_score || inquiryResult.confidence_score,
+            timestamp: new Date().toISOString()
+          }
+        ],
+        timestamp
+      });
+    }
+
+    // Run Step 1: Trade Discovery (if intent === "transaction")
     const discoveryStartTime = Date.now();
     const discoveryResult = await runTradeDiscovery(parsed.product, parsed.quantity, parsed.origin_country);
     const discoveryLatency = Date.now() - discoveryStartTime;
@@ -336,6 +388,7 @@ Return ONLY a JSON object:
     ];
 
     return Response.json({
+      intent: "transaction",
       parsed_request: parsed,
       trade_opportunity: discoveryResult.data,
       compliance: complianceResult.data,
