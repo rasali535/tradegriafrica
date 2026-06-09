@@ -330,11 +330,10 @@ export const AIAgentCenter: React.FC = () => {
                         </div>
                       </div>
                     )}
+                  </AgentStepCard>
                 ) : (
                   <div className="space-y-3">
-
-                {/* Agent Steps Stack */}
-                <div className="space-y-3">
+                    {/* Agent Steps Stack */}
                   {/* Step 1: Trade Discovery */}
                   <AgentStepCard
                     title="1. Trade Discovery Agent"
