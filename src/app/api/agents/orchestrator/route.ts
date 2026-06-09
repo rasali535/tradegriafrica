@@ -4,8 +4,8 @@ import { callGemini } from "@/lib/gemini";
 // Helper to run Trade Discovery logic
 async function runTradeDiscovery(product: string, quantity: number, origin: string) {
   const prompt = `You are the Trade Discovery Agent inside an AI-powered export platform for African SMEs.
-Your job is to identify realistic international buyers, markets, and pricing opportunities for agricultural and commodity exports.
-You are NOT a chatbot. You are a structured trade intelligence engine.
+Your job is to identify REAL international buyers, markets, and pricing opportunities for agricultural and commodity exports.
+You MUST pull information from live commodity exchanges and use REAL data, REAL corporate buyer names, and REAL current market prices. Avoid generic names like 'Dubai Foods LLC'. Provide actual corporations that import these goods.
 
 INPUT:
 ${JSON.stringify({ product, quantity: quantity.toString(), origin_country: origin }, null, 2)}
@@ -15,7 +15,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   "buyers": [
     {
       "country": "string",
-      "buyer_type": "string",
+      "buyer_name": "string (REAL company name)",
       "estimated_price_per_unit": number,
       "currency": "USD",
       "demand_strength": "low" | "medium" | "high"
@@ -30,8 +30,8 @@ OUTPUT FORMAT (STRICT JSON ONLY):
 
   const fallback = {
     buyers: [
-      { country: "South Africa", buyer_type: "food distributor", estimated_price_per_unit: 320, currency: "USD", demand_strength: "high" },
-      { country: "Namibia", buyer_type: "mill operator", estimated_price_per_unit: 340, currency: "USD", demand_strength: "medium" }
+      { country: "South Africa", buyer_name: "Tiger Brands Ltd", estimated_price_per_unit: 320, currency: "USD", demand_strength: "high" },
+      { country: "Namibia", buyer_name: "Namib Mills", estimated_price_per_unit: 340, currency: "USD", demand_strength: "medium" }
     ],
     recommended_markets: ["South Africa", "Namibia", "Zimbabwe"],
     pricing_insight: "Prices are stable with slight upward pressure.",
@@ -353,10 +353,11 @@ Return ONLY a JSON object:
     const discoveryResult = await runTradeDiscovery(parsed.product, parsed.quantity, parsed.origin_country);
     const discoveryLatency = Date.now() - discoveryStartTime;
 
-    const buyers = discoveryResult.data?.buyers || [];
-    const primaryBuyer = buyers[0] || { country: parsed.destination_country, buyer_type: "food distributor", estimated_price_per_unit: 320 };
-    const targetDestination = primaryBuyer.country || parsed.destination_country;
+    const primaryBuyer = discoveryResult.data?.buyers?.[0] || {};
+    const buyerName = primaryBuyer.buyer_name || primaryBuyer.buyer_type || "Tiger Brands Group";
+    const sellerName = `${parsed.origin_country} National Agricultural Cooperative`;
     const pricePerUnit = primaryBuyer.estimated_price_per_unit || 320;
+    const targetDestination = primaryBuyer.country || "South Africa";
 
     // Run Step 2: Compliance
     const complianceStartTime = Date.now();
@@ -371,8 +372,8 @@ Return ONLY a JSON object:
     // Run Step 4: Documentation
     const docStartTime = Date.now();
     const docResult = await runDocumentation(
-      "ABC Farmers Co-op",
-      primaryBuyer.buyer_type || "Dubai Foods LLC",
+      sellerName,
+      buyerName,
       parsed.product,
       parsed.quantity,
       pricePerUnit
@@ -382,8 +383,8 @@ Return ONLY a JSON object:
     // Run Step 5: Deal Closing
     const closingStartTime = Date.now();
     const closingResult = await runDealClosing(
-      primaryBuyer.buyer_type || "Dubai Foods LLC",
-      "ABC Farmers Co-op",
+      buyerName,
+      sellerName,
       parsed.product,
       pricePerUnit
     );
@@ -428,7 +429,7 @@ Return ONLY a JSON object:
       },
       {
         agent: "documentationAgent",
-        input: { seller: "ABC Farmers Co-op", buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", product: parsed.product, quantity: parsed.quantity.toString(), price_per_unit: pricePerUnit.toString() },
+        input: { seller: sellerName, buyer: buyerName, product: parsed.product, quantity: parsed.quantity.toString(), price_per_unit: pricePerUnit.toString() },
         output: docResult.data,
         latency_ms: docLatency,
         confidence_score: docResult.confidence_score,
@@ -436,7 +437,7 @@ Return ONLY a JSON object:
       },
       {
         agent: "dealClosingAgent",
-        input: { buyer: primaryBuyer.buyer_type || "Dubai Foods LLC", seller: "ABC Farmers Co-op", product: parsed.product, price_per_unit: pricePerUnit },
+        input: { buyer: buyerName, seller: sellerName, product: parsed.product, price_per_unit: pricePerUnit },
         output: closingResult.data,
         latency_ms: closingLatency,
         confidence_score: closingResult.data?.deal_readiness_score || closingResult.confidence_score,

@@ -7,8 +7,8 @@ export async function GET(
   const { type } = await params;
   const searchParams = request.nextUrl.searchParams;
   
-  const seller = searchParams.get("seller") || "ABC Farmers Co-op";
-  const buyer = searchParams.get("buyer") || "Dubai Foods LLC";
+  const seller = searchParams.get("seller") || "Regional Agricultural Cooperative";
+  const buyer = searchParams.get("buyer") || "Global Commodity Importers";
   const product = searchParams.get("product") || "Maize";
   const quantity = searchParams.get("quantity") || "10";
   const price = searchParams.get("price") || "320";
