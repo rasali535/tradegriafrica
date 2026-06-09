@@ -206,31 +206,48 @@ OUTPUT FORMAT (STRICT JSON ONLY):
   return callGemini(prompt, fallback);
 }
 
-// Helper to run ASYCUDA Filing logic
-async function runAsycudaFiling(origin: string, destination: string, product: string, price: number, quantity: number) {
-  const prompt = `You are the ASYCUDA World Customs Integration Agent.
-Your job is to generate a simulated electronic customs declaration (SAD500) for cross-border SADC trade.
+// Helper to run Customs/BESW Filing logic
+async function runCustomsClearance(origin: string, destination: string, product: string, price: number, quantity: number) {
+  const isBotswana = origin.toLowerCase().includes("botswana");
+
+  const prompt = `You are the Official Customs Integration Agent for TradeGrid Africa.
+Your job is to generate a simulated electronic customs declaration (SAD500) and regulatory clearance payload for cross-border SADC trade.
+
+${isBotswana ? 
+`CRITICAL BOTSWANA RULES:
+1. Botswana uses the BESW (Botswana Electronic Single Window) portal via BURS (ecustoms.burs.org.bw).
+2. BESW acts as a central router for Other Government Agencies (OGAs).
+3. The Botswana Bureau of Standards (BOBS) mandates all import/export permits go strictly through this platform.
+4. Your payload must simulate mapping the SAD 500 schema and packaging digitized SCO, ICPO, and TSA documents for concurrent BOBS compliance risk assessment.
+5. Provide a BESW/BOBS specific assessment ID.` 
+: 
+`CRITICAL RULES:
+1. Use standard ASYCUDA World protocols for SADC electronic lodging.`}
 
 INPUT:
 ${JSON.stringify({ origin, destination, product, total_value_usd: price * quantity }, null, 2)}
 
 OUTPUT FORMAT (STRICT JSON ONLY):
 {
-  "asycuda_assessment_id": "string",
+  "system_used": "string (e.g. 'BESW / BURS (Botswana)' or 'ASYCUDA World')",
+  "assessment_id": "string",
   "sad500_registration_no": "string",
   "office_of_clearance": "string",
   "duty_taxes_calculated": "string",
+  "oga_routing_status": "string (e.g. 'BOBS Compliance Risk Assessment: Concurrent Clearance Active')",
   "status": "cleared" | "pending_inspection",
   "confidence_score": number (0.0 to 1.0)
 }`;
 
   const fallback = {
-    asycuda_assessment_id: "ASY-" + Math.floor(100000 + Math.random() * 900000),
+    system_used: isBotswana ? "BESW / BURS (Botswana Electronic Single Window)" : "ASYCUDA World",
+    assessment_id: isBotswana ? "BESW-" + Math.floor(100000 + Math.random() * 900000) : "ASY-" + Math.floor(100000 + Math.random() * 900000),
     sad500_registration_no: "SAD" + Math.floor(10000 + Math.random() * 90000) + "BW",
     office_of_clearance: "Plumtree/Ramokgwebana Border Post",
-    duty_taxes_calculated: "$0.00 (SADC Zero Tariff)",
+    duty_taxes_calculated: "$0.00 (SACU Zero Tariff)",
+    oga_routing_status: isBotswana ? "BOBS Compliance Risk Assessment: Concurrent Clearance Active. SCO/ICPO/TSA digitized payload verified." : "Standard SADC Clearance",
     status: "cleared",
-    confidence_score: 0.98
+    confidence_score: 0.99
   };
 
   return callGemini(prompt, fallback);
@@ -372,16 +389,16 @@ Return ONLY a JSON object:
     );
     const closingLatency = Date.now() - closingStartTime;
 
-    // Run Step 6: ASYCUDA Customs Filing
-    const asycudaStartTime = Date.now();
-    const asycudaResult = await runAsycudaFiling(
+    // Run Step 6: Customs/BESW Filing
+    const customsStartTime = Date.now();
+    const customsResult = await runCustomsClearance(
       parsed.origin_country,
       targetDestination,
       parsed.product,
       pricePerUnit,
       parsed.quantity
     );
-    const asycudaLatency = Date.now() - asycudaStartTime;
+    const customsLatency = Date.now() - customsStartTime;
 
     // Compile logs matching the agent outputs
     const logs = [
@@ -426,11 +443,11 @@ Return ONLY a JSON object:
         timestamp: new Date().toISOString()
       },
       {
-        agent: "asycudaCustomsAgent",
-        input: { origin: parsed.origin_country, destination: targetDestination, product: parsed.product, value: pricePerUnit * parsed.quantity },
-        output: asycudaResult.data,
-        latency_ms: asycudaLatency,
-        confidence_score: asycudaResult.data?.confidence_score || asycudaResult.confidence_score,
+        agent: "customsFilingAgent",
+        input: { origin: parsed.origin_country, destination: targetDestination, product: parsed.product, value: pricePerUnit * parsed.quantity, digitized_documents: ["SCO", "ICPO", "TSA"] },
+        output: customsResult.data,
+        latency_ms: customsLatency,
+        confidence_score: customsResult.data?.confidence_score || customsResult.confidence_score,
         timestamp: new Date().toISOString()
       }
     ];
@@ -441,7 +458,7 @@ Return ONLY a JSON object:
       trade_opportunity: discoveryResult.data,
       compliance: complianceResult.data,
       logistics: logisticsResult.data,
-      asycuda_clearance: asycudaResult.data,
+      customs_clearance: customsResult.data,
       documents_ready: true,
       deal_ready: true,
       recommended_next_action: "contact_buyer",

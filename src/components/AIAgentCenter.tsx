@@ -541,31 +541,36 @@ export const AIAgentCenter: React.FC = () => {
                     )}
                   </AgentStepCard>
 
-                  {/* Step 6: ASYCUDA Customs Filing Agent */}
+                  {/* Step 6: Customs Filing Agent */}
                   <AgentStepCard
-                    title="6. ASYCUDA Customs Filing Agent"
-                    description="Automatically lodges the commercial invoice and certificates to ZIMRA/BURS ASYCUDA nodes for SAD500 clearance."
+                    title={`6. ${pipelineData?.customs_clearance?.system_used?.includes('BESW') ? 'BESW' : 'ASYCUDA'} Customs Filing Agent`}
+                    description={`Automatically lodges the commercial invoice and certificates to ${pipelineData?.customs_clearance?.system_used?.includes('BESW') ? 'BURS (Botswana)' : 'ZIMRA/Customs'} nodes for SAD500 clearance.`}
                     isActive={currentStep === 6}
                     isCompleted={currentStep > 6}
                     loading={loading && currentStep === 6}
-                    data={pipelineData?.asycuda_clearance}
+                    data={pipelineData?.customs_clearance}
                   >
-                    {pipelineData?.asycuda_clearance && (
+                    {pipelineData?.customs_clearance && (
                       <div className="space-y-3 mt-2 pt-2 border-t border-zinc-800 text-xs">
                         <div className="grid grid-cols-2 gap-2 text-[10px]">
                           <div className="bg-zinc-950 p-2 border border-zinc-900 rounded">
                             <span className="text-zinc-500 font-mono block mb-0.5">SAD500 Registration:</span>
-                            <span className="font-bold text-emerald-400">{pipelineData.asycuda_clearance.sad500_registration_no}</span>
+                            <span className="font-bold text-emerald-400">{pipelineData.customs_clearance.sad500_registration_no}</span>
                           </div>
                           <div className="bg-zinc-950 p-2 border border-zinc-900 rounded">
-                            <span className="text-zinc-500 font-mono block mb-0.5">ASYCUDA Assessment:</span>
-                            <span className="font-bold text-emerald-400">{pipelineData.asycuda_clearance.asycuda_assessment_id}</span>
+                            <span className="text-zinc-500 font-mono block mb-0.5">{pipelineData.customs_clearance.system_used.includes('BESW') ? 'BESW/BOBS Assessment:' : 'ASYCUDA Assessment:'}</span>
+                            <span className="font-bold text-emerald-400">{pipelineData.customs_clearance.assessment_id}</span>
                           </div>
                         </div>
                         
+                        <div className="bg-zinc-950/60 p-2 border border-emerald-900/30 rounded text-[10px] text-zinc-300">
+                          <span className="text-emerald-500 font-bold block mb-1">OGA Routing Status:</span>
+                          {pipelineData.customs_clearance.oga_routing_status}
+                        </div>
+
                         <div className="flex justify-between items-center text-[10px] text-zinc-400">
-                          <span>Customs Post: <strong className="text-zinc-300">{pipelineData.asycuda_clearance.office_of_clearance}</strong></span>
-                          <span>Duty Liability: <strong className="text-zinc-300">{pipelineData.asycuda_clearance.duty_taxes_calculated}</strong></span>
+                          <span>Customs Post: <strong className="text-zinc-300">{pipelineData.customs_clearance.office_of_clearance}</strong></span>
+                          <span>Duty Liability: <strong className="text-zinc-300">{pipelineData.customs_clearance.duty_taxes_calculated}</strong></span>
                         </div>
                         
                         <div className="pt-2 border-t border-zinc-800">
