@@ -1,6 +1,6 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
 import { LandingPage } from '@/components/LandingPage';
 import { DocsPage } from '@/components/DocsPage';
@@ -651,7 +651,13 @@ export default function Home() {
             <span>© {new Date().getFullYear()} TradeGridAfrica Technologies Inc. All Rights Reserved.</span>
             <span className="text-zinc-500 text-[10px]">Web app platform by Pameltech Labs</span>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap justify-end">
+            <Link href="/privacy" className="hover:text-zinc-400 cursor-pointer">Privacy Policy</Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-zinc-400 cursor-pointer">Ts & Cs</Link>
+            <span>•</span>
+            <Link href="/cookies" className="hover:text-zinc-400 cursor-pointer">Cookie Policy</Link>
+            <span>•</span>
             <button 
               onClick={() => {
                 setView('docs');

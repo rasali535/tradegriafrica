@@ -49,10 +49,19 @@ export default function OnboardingPage() {
       </main>
 
       {/* Basic Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950/60 py-8 text-zinc-500 text-xs text-center">
+      <footer className="border-t border-zinc-900 bg-zinc-950/60 py-8 text-zinc-500 text-xs">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <span>© {new Date().getFullYear()} TradeGridAfrica Technologies Inc. All Rights Reserved.</span>
-          <span className="text-zinc-500 text-[10px]">Web app platform by Pameltech Labs</span>
+          <div className="flex flex-col gap-1">
+            <span>© {new Date().getFullYear()} TradeGridAfrica Technologies Inc. All Rights Reserved.</span>
+            <span className="text-zinc-500 text-[10px]">Web app platform by Pameltech Labs</span>
+          </div>
+          <div className="flex gap-4 flex-wrap justify-end">
+            <Link href="/privacy" className="hover:text-zinc-400 cursor-pointer">Privacy Policy</Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-zinc-400 cursor-pointer">Ts & Cs</Link>
+            <span>•</span>
+            <Link href="/cookies" className="hover:text-zinc-400 cursor-pointer">Cookie Policy</Link>
+          </div>
         </div>
       </footer>
     </div>
