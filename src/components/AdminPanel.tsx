@@ -74,7 +74,7 @@ export const AdminPanel: React.FC = () => {
   const [offlineQueue, setOfflineQueue] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'bot'; text: string }>>([
-    { sender: 'bot', text: 'PulaTrade GTM WhatsApp Agent online.\nType "help" to view quick registration or listing templates.' }
+    { sender: 'bot', text: 'TradeGridAfrica GTM WhatsApp Agent online.\nType "help" to view quick registration or listing templates.' }
   ]);
 
   // Compute platform-wide metrics
@@ -254,7 +254,7 @@ export const AdminPanel: React.FC = () => {
 
           if (isOnline) {
             addFarm(farmData);
-            reply = `✅ PulaTrade WhatsApp enrollment SUCCESS!\nFarm: ${farmName}\nSize: ${size} Hectares\nStatus: Certified\nRef: fa100000-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
+            reply = `✅ TradeGridAfrica WhatsApp enrollment SUCCESS!\nFarm: ${farmName}\nSize: ${size} Hectares\nStatus: Certified\nRef: fa100000-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
           } else {
             setOfflineQueue(prev => [...prev, { type: 'register_farm', data: farmData }]);
             reply = `💾 [OFFLINE QUEUED] Enrollment stored in local device sync queue. Will sync automatically when connection restores.`;
@@ -287,7 +287,7 @@ export const AdminPanel: React.FC = () => {
 
           if (isOnline) {
             addListing(listingData);
-            reply = `✅ PulaTrade Crop Published via SMS!\nCommodity: ${crop}\nQuantity: ${qty} Tons\nPrice: $${price}/Ton\nRef: l0000001-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
+            reply = `✅ TradeGridAfrica Crop Published via SMS!\nCommodity: ${crop}\nQuantity: ${qty} Tons\nPrice: $${price}/Ton\nRef: l0000001-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
           } else {
             setOfflineQueue(prev => [...prev, { type: 'add_listing', data: listingData }]);
             reply = `💾 [OFFLINE QUEUED] Listing stored in local device sync queue. Will sync automatically when connection restores.`;
@@ -296,7 +296,7 @@ export const AdminPanel: React.FC = () => {
           reply = '❌ Formatting mismatch. Use:\nLIST crop=CropName, quantity=Tons, price=USD';
         }
       } else {
-        reply = '🤖 PulaTrade Bot: Request not recognized. Type "help" to view quick registration or listing templates.';
+        reply = '🤖 TradeGridAfrica Bot: Request not recognized. Type "help" to view quick registration or listing templates.';
       }
 
       setChatMessages(prev => [...prev, { sender: 'bot', text: reply }]);
@@ -327,7 +327,7 @@ export const AdminPanel: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-emerald-500 animate-spin-slow" />
-            PulaTrade Operations Control Center
+            TradeGridAfrica Operations Control Center
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
             Platform administration, bilateral compliance checks, biosecurity controls, offline GTM field sync, and developer sandbox credentials.
@@ -490,7 +490,7 @@ export const AdminPanel: React.FC = () => {
                 </div>
               </div>
               <div className="text-[10px] text-zinc-500 text-center mt-4">
-                Powered by PulaTrade Distributed Compliance Registry.
+                Powered by TradeGridAfrica Distributed Compliance Registry.
               </div>
             </Card>
           </div>
@@ -873,7 +873,7 @@ export const AdminPanel: React.FC = () => {
                 </div>
               </div>
               <div className="text-[9px] text-zinc-500 mt-4 border-t border-zinc-800/60 pt-2 font-mono">
-                API Base URL: <span className="text-zinc-400">https://api.pulatrade.com/v1</span>
+                API Base URL: <span className="text-zinc-400">https://api.tradegridafrica.com/v1</span>
               </div>
             </Card>
 
@@ -1210,7 +1210,7 @@ export const AdminPanel: React.FC = () => {
                                     const link = document.createElement("a");
                                     link.href = nda.pdf_url;
                                     const prefix = isTerms ? "Signed_Terms_Of_Service" : "Signed_NDA";
-                                    link.download = `${prefix}_PulaTrade_${nda.full_name.replace(/\s+/g, "_")}.pdf`;
+                                    link.download = `${prefix}_TradeGridAfrica_${nda.full_name.replace(/\s+/g, "_")}.pdf`;
                                     document.body.appendChild(link);
                                     link.click();
                                     document.body.removeChild(link);

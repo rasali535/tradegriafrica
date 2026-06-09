@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       color: rgb(0.062, 0.478, 0.353),
     });
 
-    page.drawText("PULA TRADE REGIONAL TRUST NETWORK", {
+    page.drawText("TRADEGRID AFRICA REGIONAL TRUST NETWORK", {
       x: 45,
       y: height - 48,
       size: 11,
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     // Title & Subtitle based on agreementType
     const titleText = "NON-DISCLOSURE & NON-CIRCUMVENTION AGREEMENT (NCNDA)";
-    const subtitleText = "Pula Trade Platform - A Property of Pameltech Labs";
+    const subtitleText = "TradeGrid Africa Platform - A Property of Pameltech Labs";
 
     page.drawText(titleText, {
       x: 45,
@@ -167,10 +167,10 @@ export async function POST(request: NextRequest) {
 
     // Legal Clauses text based on user-supplied template
     const legalTexts = [
-      "1. PURPOSE: The Recipient acknowledges that they may be granted access to confidential, proprietary, and commercially sensitive information relating to Pula Trade, a digital platform owned by Pameltech Labs, for the sole purpose of evaluating a potential investment, partnership, or business relationship.",
+      "1. PURPOSE: The Recipient acknowledges that they may be granted access to confidential, proprietary, and commercially sensitive information relating to TradeGrid Africa, a digital platform owned by Pameltech Labs, for the sole purpose of evaluating a potential investment, partnership, or business relationship.",
       "2. CONFIDENTIAL INFORMATION: Includes but is not limited to: business plans and strategies, technical architecture and system design, source code, algorithms, software logic, financial projections, investor pitch decks, and any non-public info.",
       "3. NON-DISCLOSURE OBLIGATIONS: The Recipient agrees to keep all Confidential Information strictly confidential, not disclose or share it with any third party, take security measures, and limit access to authorized internal decision-makers.",
-      "4. NON-CIRCUMVENTION: The Recipient agrees not to bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through Pula Trade; nor contact, engage, or contract with partners or opportunities without written consent.",
+      "4. NON-CIRCUMVENTION: The Recipient agrees not to bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through TradeGrid Africa; nor contact, engage, or contract with partners or opportunities without written consent.",
       "5. INTELLECTUAL PROPERTY OWNERSHIP: All software systems, technical processes, business methodologies, designs, workflows, and brand assets remain the exclusive property of Pameltech Labs. No rights or licenses are granted.",
       "6. DATA PROTECTION, TERM & REMEDIES: The Recipient agrees not to reverse engineer systems or circumvent access controls. This Agreement remains in effect indefinitely. Unauthorized misuse may cause irreparable harm, entitling Company to injunctive relief and damages."
     ];
@@ -295,12 +295,12 @@ export async function POST(request: NextRequest) {
       ? `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
         <div style="background-color: #047857; color: white; padding: 15px; border-radius: 6px 6px 0 0; text-align: center;">
-          <h2 style="margin: 0; font-size: 20px;">PulaTrade Trust Registry</h2>
+          <h2 style="margin: 0; font-size: 20px;">TradeGridAfrica Trust Registry</h2>
           <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">Terms of Service & Privacy Policy Signed</p>
         </div>
         <div style="padding: 20px;">
           <p>Dear <strong>${full_name}</strong>,</p>
-          <p>Thank you for acknowledging and signing the Terms of Service and Data Protection Policy to access the PulaTrade digital agribusiness export desk.</p>
+          <p>Thank you for acknowledging and signing the Terms of Service and Data Protection Policy to access the TradeGridAfrica digital agribusiness export desk.</p>
           <p>Your signature has been registered and verified on the SADC regional operations database. Your platform credentials have been authorized.</p>
           
           <table style="width: 100%; font-size: 13px; margin: 20px 0; border-collapse: collapse;">
@@ -313,19 +313,19 @@ export async function POST(request: NextRequest) {
           <p style="font-size: 12px; color: #718096; line-height: 1.5;">A copy of your signed agreement is attached to this email as a PDF. Please retain this for your files.</p>
         </div>
         <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 10px; color: #a0aec0; text-align: center;">
-          PulaTrade Inc. • Botswana Agricultural Corridor Corridor Gate 4 • Gaborone, Botswana
+          TradeGridAfrica Inc. • Botswana Agricultural Corridor Corridor Gate 4 • Gaborone, Botswana
         </div>
       </div>
     `
       : `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
         <div style="background-color: #047857; color: white; padding: 15px; border-radius: 6px 6px 0 0; text-align: center;">
-          <h2 style="margin: 0; font-size: 20px;">PulaTrade Trust Registry</h2>
+          <h2 style="margin: 0; font-size: 20px;">TradeGridAfrica Trust Registry</h2>
           <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">Mutual Non-Disclosure Agreement Executed</p>
         </div>
         <div style="padding: 20px;">
           <p>Dear <strong>${full_name}</strong>,</p>
-          <p>Thank you for signing the Mutual Non-Disclosure Agreement (NDA) to access the PulaTrade digital agribusiness export desk.</p>
+          <p>Thank you for signing the Mutual Non-Disclosure Agreement (NDA) to access the TradeGridAfrica digital agribusiness export desk.</p>
           <p>Your signature has been registered and verified on the SADC regional operations database. Your platform credentials have been authorized.</p>
           
           <table style="width: 100%; font-size: 13px; margin: 20px 0; border-collapse: collapse;">
@@ -338,7 +338,7 @@ export async function POST(request: NextRequest) {
           <p style="font-size: 12px; color: #718096; line-height: 1.5;">A copy of your signed agreement is attached to this email as a PDF. Please retain this for your files.</p>
         </div>
         <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 10px; color: #a0aec0; text-align: center;">
-          PulaTrade Inc. • Botswana Agricultural Corridor Corridor Gate 4 • Gaborone, Botswana
+          TradeGridAfrica Inc. • Botswana Agricultural Corridor Corridor Gate 4 • Gaborone, Botswana
         </div>
       </div>
     `;
@@ -347,11 +347,11 @@ export async function POST(request: NextRequest) {
       ? `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
         <div style="background-color: #b45309; color: white; padding: 15px; border-radius: 6px 6px 0 0; text-align: center;">
-          <h2 style="margin: 0; font-size: 20px;">🛡️ PulaTrade Admin Notification</h2>
+          <h2 style="margin: 0; font-size: 20px;">🛡️ TradeGridAfrica Admin Notification</h2>
           <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">New Terms & Privacy Signoff - Corridor Access Provisioned</p>
         </div>
         <div style="padding: 20px;">
-          <p>A new platform agreement (Terms of Service & Data Protection Policy) has been signed and validated on the Pula Trade Platform.</p>
+          <p>A new platform agreement (Terms of Service & Data Protection Policy) has been signed and validated on the TradeGrid Africa Platform.</p>
           
           <h3 style="font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">Signee Information</h3>
           <table style="width: 100%; font-size: 13px; margin-bottom: 20px; border-collapse: collapse;">
@@ -378,11 +378,11 @@ export async function POST(request: NextRequest) {
       : `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff; color: #1a202c;">
         <div style="background-color: #b45309; color: white; padding: 15px; border-radius: 6px 6px 0 0; text-align: center;">
-          <h2 style="margin: 0; font-size: 20px;">🛡️ PulaTrade Admin Notification</h2>
+          <h2 style="margin: 0; font-size: 20px;">🛡️ TradeGridAfrica Admin Notification</h2>
           <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">New NDA Executed - Corridor Access Provisioned</p>
         </div>
         <div style="padding: 20px;">
-          <p>A new Mutual NDA has been signed and validated on the Pula Trade Platform.</p>
+          <p>A new Mutual NDA has been signed and validated on the TradeGrid Africa Platform.</p>
           
           <h3 style="font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">Signee Information</h3>
           <table style="width: 100%; font-size: 13px; margin-bottom: 20px; border-collapse: collapse;">
@@ -408,8 +408,8 @@ export async function POST(request: NextRequest) {
     `;
 
     const userSubject = agreementType === "terms"
-      ? "Your Signed Terms of Service & Privacy Policy - Pula Trade"
-      : "Your Signed Mutual NDA - Pula Trade Platform";
+      ? "Your Signed Terms of Service & Privacy Policy - TradeGrid Africa"
+      : "Your Signed Mutual NDA - TradeGrid Africa Platform";
       
     const adminSubject = agreementType === "terms"
       ? `[SECURE] New Terms Executed: ${full_name} (${company_name})`
@@ -433,7 +433,7 @@ export async function POST(request: NextRequest) {
             Authorization: `Bearer ${resendApiKey}`,
           },
           body: JSON.stringify({
-            from: "PulaTrade Trust Registry <security@pulatrade.com>",
+            from: "TradeGridAfrica Trust Registry <security@tradegridafrica.com>",
             to: [email],
             subject: userSubject,
             html: userEmailHtml,
@@ -454,8 +454,8 @@ export async function POST(request: NextRequest) {
             Authorization: `Bearer ${resendApiKey}`,
           },
           body: JSON.stringify({
-            from: "PulaTrade Alerts <alerts@pulatrade.com>",
-            to: ["admin@pulatrade.com"],
+            from: "TradeGridAfrica Alerts <alerts@tradegridafrica.com>",
+            to: ["admin@tradegridafrica.com"],
             subject: adminSubject,
             html: adminEmailHtml,
             attachments: [
@@ -478,14 +478,14 @@ export async function POST(request: NextRequest) {
     simulatedEmailDetails = {
       userEmail: {
         to: email,
-        from: "security@pulatrade.com",
+        from: "security@tradegridafrica.com",
         subject: userSubject,
         attachmentName: attachmentFilename,
         body: userEmailHtml
       },
       adminEmail: {
-        to: "admin@pulatrade.com",
-        from: "alerts@pulatrade.com",
+        to: "admin@tradegridafrica.com",
+        from: "alerts@tradegridafrica.com",
         subject: adminSubject,
         attachmentName: adminAttachmentFilename,
         body: adminEmailHtml

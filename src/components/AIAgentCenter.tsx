@@ -126,7 +126,7 @@ export const AIAgentCenter: React.FC = () => {
         order_id: order.id
       });
 
-      alert(`🚀 DEAL LOCKED IN ESCROW!\n\nOrder ID: ${order.id}\nValuation: $${(parsed.quantity * price).toLocaleString()} USD\nPulaTrade Digital Escrow registry has locked funds. Check the Exporter compliance desk to approve.`);
+      alert(`🚀 DEAL LOCKED IN ESCROW!\n\nOrder ID: ${order.id}\nValuation: $${(parsed.quantity * price).toLocaleString()} USD\nTradeGridAfrica Digital Escrow registry has locked funds. Check the Exporter compliance desk to approve.`);
     } catch (err: any) {
       alert("Error executing deal: " + err.message);
     }

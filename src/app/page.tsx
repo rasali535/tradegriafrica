@@ -55,7 +55,7 @@ export default function Home() {
 
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123' || password === 'pulatrade2026') {
+    if (password === 'admin123' || password === 'tradegridafrica2026') {
       const adminUser = users.find(u => u.role === 'admin');
       if (adminUser) {
         setCurrentUser(adminUser);
@@ -337,12 +337,22 @@ export default function Home() {
             )}
 
             {view === 'landing' ? (
-              <Button 
-                onClick={() => handleLaunchApp()}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs shadow-md"
-              >
-                Launch App Console
-              </Button>
+              <>
+                <a href="/onboarding">
+                  <Button 
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs shadow-md"
+                  >
+                    Sign Up
+                  </Button>
+                </a>
+                <Button 
+                  onClick={() => handleLaunchApp()}
+                  variant="outline"
+                  className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs shadow-md"
+                >
+                  Launch Console
+                </Button>
+              </>
             ) : (
               <Button 
                 onClick={handleGoHome}
@@ -607,7 +617,7 @@ export default function Home() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Sprout className="h-4 w-4 text-emerald-500" />
-              <span className="font-extrabold tracking-tight text-zinc-300">PulaTrade</span>
+              <span className="font-extrabold tracking-tight text-zinc-300">TradeGridAfrica</span>
             </div>
             <p className="leading-relaxed max-w-xs text-zinc-400">
               Cross-border agribusiness trading & logistics corridor engine for South Africa, Botswana, Namibia, Zimbabwe, and Zambia.
@@ -637,7 +647,7 @@ export default function Home() {
         </div>
         <div className="max-w-7xl mx-auto px-4 border-t border-zinc-900/60 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-zinc-600">
           <div className="flex flex-col gap-1">
-            <span>© {new Date().getFullYear()} PulaTrade Technologies Inc. All Rights Reserved.</span>
+            <span>© {new Date().getFullYear()} TradeGridAfrica Technologies Inc. All Rights Reserved.</span>
             <span className="text-zinc-500 text-[10px]">Web app platform by Pameltech Labs</span>
           </div>
           <div className="flex gap-4">
@@ -700,7 +710,7 @@ export default function Home() {
                 </p>
               )}
               <p className="text-[9px] text-zinc-500 mt-1 font-mono">
-                Hint: admin123 or pulatrade2026
+                Hint: admin123 or tradegridafrica2026
               </p>
             </div>
             <DialogFooter className="flex gap-2 justify-end pt-2">

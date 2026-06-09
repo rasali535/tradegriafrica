@@ -4,7 +4,7 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# 🤖 Pula Trade AI Agents System Documentation
+# 🤖 TradeGrid Africa AI Agents System Documentation
 
 This repository has been upgraded with a **modular AI agent business workflow engine** designed to autonomously manage cross-border agribusiness exports within the SADC region.
 
@@ -79,5 +79,5 @@ The new **AI Agent Center** is fully integrated inside the **App Sandbox Desk**.
 - **Interactive Prompt Command Area:** Choose from agricultural presets or submit custom instructions.
 - **Sequential Trace visualizer:** Blinks and animates as agents resolve, showing real-time latencies, trust metrics, and data structures.
 - **Live Document Drawer:** Instant download/print links for SADC certifications.
-- **Interactive Deal Confirmation:** Triggers PulaTrade's digital escrow system to lock funds in global banking databases and update application context state.
+- **Interactive Deal Confirmation:** Triggers TradeGridAfrica's digital escrow system to lock funds in global banking databases and update application context state.
 - **Audit Ledger:** Collapsible developer consoles listing request/response payloads for judges/inspectors.

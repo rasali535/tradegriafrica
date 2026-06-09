@@ -1,4 +1,4 @@
--- PulaTrade Database Schema
+-- TradeGridAfrica Database Schema
 -- Agricultural Trade Infrastructure for African Nations (SADC corridor)
 
 -- Enable UUID extension

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const price = parseFloat(input.price_per_unit) || 320;
 
   const fallbackOutput = {
-    negotiation_message: `Deal Closing Agent has drafted the bilateral trade contract. Recommended terms: $${price}/ton under SADC preferential terms, payment secured via PulaTrade Digital Escrow.`,
+    negotiation_message: `Deal Closing Agent has drafted the bilateral trade contract. Recommended terms: $${price}/ton under SADC preferential terms, payment secured via TradeGridAfrica Digital Escrow.`,
     deal_summary: {
       buyer,
       seller,

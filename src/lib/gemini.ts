@@ -1,5 +1,5 @@
 /**
- * Pula Trade — Gemini AI Client
+ * TradeGrid Africa — Gemini AI Client
  *
  * Uses Google Gemini 2.0 Flash for all agent calls.
  * Set GEMINI_API_KEY in your .env.local to enable live mode.
@@ -44,7 +44,7 @@ export async function callGemini(
   // ── SIMULATION MODE (no API key) ──────────────────────────────────────────
   if (!GEMINI_API_KEY || GEMINI_API_KEY === "your_gemini_api_key_here") {
     console.warn(
-      "[Pula Trade] No GEMINI_API_KEY found — running in simulation mode. " +
+      "[TradeGrid Africa] No GEMINI_API_KEY found — running in simulation mode. " +
       "Add your key to .env.local to enable live Gemini responses."
     );
     await new Promise((r) => setTimeout(r, 600 + Math.random() * 400));

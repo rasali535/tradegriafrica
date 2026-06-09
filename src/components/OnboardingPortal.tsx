@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from '@/lib/supabaseClient';
 
 export const OnboardingPortal: React.FC = () => {
-  const { registerUser, addFarm, setCurrentUser } = useApp();
+  const { setCurrentUser } = useApp();
   const [role, setRole] = useState<'farmer' | 'buyer' | 'transporter'>('farmer');
   
   // Shared Form Fields
@@ -46,7 +47,7 @@ export const OnboardingPortal: React.FC = () => {
     setCommodityFocus(prev => prev.includes(crop) ? prev.filter(x => x !== crop) : [...prev, crop]);
   };
 
-  const handleOnboard = (e: React.FormEvent) => {
+  const handleOnboard = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name || !email || !phone) {
@@ -57,18 +58,17 @@ export const OnboardingPortal: React.FC = () => {
     try {
       const companyOrName = role === 'farmer' ? name : role === 'buyer' ? companyName || `${name} Distributors` : companyName || name;
       
-      // 1. Register base user with onboarding verification documents
-      const user = registerUser({
+      // 1. Register base user to Supabase
+      const { data: userData, error: userError } = await supabase.from('users').insert({
         name: companyOrName,
         email,
         phone,
         country,
         role,
-        kyc_status: 'pending',
-        document_name: docType,
-        document_ref: docRef || `SADC-REF-${Math.floor(1000 + Math.random() * 9000)}`,
-        document_url: docFileName || `${companyOrName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_verification_document.pdf`
-      });
+      }).select().single();
+
+      if (userError) throw userError;
+      const user = userData as User;
 
       // 2. Perform role specific side-effects
       if (role === 'farmer') {
@@ -76,7 +76,8 @@ export const OnboardingPortal: React.FC = () => {
           alert("Please fill in your farm name and region.");
           return;
         }
-        addFarm({
+        
+        const { error: farmError } = await supabase.from('farms').insert({
           owner_id: user.id,
           farm_name: farmName,
           farm_size: farmSize,
@@ -86,6 +87,8 @@ export const OnboardingPortal: React.FC = () => {
           production_capacity: productionCapacity,
           certification_status: 'Certified'
         });
+        
+        if (farmError) throw farmError;
       }
 
       // 3. Set newly registered user as current user for instant sandbox test

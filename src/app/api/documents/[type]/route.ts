@@ -231,7 +231,7 @@ export async function GET(
         <p>The Seller agrees to sell, and the Buyer agrees to purchase ${numQty} Tons of ${product} at a purchase price of $${numPrice} per ton, representing a total contract valuation of $${total.toLocaleString()} USD.</p>
         
         <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">2. PAYMENT TERMS (SMART ESCROW)</h3>
-        <p>Payment shall be locked in the PulaTrade Digital Escrow Registry upon confirmation. The bank will release funds to the Seller immediately upon proof of border crossing verification and custom biosecurity phytosanitary clearance.</p>
+        <p>Payment shall be locked in the TradeGridAfrica Digital Escrow Registry upon confirmation. The bank will release funds to the Seller immediately upon proof of border crossing verification and custom biosecurity phytosanitary clearance.</p>
 
         <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">3. GOVERNING LAW & BIOCLEARANCE</h3>
         <p>The contract is governed by standard SADC Agribusiness Trade protocols. The Seller guarantees the cargo complies with target border biosecurity rules and has been tested for standard contaminants.</p>
@@ -260,7 +260,7 @@ export async function GET(
     <html lang="en">
     <head>
       <meta charset="UTF-8">
-      <title>PulaTrade Document Registry - ${title}</title>
+      <title>TradeGridAfrica Document Registry - ${title}</title>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
       <script src="https://cdn.tailwindcss.com"></script>
       <style>
@@ -295,7 +295,7 @@ export async function GET(
 
         <!-- Footer -->
         <div class="border-t border-zinc-200 pt-8 mt-12 text-[10px] text-zinc-400 flex justify-between items-center font-mono">
-          <span>PulaTrade Regional Trust Registry</span>
+          <span>TradeGridAfrica Regional Trust Registry</span>
           <span>Security Protocol: ECC-256-SADC</span>
         </div>
       </div>

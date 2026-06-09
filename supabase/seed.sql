@@ -1,4 +1,4 @@
--- PulaTrade Database Seed Data
+-- TradeGridAfrica Database Seed Data
 -- Seed Users, Farms, Commodity Listings, Orders, Shipments, Payments, Exports
 
 -- Seed Users
@@ -21,7 +21,7 @@ INSERT INTO public.users (id, role, name, email, phone, country) VALUES
 ('e4000000-0000-0000-0000-000000000001', 'exporter', 'AfriTrade Agribusiness Group', 'export@afritrade.org', '+263 4 700123', 'Zimbabwe'),
 ('e4000000-0000-0000-0000-000000000002', 'exporter', 'Atlantic Trade Linkers', 'customs@atlantictrade.co.na', '+264 61 290 1234', 'Namibia'),
 -- Admin
-('a5000000-0000-0000-0000-000000000001', 'admin', 'PulaTrade Operations', 'admin@pulatrade.com', '+267 360 1234', 'Botswana')
+('a5000000-0000-0000-0000-000000000001', 'admin', 'TradeGridAfrica Operations', 'admin@tradegridafrica.com', '+267 360 1234', 'Botswana')
 ON CONFLICT (id) DO NOTHING;
 
 -- Seed Farms

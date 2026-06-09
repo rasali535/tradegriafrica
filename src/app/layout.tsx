@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PulaTrade | Powering Agricultural Trade Across Africa",
+  title: "TradeGridAfrica | Powering Agricultural Trade Across Africa",
   description: "Cross-border agricultural trade infrastructure connecting farmers, buyers, exporters, transporters, cooperatives, and governments across the SADC corridor.",
   keywords: "agriculture, SADC trade, Africa agritech, cross border trade, farmers marketplace, logistics tracking",
 };

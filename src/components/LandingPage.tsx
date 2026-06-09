@@ -52,22 +52,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </h1>
             
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              PulaTrade connects farmers, buyers, exporters, and transporters through digital escrow engines, automated phytosanitary compliance registries, and transparent border tracking.
+              TradeGridAfrica connects farmers, buyers, exporters, and transporters through digital escrow engines, automated phytosanitary compliance registries, and transparent border tracking.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <Button 
-                onClick={() => onLaunchApp()}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-lg flex items-center gap-2 border border-emerald-500 shadow-xl shadow-emerald-950/30 text-xs transition-all cursor-pointer"
-              >
-                Launch Sandbox Console
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <a href="#features">
-                <Button variant="outline" className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 px-5 py-2.5 text-xs transition-all cursor-pointer">
-                  Explore Infrastructure
+              <a href="/onboarding">
+                <Button 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-lg flex items-center gap-2 border border-emerald-500 shadow-xl shadow-emerald-950/30 text-xs transition-all cursor-pointer"
+                >
+                  Start Onboarding
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </a>
+              <Button 
+                onClick={() => onLaunchApp()}
+                variant="outline" 
+                className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 px-5 py-2.5 text-xs transition-all cursor-pointer"
+              >
+                Launch Sandbox Console
+              </Button>
             </div>
 
             {/* Quick Metrics */}
@@ -393,7 +396,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </p>
               <div className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 pt-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                PulaTrade solves this.
+                TradeGridAfrica solves this.
               </div>
             </div>
             
@@ -652,7 +655,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               A Unified Regional Infrastructure Stack
             </h2>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              PulaTrade integrates verification checks, payments, transit logistics, and regulatory filing into a single API-driven solution for cross-border trade.
+              TradeGridAfrica integrates verification checks, payments, transit logistics, and regulatory filing into a single API-driven solution for cross-border trade.
             </p>
             
             {/* Interactive API Validation Endpoint block */}
@@ -813,7 +816,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
                 <Briefcase className="h-5 w-5 text-emerald-400" />
-                Partner With PulaTrade
+                Partner With TradeGridAfrica
               </h3>
               <p className="text-xs text-zinc-400">
                 Join our regional network. Choose your integration track below to request a pilot demonstration, partner with our customs biosecurity systems, or view investor packages.
@@ -865,7 +868,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         <div className="text-center space-y-2 mb-12">
           <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">Collaborative Networks</Badge>
           <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Tailored Partnerships for SADC Development</h2>
-          <p className="text-xs text-zinc-400 max-w-xl mx-auto">PulaTrade integrates multi-sector institutions into a unified digital corridor.</p>
+          <p className="text-xs text-zinc-400 max-w-xl mx-auto">TradeGridAfrica integrates multi-sector institutions into a unified digital corridor.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -919,7 +922,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Badge className="bg-amber-950 text-amber-400 border border-amber-900 text-xs">Live Corridor Tracking</Badge>
           <h2 className="text-3xl font-bold text-zinc-100 leading-tight">Connecting the Kalahari, Maputo, and North-South Corridor Route</h2>
           <p className="text-xs text-zinc-400 leading-relaxed">
-            By connecting logistics vectors directly with customs biosecurity hubs, PulaTrade reduces agricultural product decay rates and border waiting times.
+            By connecting logistics vectors directly with customs biosecurity hubs, TradeGridAfrica reduces agricultural product decay rates and border waiting times.
           </p>
           <div className="space-y-3 text-xs text-zinc-300">
             <div className="flex items-center gap-2">
@@ -956,7 +959,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         <div className="max-w-xl mx-auto space-y-6">
           <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Ready to accelerate African Trade?</h2>
           <p className="text-xs text-zinc-400">
-            Experience the full platform demo right now in the sandbox. Switch roles to view how PulaTrade serves Farmers, Buyers, Exporters, and Transporters.
+            Experience the full platform demo right now in the sandbox. Switch roles to view how TradeGridAfrica serves Farmers, Buyers, Exporters, and Transporters.
           </p>
           <Button 
             onClick={() => onLaunchApp()}

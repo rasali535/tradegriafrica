@@ -50,7 +50,7 @@ export const RoleSwitcher: React.FC = () => {
 
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123' || password === 'pulatrade2026') {
+    if (password === 'admin123' || password === 'tradegridafrica2026') {
       const adminUser = users.find(u => u.role === 'admin');
       if (adminUser) {
         setCurrentUser(adminUser);
@@ -179,7 +179,7 @@ export const RoleSwitcher: React.FC = () => {
                 </p>
               )}
               <p className="text-[9px] text-zinc-500 mt-1 font-mono">
-                Hint: admin123 or pulatrade2026
+                Hint: admin123 or tradegridafrica2026
               </p>
             </div>
             <DialogFooter className="flex gap-2 justify-end pt-2">

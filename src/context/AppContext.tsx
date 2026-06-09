@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 // Database Entity Types
 export interface User {
@@ -231,7 +232,7 @@ const SEED_USERS: User[] = [
   { id: 'k7000000-0000-0000-0000-000000000002', role: 'bank', name: 'BancABC Trade Finance', email: 'trade.desk@bancabc.co.bw', phone: '+267 367 4300', country: 'Botswana', kyc_status: 'approved' },
   { id: 'k7000000-0000-0000-0000-000000000003', role: 'bank', name: 'Bank Windhoek Trade Finance', email: 'trade.desk@bankwindhoek.com.na', phone: '+264 61 299 1200', country: 'Namibia', kyc_status: 'approved' },
   
-  { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'PulaTrade Operations', email: 'admin@pulatrade.com', phone: '+267 360 1234', country: 'Botswana', kyc_status: 'approved' }
+  { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'TradeGridAfrica Operations', email: 'admin@tradegridafrica.com', phone: '+267 360 1234', country: 'Botswana', kyc_status: 'approved' }
 ];
 
 const SEED_FARMS: Farm[] = [
@@ -933,111 +934,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tradeCorridors, setTradeCorridors] = useState<TradeCorridor[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Load from local storage or set defaults
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedUsers = localStorage.getItem('pt_users');
-      const storedFarms = localStorage.getItem('pt_farms');
-      const storedListings = localStorage.getItem('pt_listings');
-      const storedOrders = localStorage.getItem('pt_orders');
-      const storedShipments = localStorage.getItem('pt_shipments');
-      const storedPayments = localStorage.getItem('pt_payments');
-      const storedExports = localStorage.getItem('pt_exports');
-      const storedCooperatives = localStorage.getItem('pt_cooperatives');
-      const storedFinRequests = localStorage.getItem('pt_financing_requests');
-      const storedWebhooks = localStorage.getItem('pt_webhooks');
-      const storedApiKeys = localStorage.getItem('pt_api_keys');
-      const storedEventLogs = localStorage.getItem('pt_event_logs');
-      const storedCurrentUser = localStorage.getItem('pt_current_user');
-      const storedAgreements = localStorage.getItem('pt_trade_agreements');
-      const storedCorridors = localStorage.getItem('pt_trade_corridors');
+    const fetchLiveDb = async () => {
+      try {
+        const { data: usersData, error: usersErr } = await supabase.from('users').select('*');
+        const { data: farmsData, error: farmsErr } = await supabase.from('farms').select('*');
+        const { data: listingsData } = await supabase.from('commodity_listings').select('*');
+        const { data: ordersData } = await supabase.from('orders').select('*');
+        const { data: shipmentsData } = await supabase.from('shipments').select('*');
+        const { data: paymentsData } = await supabase.from('payments').select('*');
+        const { data: exportsData } = await supabase.from('exports').select('*');
 
-      if (storedUsers) setUsers(JSON.parse(storedUsers));
-      else localStorage.setItem('pt_users', JSON.stringify(SEED_USERS));
+        if (usersErr) console.error("Error fetching users", usersErr);
+        if (farmsErr) console.error("Error fetching farms", farmsErr);
 
-      if (storedFarms) setFarms(JSON.parse(storedFarms));
-      else localStorage.setItem('pt_farms', JSON.stringify(SEED_FARMS));
+        setUsers(usersData || []);
+        setFarms(farmsData || []);
+        setListings(listingsData || []);
+        setOrders(ordersData || []);
+        setShipments(shipmentsData || []);
+        setPayments(paymentsData || []);
+        setExports(exportsData || []);
 
-      if (storedListings) setListings(JSON.parse(storedListings));
-      else {
-        setListings(SEED_LISTINGS);
-        localStorage.setItem('pt_listings', JSON.stringify(SEED_LISTINGS));
-      }
-
-      if (storedOrders) setOrders(JSON.parse(storedOrders));
-      else {
-        setOrders(FULL_ORDERS);
-        localStorage.setItem('pt_orders', JSON.stringify(FULL_ORDERS));
-      }
-
-      if (storedShipments) setShipments(JSON.parse(storedShipments));
-      else {
-        setShipments(FULL_SHIPMENTS);
-        localStorage.setItem('pt_shipments', JSON.stringify(FULL_SHIPMENTS));
-      }
-
-      if (storedPayments) setPayments(JSON.parse(storedPayments));
-      else {
-        setPayments(FULL_PAYMENTS);
-        localStorage.setItem('pt_payments', JSON.stringify(FULL_PAYMENTS));
-      }
-
-      if (storedExports) setExports(JSON.parse(storedExports));
-      else {
-        setExports(FULL_EXPORTS);
-        localStorage.setItem('pt_exports', JSON.stringify(FULL_EXPORTS));
-      }
-
-      if (storedCooperatives) setCooperatives(JSON.parse(storedCooperatives));
-      else {
-        setCooperatives(SEED_COOPERATIVES);
-        localStorage.setItem('pt_cooperatives', JSON.stringify(SEED_COOPERATIVES));
-      }
-
-      if (storedFinRequests) setFinancingRequests(JSON.parse(storedFinRequests));
-      else {
-        setFinancingRequests(SEED_FINANCING_REQUESTS);
-        localStorage.setItem('pt_financing_requests', JSON.stringify(SEED_FINANCING_REQUESTS));
-      }
-
-      if (storedWebhooks) setWebhooks(JSON.parse(storedWebhooks));
-      else {
-        setWebhooks(SEED_WEBHOOKS);
-        localStorage.setItem('pt_webhooks', JSON.stringify(SEED_WEBHOOKS));
-      }
-
-      if (storedApiKeys) setApiKeys(JSON.parse(storedApiKeys));
-      else {
-        setApiKeys(SEED_API_KEYS);
-        localStorage.setItem('pt_api_keys', JSON.stringify(SEED_API_KEYS));
-      }
-
-      if (storedEventLogs) setEventLogs(JSON.parse(storedEventLogs));
-      else {
-        setEventLogs(SEED_EVENT_LOGS);
-        localStorage.setItem('pt_event_logs', JSON.stringify(SEED_EVENT_LOGS));
-      }
-
-      if (storedAgreements) setTradeAgreements(JSON.parse(storedAgreements));
-      else {
+        setCooperatives([]);
+        setFinancingRequests([]);
+        setWebhooks([]);
+        setApiKeys([]);
+        setEventLogs([]);
+        
+        // Static config data
         setTradeAgreements(SEED_TRADE_AGREEMENTS);
-        localStorage.setItem('pt_trade_agreements', JSON.stringify(SEED_TRADE_AGREEMENTS));
-      }
-
-      if (storedCorridors) setTradeCorridors(JSON.parse(storedCorridors));
-      else {
         setTradeCorridors(SEED_TRADE_CORRIDORS);
-        localStorage.setItem('pt_trade_corridors', JSON.stringify(SEED_TRADE_CORRIDORS));
-      }
 
-      if (storedCurrentUser) {
-        setCurrentUser(JSON.parse(storedCurrentUser));
-      } else {
-        // Default to Farmer (Tshepo)
-        setCurrentUser(SEED_USERS[0]);
-        localStorage.setItem('pt_current_user', JSON.stringify(SEED_USERS[0]));
+        if (usersData && usersData.length > 0) {
+          setCurrentUser(usersData[0]);
+        } else {
+          setCurrentUser(null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch from live Supabase DB", err);
       }
-    }
+    };
+
+    fetchLiveDb();
   }, []);
 
   // Save updates helper

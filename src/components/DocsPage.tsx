@@ -187,7 +187,7 @@ The SADC Protocol on Trade is the primary legal instrument governing regional tr
 3. **Elimination of Non-Tariff Barriers (NTBs):** Outlaws arbitrary import/export quotas, import bans, and unjustified administrative fees.
 
 > [!IMPORTANT]
-> **Permit Issuance:** Exporters must obtain official Phytosanitary certificates and import/export licenses from their respective national Ministries of Agriculture. PulaTrade acts as a secure tracking layer and does not issue sovereign permits directly.`
+> **Permit Issuance:** Exporters must obtain official Phytosanitary certificates and import/export licenses from their respective national Ministries of Agriculture. TradeGridAfrica acts as a secure tracking layer and does not issue sovereign permits directly.`
     },
     {
       id: 'sacu-treaty',
@@ -230,13 +230,13 @@ Biosecurity is the most frequent cause of border delays for agricultural shipmen
       title: 'Digital Escrow Engine Guide',
       category: 'Financial Operations',
       icon: Scale,
-      summary: 'Operational framework of PulaTrade’s digital escrow engine, milestone-based payments, and trade dispute resolution.',
-      content: `### PulaTrade Escrow & Settlement Framework
+      summary: 'Operational framework of TradeGridAfrica’s digital escrow engine, milestone-based payments, and trade dispute resolution.',
+      content: `### TradeGridAfrica Escrow & Settlement Framework
 
-To bridge the regional trade credit gap and resolve the trust deficit between cross-border buyers and sellers, PulaTrade implements an automated digital escrow settlement layer.
+To bridge the regional trade credit gap and resolve the trust deficit between cross-border buyers and sellers, TradeGridAfrica implements an automated digital escrow settlement layer.
 
 #### Workflow of the Escrow Engine:
-1. **Contract Lock-in:** The buyer locks the trade payment in USD, BWP, or ZAR within the PulaTrade Escrow vault.
+1. **Contract Lock-in:** The buyer locks the trade payment in USD, BWP, or ZAR within the TradeGridAfrica Escrow vault.
 2. **Milestone Tracking:** Payments are released in structured tranches tied to regional trade checkpoints:
    - **Tranche 1 (20%):** Released upon verification of the Phytosanitary certificate on the SADC Trade Registry.
    - **Tranche 2 (50%):** Released upon GPS verification crossing the designated border checkpoint.

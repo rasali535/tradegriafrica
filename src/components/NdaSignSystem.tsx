@@ -33,7 +33,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
   const [country, setCountry] = useState("Botswana");
   const [purpose, setPurpose] = useState("Investor Review");
 
-  // Agreement Declarations (Pula Trade style)
+  // Agreement Declarations (TradeGrid Africa style)
   const [decConfidential, setDecConfidential] = useState(false);
   const [decIp, setDecIp] = useState(false);
   const [decAuthority, setDecAuthority] = useState(false);
@@ -71,7 +71,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
       setRole(currentUserData.role || "admin");
       setCompanyName(
         currentUserData.role === "admin" 
-          ? "PulaTrade Operations" 
+          ? "TradeGridAfrica Operations" 
           : `${currentUserData.name} Group`
       );
       setPurpose(
@@ -274,7 +274,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
     if (!signedNda?.pdf_url) return;
     const link = document.createElement("a");
     link.href = signedNda.pdf_url;
-    link.download = `Signed_NDA_PulaTrade_${fullName.replace(/\s+/g, "_")}.pdf`;
+    link.download = `Signed_NDA_TradeGridAfrica_${fullName.replace(/\s+/g, "_")}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -522,7 +522,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
         <div className="flex justify-between items-center border-b border-zinc-900 pb-3 mb-6 text-xs text-zinc-400 font-mono">
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#0091ff] animate-pulse"></span>
-            <span>PulaTrade Access Gate: Execute Mutual NCNDA to unlock App Sandbox Desk.</span>
+            <span>TradeGridAfrica Access Gate: Execute Mutual NCNDA to unlock App Sandbox Desk.</span>
           </div>
           {onCancel ? (
             <button
@@ -850,11 +850,11 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
                   NON-DISCLOSURE & NON-CIRCUMVENTION AGREEMENT (NCNDA)
                 </h3>
                 <h4 className="text-zinc-300 font-semibold text-center text-[9.5px] mb-3">
-                  PULA TRADE PLATFORM - A PROPERTY OF PAMELTECH LABS
+                  TRADEGRID AFRICA PLATFORM - A PROPERTY OF PAMELTECH LABS
                 </h4>
                 
                 <p className="text-[10px]">
-                  This Non-Disclosure and Non-Circumvention Agreement (&quot;Agreement&quot;) is entered into by and between Pameltech Labs, the owner and operator of the Pula Trade platform (&quot;Company&quot;), and the undersigned investor, individual, or entity (&quot;Recipient&quot;). Collectively referred to as the &quot;Parties.&quot;
+                  This Non-Disclosure and Non-Circumvention Agreement (&quot;Agreement&quot;) is entered into by and between Pameltech Labs, the owner and operator of the TradeGrid Africa platform (&quot;Company&quot;), and the undersigned investor, individual, or entity (&quot;Recipient&quot;). Collectively referred to as the &quot;Parties.&quot;
                 </p>
 
                 <div className="border-b border-zinc-900 my-2"></div>
@@ -863,14 +863,14 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
                   <div>
                     <strong className="text-zinc-300 block mb-1 uppercase tracking-wide">1. PURPOSE</strong>
                     <p>
-                      The Recipient acknowledges that they may be granted access to confidential, proprietary, and commercially sensitive information relating to Pula Trade, a digital platform owned by Pameltech Labs, for the sole purpose of evaluating a potential investment, partnership, or business relationship.
+                      The Recipient acknowledges that they may be granted access to confidential, proprietary, and commercially sensitive information relating to TradeGrid Africa, a digital platform owned by Pameltech Labs, for the sole purpose of evaluating a potential investment, partnership, or business relationship.
                     </p>
                   </div>
 
                   <div>
                     <strong className="text-zinc-300 block mb-1 uppercase tracking-wide">2. CONFIDENTIAL INFORMATION</strong>
                     <p>
-                      &quot;Confidential Information&quot; includes but is not limited to: business plans and strategies, technical architecture and system design, source code, algorithms, software logic, financial information and projections, investor materials and pitch decks, customer, partner, and supplier information, trade secrets, processes, and methodologies, and any non-public information disclosed through the Pula Trade platform.
+                      &quot;Confidential Information&quot; includes but is not limited to: business plans and strategies, technical architecture and system design, source code, algorithms, software logic, financial information and projections, investor materials and pitch decks, customer, partner, and supplier information, trade secrets, processes, and methodologies, and any non-public information disclosed through the TradeGrid Africa platform.
                     </p>
                   </div>
 
@@ -884,7 +884,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
                   <div>
                     <strong className="text-zinc-300 block mb-1 uppercase tracking-wide">4. NON-CIRCUMVENTION</strong>
                     <p>
-                      The Recipient agrees not to: bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through Pula Trade; contact, engage, or contract with any partners, stakeholders, or opportunities disclosed through the platform without written consent; or use Confidential Information to compete with or replicate the Pula Trade platform or its underlying business model.
+                      The Recipient agrees not to: bypass, avoid, or circumvent Pameltech Labs in any business opportunity introduced through TradeGrid Africa; contact, engage, or contract with any partners, stakeholders, or opportunities disclosed through the platform without written consent; or use Confidential Information to compete with or replicate the TradeGrid Africa platform or its underlying business model.
                     </p>
                   </div>
 
