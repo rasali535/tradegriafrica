@@ -57,7 +57,7 @@ export const FarmerDashboard: React.FC = () => {
   const completedOrders = farmOrders.filter(o => o.status === 'completed');
   
   const totalRevenue = completedOrders.reduce((sum, o) => sum + o.amount, 0);
-  const pendingRevenue = farmOrders.filter(o => o.status === 'approved' || o.status === 'pending').reduce((sum, o) => sum + o.amount, 0);
+  const pendingContractValue = farmOrders.filter(o => o.status === 'approved' || o.status === 'pending').reduce((sum, o) => sum + o.amount, 0);
 
   // Recharts Chart datasets
   const revenueData = [
@@ -258,12 +258,12 @@ export const FarmerDashboard: React.FC = () => {
 
         <Card className="glass-card border-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Escrow Pending</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Pending Contracts</CardTitle>
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-100">${pendingRevenue.toLocaleString()}</div>
-            <p className="text-xs text-zinc-400 mt-1">Funds locked in SADC Digital Escrows</p>
+            <div className="text-2xl font-bold text-zinc-100">${pendingContractValue.toLocaleString()}</div>
+            <p className="text-xs text-zinc-400 mt-1">Value of pending purchase orders</p>
           </CardContent>
         </Card>
 

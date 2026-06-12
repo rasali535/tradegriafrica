@@ -52,7 +52,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </h1>
             
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              TradeGridAfrica connects farmers, buyers, exporters, and transporters through digital escrow engines, automated phytosanitary compliance registries, and transparent border tracking.
+              TradeGridAfrica connects farmers, buyers, exporters, and transporters through digital contract engines, automated phytosanitary compliance registries, and transparent border tracking.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -318,7 +318,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                   <div className="space-y-4 animate-in fade-in duration-200">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Escrow Contracts Registry</h3>
+                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Smart Contracts Registry</h3>
                         <p className="text-[10px] text-zinc-500">Secured B2B purchasing accounts with autonomous release</p>
                       </div>
                       <span className="text-[9px] bg-amber-950 text-amber-400 border border-amber-900/60 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -335,7 +335,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                         </div>
                         <div className="text-right">
                           <div className="text-xs font-extrabold text-amber-400">{formatPrice(16000)}</div>
-                          <div className="text-[9px] text-zinc-500">Escrow Locked</div>
+                          <div className="text-[9px] text-zinc-500">Contract Value</div>
                         </div>
                       </div>
 
@@ -360,7 +360,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-555">Escrows automatically release via digital milestone triggers</span>
+                      <span className="text-[10px] text-zinc-555">Contracts automatically advance via digital milestone triggers</span>
                       <Button 
                         onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'dashboard')}
                         className="bg-amber-600/10 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
@@ -415,7 +415,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </div>
               <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
                 <div className="text-sm font-bold text-zinc-200">Export Complexity & Payment Risk</div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">Absence of secure cross-border escrow engines exposes sellers and buyers to payment default.</p>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">Absence of secure cross-border smart contracts exposes sellers and buyers to payment default.</p>
               </div>
             </div>
           </div>
@@ -439,7 +439,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           </div>
           <div className="p-4 space-y-1 border-l border-zinc-800/80">
             <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Active Prototype</div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Escrow Engine Enabled</div>
+            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Smart Contracts Enabled</div>
           </div>
         </div>
       </section>
@@ -485,7 +485,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               <div>
                 <h3 className="font-bold text-zinc-200 text-sm group-hover:text-amber-400 transition-colors">SADC Food Distributors</h3>
                 <p className="text-[11px] text-zinc-500 mt-1">Procurement Hub</p>
-                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Browse commodities, lock funds in escrow, request import readiness checks, track orders.</p>
+                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Browse commodities, generate digital contracts, request import readiness checks, track orders.</p>
               </div>
             </div>
             <Button 
@@ -551,7 +551,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               <div>
                 <h3 className="font-bold text-zinc-200 text-sm group-hover:text-zinc-300 transition-colors">PulaOperations</h3>
                 <p className="text-[11px] text-zinc-500 mt-1">Platform Admin</p>
-                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Oversee regional escrows, track border waiting times, review active shipments and biosecurity scores.</p>
+                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Oversee regional contracts, track border waiting times, review active shipments and biosecurity scores.</p>
               </div>
             </div>
             <Button 
@@ -601,9 +601,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               <div className="p-3 bg-blue-950/40 border border-blue-900/50 rounded-xl text-blue-400 w-fit">
                 <Shield className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">Escrow Trade tracking</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Mitigate risk with digital security escrow. Funds are locked at purchase and auto-released upon verified cargo receipt.
+              <h3 className="text-base font-bold text-zinc-100">Smart Contract tracking</h3>
+              <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                Mitigate risk with digital smart contracts. Procurements are verified through milestone-based cargo receipt.
               </p>
             </CardContent>
           </Card>
@@ -701,7 +701,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     <pre className="text-[10px] leading-relaxed text-zinc-350 overflow-x-auto scrollbar-none font-mono">
 {`{
   "status": "VALIDATED",
-  "escrow_id": "PULA-1049",
+  "contract_id": "PULA-1049",
   "corridor": "Trans-Kalahari",
   "parties": {
     "exporter": "AfriTrade Group (ZW)",
@@ -743,7 +743,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               {/* Layer 4 */}
               <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-amber-600/50 transition-colors shadow-lg">
                 <div className="text-[9px] uppercase font-bold tracking-wider text-amber-400 mb-0.5">Layer 4</div>
-                <div className="text-sm font-extrabold text-zinc-200">Escrow Layer</div>
+                <div className="text-sm font-extrabold text-zinc-200">Contract Layer</div>
                 <p className="text-[10px] text-zinc-500">Bilateral deposit holding, inspection locking, & automated milestone payouts</p>
               </div>
 
@@ -893,7 +893,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               For Banks
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Integrate with authenticated digital escrows, view transaction logs, and assess biosecurity audit histories for risk-scoring trade finance.
+              Integrate with authenticated digital contracts, view transaction logs, and assess biosecurity audit histories for risk-scoring trade finance.
             </p>
             <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/30 border border-amber-900/40 w-fit px-2 py-0.5 rounded">
               Trade finance + risk scoring
@@ -935,7 +935,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-500" />
-              GPS tracking logs tied directly to escrow releases
+              GPS tracking logs tied directly to contract milestones
             </div>
           </div>
         </div>

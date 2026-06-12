@@ -637,11 +637,11 @@ export default function Home() {
           <div>
             <h4 className="font-bold text-zinc-300 mb-3 uppercase tracking-wider text-[10px]">SADC Digital Trust Registry</h4>
             <p className="leading-relaxed text-zinc-400 mb-3">
-              Automated digital escrows are locked in regional compliance registries to guarantee farmer payment security.
+              Automated digital contracts are logged in regional compliance registries to guarantee procurement security.
             </p>
             <div className="flex gap-4">
               <span className="text-[10px] text-emerald-400 bg-emerald-950/30 border border-emerald-900/60 px-2 py-0.5 rounded font-mono">
-                SECURE ESCROW ACTIVE
+                SMART CONTRACTS ACTIVE
               </span>
             </div>
           </div>

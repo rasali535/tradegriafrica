@@ -22,6 +22,7 @@ import {
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
+import { RfqEvaluationScreen } from './RfqEvaluationScreen';
 
 export const BuyerDashboard: React.FC = () => {
   const { currentUser, listings, orders, placeOrder } = useApp();
@@ -95,7 +96,7 @@ export const BuyerDashboard: React.FC = () => {
         <div className="flex flex-wrap gap-2 items-center">
           <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900">Customs Automated</Badge>
           <Badge className="bg-amber-950 text-amber-400 border border-amber-900">SADC Tariff Exempt</Badge>
-          <Badge className="bg-blue-950 text-blue-400 border border-blue-900">Smart Escrow Active</Badge>
+          <Badge className="bg-blue-950 text-blue-400 border border-blue-900">Smart Contracts Active</Badge>
         </div>
       </div>
 
@@ -103,18 +104,18 @@ export const BuyerDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="glass-card border-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Active Purchases</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Active RFQs</CardTitle>
             <ShoppingCart className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-zinc-100">{myOrders.filter(o => o.status !== 'completed').length}</div>
-            <p className="text-xs text-zinc-400 mt-1">Orders in logistics transit</p>
+            <p className="text-xs text-zinc-400 mt-1">Open requests for quotations</p>
           </CardContent>
         </Card>
 
         <Card className="glass-card border-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Total SADC Spend</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Total Spend (MTD)</CardTitle>
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
@@ -127,25 +128,25 @@ export const BuyerDashboard: React.FC = () => {
 
         <Card className="glass-card border-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Escrow Locked</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Pending Approvals</CardTitle>
             <History className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-zinc-100">
-              ${myOrders.filter(o => o.status === 'approved' || o.status === 'pending').reduce((sum, o) => sum + o.amount, 0).toLocaleString()}
+              {myOrders.filter(o => o.status === 'approved' || o.status === 'pending').length}
             </div>
-            <p className="text-xs text-zinc-400 mt-1">Awaiting delivery verification</p>
+            <p className="text-xs text-zinc-400 mt-1">Milestones awaiting review</p>
           </CardContent>
         </Card>
 
         <Card className="glass-card border-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">SADC Compliance</CardTitle>
-            <Award className="h-4 w-4 text-blue-500" />
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Compliance Alerts</CardTitle>
+            <ShieldAlert className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-100">100%</div>
-            <p className="text-xs text-blue-400 mt-1">Grade A Import Status</p>
+            <div className="text-2xl font-bold text-zinc-100">0</div>
+            <p className="text-xs text-zinc-400 mt-1">No urgent actions required</p>
           </CardContent>
         </Card>
       </div>
@@ -195,10 +196,10 @@ export const BuyerDashboard: React.FC = () => {
       <Tabs defaultValue="browse" className="w-full">
         <TabsList className="bg-zinc-900 border border-zinc-800 p-0.5 text-zinc-400">
           <TabsTrigger value="browse" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
-            SADC Crop & Beef Marketplace
+            Supplier Marketplace
           </TabsTrigger>
-          <TabsTrigger value="purchases" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
-            Active Purchases ({myOrders.length})
+          <TabsTrigger value="evaluate" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
+            Evaluate RFQs
           </TabsTrigger>
           <TabsTrigger value="compliance" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
             Import Readiness & Tariffs
@@ -306,61 +307,8 @@ export const BuyerDashboard: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="purchases" className="mt-4">
-          <Card className="glass-card border-zinc-900">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-zinc-800 bg-zinc-900/50 text-zinc-400">
-                      <th className="p-3">Contract ID</th>
-                      <th className="p-3">Commodity</th>
-                      <th className="p-3">Quantity</th>
-                      <th className="p-3">Amount</th>
-                      <th className="p-3">Origin</th>
-                      <th className="p-3">Status</th>
-                      <th className="p-3 text-right">Clearance Tracker</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {myOrders.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="text-center p-6 text-zinc-500">No purchase contracts registered for your account.</td>
-                      </tr>
-                    ) : (
-                      myOrders.map(order => {
-                        const listing = listings.find(l => l.id === order.listing_id);
-                        return (
-                          <tr key={order.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/20 text-zinc-300">
-                            <td className="p-3 font-mono text-[11px]">{order.id.substring(0, 8)}...</td>
-                            <td className="p-3 font-semibold text-zinc-100">{listing?.commodity}</td>
-                            <td className="p-3">{order.quantity} Tons</td>
-                            <td className="p-3 text-emerald-400 font-bold">${order.amount.toLocaleString()}</td>
-                            <td className="p-3">{listing?.country_of_origin}</td>
-                            <td className="p-3">
-                              <Badge className={
-                                order.status === 'completed' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900' :
-                                order.status === 'approved' ? 'bg-blue-950 text-blue-400 border border-blue-900' :
-                                order.status === 'rejected' ? 'bg-red-950 text-red-400 border border-red-900' :
-                                'bg-amber-950 text-amber-400 border border-amber-900'
-                              }>
-                                {order.status}
-                              </Badge>
-                            </td>
-                            <td className="p-3 text-right">
-                              <span className="text-[10px] text-amber-400 hover:underline cursor-pointer flex items-center justify-end gap-1">
-                                View Timeline <ArrowUpRight className="h-3 w-3" />
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="evaluate" className="mt-4">
+          <RfqEvaluationScreen />
         </TabsContent>
 
         <TabsContent value="compliance" className="mt-4 space-y-4">
@@ -379,7 +327,7 @@ export const BuyerDashboard: React.FC = () => {
                   <span className="text-emerald-400">Compliant (Grade A)</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-800/60 pb-1">
-                  <span className="text-zinc-500">Smart Escrow Guarantee</span>
+                  <span className="text-zinc-500">Smart Contract Guarantee</span>
                   <span className="text-emerald-400">Active</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-800/60 pb-1">

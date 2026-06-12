@@ -596,7 +596,7 @@ export const ExporterDashboard: React.FC = () => {
                         </button>
                       </div>
                       <p className="text-[9px] text-zinc-500 leading-normal">
-                        Trigger sudden corridor events. Fast-track simulates digital escrow priority processing.
+                        Trigger sudden corridor events. Fast-track simulates automated smart contract priority processing.
                       </p>
                     </div>
                   </div>

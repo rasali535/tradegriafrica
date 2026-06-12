@@ -57,15 +57,15 @@ export const Marketplace: React.FC = () => {
 
   const handlePurchase = (listingId: string, qty: number) => {
     if (!currentUser || currentUser.role !== 'buyer') {
-      alert("Error: Escrow purchases are only available to registered SADC Buyers. Please select a Buyer persona from the top switcher or register in the Onboarding Portal.");
+      alert("Error: Smart contract purchases are only available to registered SADC Buyers. Please select a Buyer persona from the top switcher or register in the Onboarding Portal.");
       return;
     }
     try {
       placeOrder(listingId, qty);
-      alert(`Success! Finalized smart escrow contract of ${qty} Tons. Track status under Buyer Dashboard -> Active Purchases.`);
+      alert(`Success! Finalized smart contract of ${qty} Tons. Track status under Buyer Dashboard -> Active Purchases.`);
       setSelectedListing(null);
     } catch (err: any) {
-      alert(err.message || "Failed to finalize escrow order.");
+      alert(err.message || "Failed to finalize contract order.");
     }
   };
 
@@ -142,10 +142,10 @@ export const Marketplace: React.FC = () => {
         <div className="space-y-1 z-10">
           <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-emerald-400" />
-            SADC Produce Marketplace
+            Supplier Marketplace
           </h2>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Sovereign agricultural commodity exchange. Lock trades in bilateral digital escrows with automated phytosanitary compliance clearance.
+            Find verified suppliers, evaluate capabilities, and request quotations across the SADC region.
           </p>
         </div>
         <div className="flex gap-2 z-10">
@@ -153,7 +153,7 @@ export const Marketplace: React.FC = () => {
             Active Listings: {listings.filter(l => l.status === 'available').length}
           </Badge>
           <Badge className="bg-amber-950/80 text-amber-400 border border-amber-900">
-            Escrow Backed
+            Contract Backed
           </Badge>
         </div>
       </div>
@@ -407,7 +407,7 @@ export const Marketplace: React.FC = () => {
             <CardContent className="p-4 text-xs space-y-3 text-zinc-400">
               <h4 className="font-bold text-zinc-300 text-[11px] uppercase tracking-wider">Trading Sandbox Rules</h4>
               <div className="space-y-2 text-[11px] leading-relaxed">
-                <p>1. <strong>Strict Sovereign Escrow</strong>: Every trade creates an immutable smart record that triggers cross-border phytosanitary compliance validation.</p>
+                <p>1. <strong>Strict Sovereign Contract</strong>: Every trade creates an immutable smart record that triggers cross-border phytosanitary compliance validation.</p>
                 <p>2. <strong>Bilateral Settlement</strong>: Transporter details are automatically queried from the logistics passport once the seller approves.</p>
               </div>
             </CardContent>
@@ -428,7 +428,7 @@ export const Marketplace: React.FC = () => {
                 </Badge>
               </DialogTitle>
               <DialogDescription className="text-zinc-400 text-xs">
-                Inspect regulatory border clearance checks, biosecurity status, and place an escrow trade order.
+                Inspect regulatory border clearance checks, biosecurity status, and place a contract trade order.
               </DialogDescription>
             </DialogHeader>
 
@@ -477,9 +477,9 @@ export const Marketplace: React.FC = () => {
                     <span className="text-emerald-400 font-medium">Compliant (&lt;10 ppb)</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500">Escrow Security Tier</span>
+                    <span className="text-zinc-500">Contract Security Tier</span>
                     <span className="text-zinc-350 flex items-center gap-1 font-semibold">
-                      <Lock className="h-3.5 w-3.5 text-amber-500" /> Locked Escrow (Level 3)
+                      <Lock className="h-3.5 w-3.5 text-amber-500" /> Locked Contract (Level 3)
                     </span>
                   </div>
                 </div>
@@ -507,7 +507,7 @@ export const Marketplace: React.FC = () => {
                       onClick={() => setIsPlacingBid(false)}
                       className={`flex-1 py-1 rounded-md transition-all ${!isPlacingBid ? 'bg-emerald-950 text-emerald-400 border border-emerald-900/60' : 'text-zinc-500'}`}
                     >
-                      Instant Escrow Buy
+                      Instant Contract Buy
                     </button>
                     <button 
                       type="button"
@@ -535,7 +535,7 @@ export const Marketplace: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex justify-between items-center pt-2 border-t border-zinc-900 text-xs">
-                        <span className="text-zinc-400">Total Escrow Allocation</span>
+                        <span className="text-zinc-400">Total Contract Allocation</span>
                         <strong className="text-sm text-emerald-400">${(purchaseQty * selectedListing.price).toLocaleString()}</strong>
                       </div>
                     </div>
@@ -608,7 +608,7 @@ export const Marketplace: React.FC = () => {
                   className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs font-semibold px-4 flex items-center gap-2"
                 >
                   <ShoppingCart className="h-3.5 w-3.5" />
-                  Initiate Escrow Trade
+                  Initiate Contract Trade
                 </Button>
               )}
             </DialogFooter>

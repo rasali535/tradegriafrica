@@ -132,7 +132,7 @@ export const AIAgentCenter: React.FC = () => {
         order_id: order.id
       });
 
-      alert(`🚀 DEAL LOCKED IN ESCROW!\n\nOrder ID: ${order.id}\nValuation: $${(parsed.quantity * price).toLocaleString()} USD\nTradeGridAfrica Digital Escrow registry has locked funds. Check the Exporter compliance desk to approve.`);
+      alert(`🚀 DEAL LOCKED IN SMART CONTRACT!\n\nOrder ID: ${order.id}\nValuation: $${(parsed.quantity * price).toLocaleString()} USD\nTradeGridAfrica Smart Contract registry has recorded the procurement. Check the Exporter compliance desk to approve.`);
     } catch (err: any) {
       alert("Error executing deal: " + err.message);
     }
@@ -496,8 +496,8 @@ export const AIAgentCenter: React.FC = () => {
 
                   {/* Step 5: Deal Closing Agent */}
                   <AgentStepCard
-                    title="5. Deal Closing & Escrow Registry Agent"
-                    description="Compile bilateral trade contract drafts, set escrow payment milestones, and outline execution steps."
+                    title="5. Deal Closing & Contract Registry Agent"
+                    description="Compile bilateral trade contract drafts, set contract execution milestones, and outline action steps."
                     isActive={currentStep === 5}
                     isCompleted={currentStep > 5}
                     loading={loading && currentStep === 5}
@@ -506,7 +506,7 @@ export const AIAgentCenter: React.FC = () => {
                     {pipelineData?.deal_ready && pipelineData?.pipeline_logs?.[4]?.output && (
                       <div className="space-y-3 mt-2 pt-2 border-t border-zinc-800 text-xs">
                         <div className="bg-zinc-950 p-2.5 rounded border border-zinc-850 text-zinc-300 leading-normal">
-                          <strong className="text-emerald-400">Escrow Message:</strong> {pipelineData.pipeline_logs[4].output.negotiation_message}
+                          <strong className="text-emerald-400">Contract Message:</strong> {pipelineData.pipeline_logs[4].output.negotiation_message}
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -533,7 +533,7 @@ export const AIAgentCenter: React.FC = () => {
                               className="bg-emerald-600 hover:bg-emerald-700 border border-emerald-500 text-white font-bold text-[11px] py-2 flex items-center justify-center gap-1.5 shadow"
                             >
                               <Check className="h-3.5 w-3.5" />
-                              Confirm & Lock Escrow
+                              Confirm & Lock Contract
                             </Button>
                           </div>
                         </div>

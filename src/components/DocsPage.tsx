@@ -226,25 +226,25 @@ Biosecurity is the most frequent cause of border delays for agricultural shipmen
 > Failing to verify biosecurity certificate validity prior to arriving at border crossings like Beitbridge or Ramatlabama can result in complete cargo quarantine, cargo rejection, or severe border hold-ups exceeding 48 hours.`
     },
     {
-      id: 'escrow-framework',
-      title: 'Digital Escrow Engine Guide',
-      category: 'Financial Operations',
+      id: 'smart-contract-framework',
+      title: 'Digital Contract Engine Guide',
+      category: 'Procurement Operations',
       icon: Scale,
-      summary: 'Operational framework of TradeGridAfrica’s digital escrow engine, milestone-based payments, and trade dispute resolution.',
-      content: `### TradeGridAfrica Escrow & Settlement Framework
+      summary: 'Operational framework of TradeGridAfrica’s digital contracting engine, milestone tracking, and procurement automation.',
+      content: `### TradeGridAfrica Contract & Workflow Framework
 
-To bridge the regional trade credit gap and resolve the trust deficit between cross-border buyers and sellers, TradeGridAfrica implements an automated digital escrow settlement layer.
+To bridge the regional trade gap and resolve the trust deficit between cross-border buyers and sellers, TradeGridAfrica implements an automated digital procurement contract layer.
 
-#### Workflow of the Escrow Engine:
-1. **Contract Lock-in:** The buyer locks the trade payment in USD, BWP, or ZAR within the TradeGridAfrica Escrow vault.
-2. **Milestone Tracking:** Payments are released in structured tranches tied to regional trade checkpoints:
-   - **Tranche 1 (20%):** Released upon verification of the Phytosanitary certificate on the SADC Trade Registry.
-   - **Tranche 2 (50%):** Released upon GPS verification crossing the designated border checkpoint.
-   - **Tranche 3 (30%):** Released upon buyer receipt and quality check sign-off at the delivery warehouse.
-3. **Dispute Resolution:** In the event of a dispute (e.g., quality degradation or border rejection), funds remain locked in escrow. A joint arbitration panel composed of representatives from local chambers of commerce reviews the digital logs to allocate payouts.
+#### Workflow of the Contract Engine:
+1. **Contract Generation:** The buyer generates a binding digital contract with agreed terms in USD, BWP, or ZAR within TradeGridAfrica.
+2. **Milestone Tracking:** Procurement stages are tracked and verified in structured tranches tied to regional trade checkpoints:
+   - **Stage 1 (Compliance):** Verified upon clearance of the Phytosanitary certificate on the SADC Trade Registry.
+   - **Stage 2 (Logistics):** Verified upon GPS verification crossing the designated border checkpoint.
+   - **Stage 3 (Delivery):** Verified upon buyer receipt and quality check sign-off at the delivery warehouse.
+3. **Dispute Resolution:** In the event of a dispute (e.g., quality degradation or border rejection), the contract history provides a digital audit trail. A joint arbitration panel composed of representatives from local chambers of commerce reviews the digital logs.
 
 > [!TIP]
-> Exporters using pre-validated transport carriers with active GPS tracking enjoy 40% faster escrow payout releases due to automated border-crossing validation.`
+> Exporters using pre-validated transport carriers with active GPS tracking enjoy 40% faster milestone approvals due to automated border-crossing validation.`
     }
   ];
 
