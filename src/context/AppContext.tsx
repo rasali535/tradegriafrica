@@ -938,42 +938,123 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const fetchLiveDb = async () => {
       if (!supabase) {
         console.warn("Supabase is not configured. Skipping live data fetch.");
+        // Fallback to mock data
+        setUsers(SEED_USERS);
+        setFarms(SEED_FARMS);
+        setListings(SEED_LISTINGS);
+        setOrders(FULL_ORDERS);
+        setShipments(FULL_SHIPMENTS);
+        setPayments(FULL_PAYMENTS);
+        setExports(FULL_EXPORTS);
+        setCooperatives(SEED_COOPERATIVES);
+        setFinancingRequests(SEED_FINANCING_REQUESTS);
+        setWebhooks(SEED_WEBHOOKS);
+        setApiKeys(SEED_API_KEYS);
+        setEventLogs(SEED_EVENT_LOGS);
+        setTradeAgreements(SEED_TRADE_AGREEMENTS);
+        setTradeCorridors(SEED_TRADE_CORRIDORS);
         return;
       }
       try {
-        const { data: usersData, error: usersErr } = await supabase.from('users').select('*');
-        const { data: farmsData, error: farmsErr } = await supabase.from('farms').select('*');
-        const { data: listingsData } = await supabase.from('commodity_listings').select('*');
-        const { data: ordersData } = await supabase.from('orders').select('*');
-        const { data: shipmentsData } = await supabase.from('shipments').select('*');
-        const { data: paymentsData } = await supabase.from('payments').select('*');
-        const { data: exportsData } = await supabase.from('exports').select('*');
+        // Query v2 tables
+        const { data: dbUsers, error: usersErr } = await supabase.from('users').select('*, organizations(*)');
+        const { data: dbRfqs, error: rfqsErr } = await supabase.from('rfqs').select('*, organizations(*)');
+        const { data: dbContracts, error: contractsErr } = await supabase.from('contracts').select('*');
 
         if (usersErr) console.error("Error fetching users", usersErr);
-        if (farmsErr) console.error("Error fetching farms", farmsErr);
+        if (rfqsErr) console.error("Error fetching rfqs", rfqsErr);
+        if (contractsErr) console.error("Error fetching contracts", contractsErr);
 
-        setUsers(usersData || []);
-        setFarms(farmsData || []);
-        setListings(listingsData || []);
-        setOrders(ordersData || []);
-        setShipments(shipmentsData || []);
-        setPayments(paymentsData || []);
-        setExports(exportsData || []);
+        // If DB is empty (initial run), fallback to mock data so UI doesn't break
+        if (!dbUsers || dbUsers.length === 0) {
+          console.log("No live data found in Supabase. Falling back to mock data.");
+          setUsers(SEED_USERS);
+          setFarms(SEED_FARMS);
+          setListings(SEED_LISTINGS);
+          setOrders(FULL_ORDERS);
+          setShipments(FULL_SHIPMENTS);
+          setPayments(FULL_PAYMENTS);
+          setExports(FULL_EXPORTS);
+          setCooperatives(SEED_COOPERATIVES);
+          setFinancingRequests(SEED_FINANCING_REQUESTS);
+          setWebhooks(SEED_WEBHOOKS);
+          setApiKeys(SEED_API_KEYS);
+          setEventLogs(SEED_EVENT_LOGS);
+          setTradeAgreements(SEED_TRADE_AGREEMENTS);
+          setTradeCorridors(SEED_TRADE_CORRIDORS);
 
-        setCooperatives([]);
-        setFinancingRequests([]);
-        setWebhooks([]);
-        setApiKeys([]);
-        setEventLogs([]);
-        
-        // Static config data
+          // Restore previously saved user or use default
+          const savedUser = typeof window !== 'undefined' ? localStorage.getItem('pt_current_user') : null;
+          if (savedUser) {
+            setCurrentUser(JSON.parse(savedUser));
+          } else {
+            setCurrentUser(SEED_USERS[5]); // Default to buyer
+          }
+          return;
+        }
+
+        // Map live DB Users -> AppContext Users
+        const mappedUsers: User[] = dbUsers.map((u: any) => ({
+          id: u.id,
+          role: u.role || 'buyer',
+          name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
+          email: u.email,
+          phone: '',
+          country: u.organizations?.country || 'Botswana',
+          kyc_status: 'approved'
+        }));
+
+        // Map live RFQs -> CommodityListing (temporary bridge)
+        const mappedListings: CommodityListing[] = dbRfqs.map((rfq: any) => ({
+          id: rfq.id,
+          farm_id: rfq.buyer_org_id,
+          commodity: rfq.title as any || 'Maize',
+          quantity: 100, // mock mapping
+          price: 300,
+          status: rfq.status === 'open' ? 'available' : 'sold',
+          export_ready: true,
+          harvest_date: rfq.deadline,
+          photos: ['/maize.png'],
+          storage_availability: 'Regional Storage',
+          country_of_origin: rfq.organizations?.country || 'Botswana',
+          created_at: rfq.created_at
+        }));
+
+        // Map live Contracts -> Orders
+        const mappedOrders: Order[] = (dbContracts || []).map((contract: any) => ({
+          id: contract.id,
+          buyer_id: contract.buyer_org_id,
+          listing_id: contract.rfq_id,
+          quantity: 100,
+          amount: 30000,
+          status: contract.status === 'active' ? 'approved' : contract.status === 'completed' ? 'completed' : 'pending',
+          created_at: contract.created_at
+        }));
+
+        setUsers(mappedUsers);
+        setListings(mappedListings);
+        setOrders(mappedOrders);
+
+        // Keep static/unmigrated data as mock
+        setFarms(SEED_FARMS);
+        setShipments(FULL_SHIPMENTS);
+        setPayments(FULL_PAYMENTS);
+        setExports(FULL_EXPORTS);
+        setCooperatives(SEED_COOPERATIVES);
+        setFinancingRequests(SEED_FINANCING_REQUESTS);
+        setWebhooks(SEED_WEBHOOKS);
+        setApiKeys(SEED_API_KEYS);
+        setEventLogs(SEED_EVENT_LOGS);
         setTradeAgreements(SEED_TRADE_AGREEMENTS);
         setTradeCorridors(SEED_TRADE_CORRIDORS);
 
-        if (usersData && usersData.length > 0) {
-          setCurrentUser(usersData[0]);
+        const savedUser = typeof window !== 'undefined' ? localStorage.getItem('pt_current_user') : null;
+        if (savedUser) {
+          const parsedUser = JSON.parse(savedUser);
+          const exists = mappedUsers.find(u => u.id === parsedUser.id);
+          setCurrentUser(exists || mappedUsers[0]);
         } else {
-          setCurrentUser(null);
+          setCurrentUser(mappedUsers[0]);
         }
       } catch (err) {
         console.error("Failed to fetch from live Supabase DB", err);
