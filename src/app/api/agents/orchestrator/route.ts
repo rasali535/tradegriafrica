@@ -199,7 +199,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
       agreed_price: price,
       status: "ready"
     },
-    next_steps: ["Confirm contract terms with buyer", "Setup escrow in SADC registry"],
+    next_steps: ["Confirm contract terms with buyer", "Log digital procurement agreement"],
     deal_readiness_score: 0.95
   };
 

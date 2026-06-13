@@ -257,7 +257,7 @@ const SEED_FINANCING_REQUESTS: FinancingRequest[] = [
 ];
 
 const SEED_WEBHOOKS: Webhook[] = [
-  { id: 'w1000000-0000-0000-0000-000000000001', url: 'https://sadc-trade.free.beeceptor.com/webhook', events: ['trade.created', 'payment.escrowed'], active: true, created_at: new Date().toISOString() }
+  { id: 'w1000000-0000-0000-0000-000000000001', url: 'https://sadc-trade.free.beeceptor.com/webhook', events: ['rfq.created', 'bid.submitted'], active: true, created_at: new Date().toISOString() }
 ];
 
 const SEED_API_KEYS: ApiKey[] = [
@@ -267,7 +267,7 @@ const SEED_API_KEYS: ApiKey[] = [
 
 const SEED_EVENT_LOGS: EventLog[] = [
   { id: 'ev000000-0000-0000-0000-000000000001', event: 'trade.created', payload: { order_id: 'o0000000-0000-0000-0000-000000000001', amount: 24000, currency: 'USD' }, created_at: new Date(Date.now() - 3600000 * 2).toISOString() },
-  { id: 'ev000000-0000-0000-0000-000000000002', event: 'payment.escrowed', payload: { payment_id: 'p0000000-0000-0000-0000-000000000001', order_id: 'o0000000-0000-0000-0000-000000000001' }, created_at: new Date(Date.now() - 3600000 * 1.8).toISOString() },
+  { id: 'ev000000-0000-0000-0000-000000000002', event: 'bid.submitted', payload: { bid_id: 'b0000000-0000-0000-0000-000000000001', rfq_id: 'r0000000-0000-0000-0000-000000000001' }, created_at: new Date(Date.now() - 3600000 * 1.8).toISOString() },
 ];
 
 

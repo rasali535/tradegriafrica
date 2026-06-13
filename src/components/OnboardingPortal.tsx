@@ -181,7 +181,7 @@ export const OnboardingPortal: React.FC = () => {
             <Briefcase className="h-5 w-5" />
           </div>
           <h3 className="font-bold text-zinc-100 text-sm">Procurement / Buyer</h3>
-          <p className="text-xs text-zinc-400 mt-1">Lock purchasing agreements, automate customs exemptions, and secure payment under escrow.</p>
+          <p className="text-xs text-zinc-400 mt-1">Lock purchasing agreements, automate customs exemptions, and secure B2B procurement deals.</p>
         </Card>
 
         <Card 

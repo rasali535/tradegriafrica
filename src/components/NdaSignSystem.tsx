@@ -78,7 +78,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
         currentUserData.role === "admin" 
           ? "System Admin Operations"
           : currentUserData.role === "bank"
-          ? "Banking/Escrow Integration"
+          ? "API Integration"
           : "Biosecurity Inspector Clearance"
       );
     }
@@ -221,7 +221,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
       setSubmitStep(3); // Recording IP & Audit Log...
 
       await new Promise(r => setTimeout(r, 600));
-      setSubmitStep(4); // Securing Escrow Cryptographic Registry...
+      setSubmitStep(4); // Securing Digital Deal Framework...
 
       // Submit API request
       const response = await fetch("/api/nda/sign", {
@@ -300,7 +300,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
               { step: 1, text: "Calculating SHA-256 signature hash validation..." },
               { step: 2, text: "Generating signed A4 PDF document via pdf-lib..." },
               { step: 3, text: "Recording IP audit trail & client device metadata..." },
-              { step: 4, text: "Updating SADC secure escrow trade registers..." },
+              { step: 4, text: "Updating B2B Trade Compliance Registers..." },
             ].map((item) => {
               const active = submitStep === item.step;
               const completed = submitStep > item.step;

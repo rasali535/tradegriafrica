@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const price = parseFloat(input.price_per_unit) || 320;
 
   const fallbackOutput = {
-    negotiation_message: `Deal Closing Agent has drafted the bilateral trade contract. Recommended terms: $${price}/ton under SADC preferential terms, payment secured via TradeGridAfrica Digital Escrow.`,
+    negotiation_message: `Deal Closing Agent has drafted the bilateral trade contract. Recommended terms: $${price}/ton under SADC preferential terms, trade terms formalized via TradeGridAfrica Digital Contracts.`,
     deal_summary: {
       buyer,
       seller,
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     },
     next_steps: [
       "Confirm contract terms with buyer",
-      "Setup digital escrow in standard registry",
+      "Log digital procurement agreement",
       "Assign biosecurity inspection corridor"
     ],
     deal_readiness_score: 0.95

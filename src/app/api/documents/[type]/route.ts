@@ -31,7 +31,7 @@ export async function GET(
           <p class="text-xs text-zinc-500 font-mono mt-1">Serial No: ${serialNo} | Date: ${date}</p>
         </div>
         <div class="text-right">
-          <span class="px-3 py-1 text-xs font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded">PAID VIA ESCROW</span>
+          <span class="px-3 py-1 text-xs font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 rounded">PROCUREMENT APPROVED</span>
         </div>
       </div>
 
@@ -255,7 +255,7 @@ export async function GET(
           <p class="text-xs text-zinc-500 font-mono mt-1">Contract Agreement No: ${serialNo}</p>
         </div>
         <div class="text-right">
-          <span class="px-3 py-1 text-xs font-mono font-bold bg-zinc-900 text-zinc-100 border border-zinc-800 rounded">ESCROW SECURED</span>
+          <span class="px-3 py-1 text-xs font-mono font-bold bg-zinc-900 text-zinc-100 border border-zinc-800 rounded">DEAL SECURED</span>
         </div>
       </div>
 
@@ -267,8 +267,8 @@ export async function GET(
         <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">1. SUBJECT MATTER & INCOTERMS</h3>
         <p>The Seller agrees to sell, and the Buyer agrees to purchase ${numQty} Tons of ${product} at a purchase price of $${numPrice} per ton, representing a total contract valuation of $${total.toLocaleString()} USD. Delivery shall be executed under <strong>DAP (Delivered at Place)</strong> Incoterms 2020.</p>
         
-        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">2. PAYMENT TERMS & SMART ESCROW TIMELINES</h3>
-        <p>Payment shall be locked in the TradeGridAfrica Digital Escrow Registry immediately upon execution of this contract. The holding bank will release funds to the Seller's account within 24 hours of receiving cryptographic proof of border crossing verification and custom biosecurity phytosanitary clearance.</p>
+        <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">2. PROCUREMENT TERMS & MILESTONES</h3>
+        <p>The procurement terms are logged in the TradeGridAfrica B2B Registry immediately upon execution of this contract. Settlement will be managed independently by the buyer following verification of goods receipt and compliance clearances.</p>
 
         <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">3. LOGISTICS TRACKING & DELIVERY</h3>
         <p>The Seller shall initiate shipment via TradeGridAfrica Multimodal Logistics within 5 business days. A dedicated GPS Tracking ID will be provided to the Buyer. Title and risk of loss pass to the Buyer upon physical delivery at the agreed destination hub.</p>

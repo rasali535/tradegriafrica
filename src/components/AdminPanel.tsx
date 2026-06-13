@@ -32,7 +32,7 @@ export const AdminPanel: React.FC = () => {
   const [auditChecklist, setAuditChecklist] = useState<Record<string, boolean>>({
     registry: true,
     biosecurity: true,
-    escrow: true,
+    finance: true,
     compliance: true
   });
 
@@ -179,7 +179,7 @@ export const AdminPanel: React.FC = () => {
         case 'GET /shipments':
           data = shipments.slice(0, 4);
           break;
-        case 'GET /payments/escrow':
+        case 'GET /procurement/bids':
           data = payments.slice(0, 4);
           break;
         default:
@@ -209,7 +209,7 @@ export const AdminPanel: React.FC = () => {
     }
     registerWebhook({
       url: newWebhookUrl,
-      events: ['trade.created', 'payment.escrowed', 'shipment.status_updated'],
+      events: ['trade.created', 'bid.submitted', 'shipment.status_updated'],
       active: true
     });
     setNewWebhookUrl('');
@@ -580,7 +580,7 @@ export const AdminPanel: React.FC = () => {
                 <span>{users.filter(u => u.role === 'buyer' && u.kyc_status === 'approved').length} Active</span>
                 <span className="p-1 bg-zinc-900 rounded-lg text-amber-500 border border-zinc-800"><Briefcase className="h-4 w-4" /></span>
               </div>
-              <p className="text-[10px] text-zinc-500 mt-1.5">Active escrow purchase power</p>
+              <p className="text-[10px] text-zinc-500 mt-1.5">Active procurement purchase power</p>
             </Card>
             <Card className="glass-card border-zinc-900 p-4">
               <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Verified Carrier Fleets</div>
@@ -770,7 +770,7 @@ export const AdminPanel: React.FC = () => {
                                     setAuditChecklist({
                                       registry: true,
                                       biosecurity: true,
-                                      escrow: true,
+                                      finance: true,
                                       compliance: true
                                     });
                                   }}
@@ -849,7 +849,7 @@ export const AdminPanel: React.FC = () => {
                       <option value="POST /listings">POST /listings (Sorghum batch)</option>
                       <option value="GET /orders">GET /orders</option>
                       <option value="GET /shipments">GET /shipments</option>
-                      <option value="GET /payments/escrow">GET /payments/escrow</option>
+                      <option value="GET /procurement/bids">GET /procurement/bids</option>
                     </select>
 
                     <Button 
@@ -1356,13 +1356,13 @@ export const AdminPanel: React.FC = () => {
                   <label className="flex items-center gap-3 cursor-pointer p-2.5 rounded bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 transition-colors">
                     <input 
                       type="checkbox" 
-                      checked={auditChecklist.escrow} 
-                      onChange={e => setAuditChecklist({...auditChecklist, escrow: e.target.checked})} 
+                      checked={auditChecklist.finance} 
+                      onChange={e => setAuditChecklist({...auditChecklist, finance: e.target.checked})} 
                       className="rounded border-zinc-800 bg-zinc-950 text-emerald-600 focus:ring-emerald-500/20"
                     />
                     <div className="text-xs">
-                      <span className="text-zinc-200 font-medium block">Trade Escrow Capability Verification</span>
-                      <span className="text-[10px] text-zinc-500">Structured bank account matches SADC routing rules</span>
+                      <span className="text-zinc-200 font-medium block">Trade Finance & B2B Verification</span>
+                      <span className="text-[10px] text-zinc-500">Structured bank account matches SADC financial protocols</span>
                     </div>
                   </label>
 
@@ -1420,7 +1420,7 @@ export const AdminPanel: React.FC = () => {
                     setSelectedKycUser(null);
                   }}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs px-4 h-9 font-semibold"
-                  disabled={!auditChecklist.registry || !auditChecklist.biosecurity || !auditChecklist.escrow || !auditChecklist.compliance}
+                  disabled={!auditChecklist.registry || !auditChecklist.biosecurity || !auditChecklist.finance || !auditChecklist.compliance}
                 >
                   <UserCheck className="h-4 w-4 mr-1.5" /> Approve & Verify ID
                 </Button>
