@@ -12,6 +12,10 @@ import { Marketplace } from '@/components/Marketplace';
 import { LogisticsHub } from '@/components/LogisticsHub';
 import { OnboardingPortal } from '@/components/OnboardingPortal';
 import { AIAgentCenter } from '@/components/AIAgentCenter';
+import { SupplierVerification } from '@/components/SupplierVerification';
+import { TenderHub } from '@/components/TenderHub';
+import { ProcurementAnalytics } from '@/components/ProcurementAnalytics';
+import { IndustryDirectory } from '@/components/IndustryDirectory';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
   HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus,
@@ -31,7 +35,7 @@ export default function Home() {
   const { currentUser, users, setCurrentUser } = useApp();
   const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
+  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents' | 'verification' | 'tenders' | 'analytics' | 'directory'>('dashboard');
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -189,6 +193,14 @@ export default function Home() {
         return <OnboardingPortal />;
       case 'ai_agents':
         return <AIAgentCenter />;
+      case 'verification':
+        return <SupplierVerification />;
+      case 'tenders':
+        return <TenderHub />;
+      case 'analytics':
+        return <ProcurementAnalytics />;
+      case 'directory':
+        return <IndustryDirectory />;
     }
   };
 
@@ -571,6 +583,54 @@ export default function Home() {
                 >
                   <Bot className="h-4 w-4" />
                   AI Agent Center
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('tenders')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'tenders'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Tender Hub
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('analytics')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'analytics'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Star className="h-4 w-4" />
+                  Procurement Analytics
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('verification')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'verification'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Supplier Verification
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('directory')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'directory'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Globe className="h-4 w-4" />
+                  Industry Directory
                 </button>
               </div>
               

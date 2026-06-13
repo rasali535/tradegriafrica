@@ -50,8 +50,8 @@ export function BuyerDashboard() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Enterprise Procurement Portal</h2>
-          <p className="text-sm text-zinc-400">Manage your RFQs, evaluate bids, and track procurement spend.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Procurement Workspace</h2>
+          <p className="text-sm text-zinc-400">Manage your active RFQs, track pipeline spend, and discover supplier recommendations.</p>
         </div>
         <div className="flex gap-2 items-center">
           <select 

@@ -40,8 +40,8 @@ export function SupplierDashboard() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Supplier Dashboard</h2>
-          <p className="text-sm text-zinc-400">Manage your profile, active bids, and discover matched RFQs.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Vendor Portal</h2>
+          <p className="text-sm text-zinc-400">Discover RFQ opportunities, track quotations, and manage your verification status.</p>
         </div>
         <div className="flex gap-2">
           <Badge variant="outline" className="bg-emerald-950/30 text-emerald-400 border-emerald-900/50 flex items-center gap-1.5 px-3 py-1">

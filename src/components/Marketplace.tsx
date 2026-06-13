@@ -28,8 +28,8 @@ export function Marketplace() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Supplier Discovery</h2>
-          <p className="text-sm text-zinc-400">Find and evaluate verified B2B suppliers across the SADC region.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Supplier Network</h2>
+          <p className="text-sm text-zinc-400">Find and evaluate verified B2B suppliers across the African continent.</p>
         </div>
       </div>
 

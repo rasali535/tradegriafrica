@@ -48,11 +48,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </Badge>
             
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-zinc-100 leading-tight">
-              Unifying Enterprise Trade across <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-500">African Nations</span>
+              Source Smarter. Trade Faster. <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-500">Grow Across Africa.</span>
             </h1>
             
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              Pula Trade Africa is an autonomous B2B enterprise workflow engine. Our specialized AI Agents automate regional SADC trade intelligence, compliance, routing, and digital deal closing.
+              TradeGrid Africa connects verified suppliers and buyers through intelligent procurement, sourcing, and trade collaboration.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
