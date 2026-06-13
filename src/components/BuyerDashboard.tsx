@@ -119,11 +119,9 @@ export function BuyerDashboard() {
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-200">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
+                        <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-md p-0 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-zinc-900 border-zinc-800 text-zinc-300 text-xs">
                           <DropdownMenuItem className="hover:bg-zinc-800">Edit RFQ</DropdownMenuItem>
