@@ -1005,7 +1005,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }));
 
         // Map live RFQs -> CommodityListing (temporary bridge)
-        const mappedListings: CommodityListing[] = dbRfqs.map((rfq: any) => ({
+        const mappedListings: CommodityListing[] = (dbRfqs || []).map((rfq: any) => ({
           id: rfq.id,
           farm_id: rfq.buyer_org_id,
           commodity: rfq.title as any || 'Maize',
