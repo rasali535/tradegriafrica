@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useApp, User, CommodityListing } from '@/context/AppContext';
+import { useApp, User, Rfq } from '@/context/AppContext';
 import { 
   ShieldAlert, ShieldCheck, Users, ShoppingBag, Truck, DollarSign,
   AlertTriangle, CheckCircle2, XCircle, Search, RefreshCw, Star, Layers, Activity,
@@ -16,13 +16,13 @@ import { Input } from "@/components/ui/input";
 
 export const AdminPanel: React.FC = () => {
   const { 
-    users, listings, orders, shipments, exports, payments, updateListing,
+    users, rfqs, bids, shipments, exports, payments, updateRfqStatus,
     webhooks, apiKeys, eventLogs, generateApiKey, revokeApiKey, 
-    registerWebhook, deleteWebhook, addFarm, addListing, triggerEvent,
+    registerWebhook, deleteWebhook, addCompany, createRfq, triggerEvent,
     updateUserKycStatus
   } = useApp();
   
-  const [selectedListing, setSelectedListing] = useState<CommodityListing | null>(null);
+  const [selectedListing, setSelectedListing] = useState<Rfq | null>(null);
 
   // Onboarding & KYC states
   const [kycRoleFilter, setKycRoleFilter] = useState<string>('all');
@@ -37,7 +37,7 @@ export const AdminPanel: React.FC = () => {
   });
 
   // Developer API Console states
-  const [apiEndpoint, setApiEndpoint] = useState<string>('GET /listings');
+  const [apiEndpoint, setApiEndpoint] = useState<string>('GET /rfqs');
   const [apiResponse, setApiResponse] = useState<string>('{\n  "message": "Click Send Sandbox Request to run execution"\n}');
   const [apiLoading, setApiLoading] = useState<boolean>(false);
   const [newKeyName, setNewKeyName] = useState<string>('');
@@ -78,13 +78,13 @@ export const AdminPanel: React.FC = () => {
   ]);
 
   // Compute platform-wide metrics
-  const totalVolumeTraded = orders
-    .filter(o => o.status === 'completed')
-    .reduce((sum, o) => sum + o.quantity, 0);
+  const totalVolumeTraded = bids
+    .filter(o => o.status === 'accepted')
+    .reduce((sum, o) => sum + o.total_price, 0);
 
-  const totalValueTraded = orders
-    .filter(o => o.status === 'completed')
-    .reduce((sum, o) => sum + o.amount, 0);
+  const totalValueTraded = bids
+    .filter(o => o.status === 'accepted')
+    .reduce((sum, o) => sum + o.total_price, 0);
 
   interface FraudAlert {
     id: string;
@@ -97,13 +97,13 @@ export const AdminPanel: React.FC = () => {
   const fraudAlerts: FraudAlert[] = [];
   
   // Rule 1: High unit price check (> $1000/ton for Maize/Sorghum)
-  listings.forEach(l => {
-    if ((l.commodity === 'Maize' || l.commodity === 'Sorghum') && l.price > 600) {
+  rfqs.forEach(l => {
+    if ((l.industry === 'Maize' || l.industry === 'Sorghum') && 100 > 600) {
       fraudAlerts.push({
         id: `alert-1-${l.id}`,
         severity: 'high',
         type: 'Price Anomaly',
-        message: `High unit price of $${l.price}/Ton detected on crop listing in ${l.country_of_origin}. Market standard is $250-$350.`,
+        message: `High unit price of $${100}/Ton detected on crop listing in ${l.delivery_location}. Market standard is $250-$350.`,
         targetId: l.id
       });
     }
@@ -123,10 +123,10 @@ export const AdminPanel: React.FC = () => {
   });
 
   // Rule 3: Export ready without certification
-  listings.forEach(l => {
-    if (l.export_ready) {
-      const order = orders.find(o => o.listing_id === l.id);
-      const expCert = order ? exports.find(e => e.order_id === order.id) : null;
+  rfqs.forEach(l => {
+    if ((l.status === 'awarded')) {
+      const order = bids.find(o => o.rfq_id === l.id);
+      const expCert = order ? exports.find(e => e.bid_id === order.id) : null;
       if (expCert && expCert.readiness_score < 70) {
         fraudAlerts.push({
           id: `alert-3-${l.id}`,
@@ -140,12 +140,12 @@ export const AdminPanel: React.FC = () => {
   });
 
   const handleApproveProduce = (id: string) => {
-    updateListing(id, { status: 'available' });
+    updateRfqStatus(id, 'open');
     alert("Listing verified successfully!");
   };
 
   const handleDeclineProduce = (id: string) => {
-    updateListing(id, { status: 'draft' });
+    updateRfqStatus(id, 'closed');
     alert("Listing flagged and moved to Draft status.");
   };
 
@@ -155,10 +155,10 @@ export const AdminPanel: React.FC = () => {
     setTimeout(() => {
       let data: any = {};
       switch (apiEndpoint) {
-        case 'GET /listings':
-          data = listings.slice(0, 4);
+        case 'GET /rfqs':
+          data = rfqs.slice(0, 4);
           break;
-        case 'POST /listings':
+        case 'POST /rfqs':
           data = {
             success: true,
             message: "Listing created in SADC distributed ledger",
@@ -173,8 +173,8 @@ export const AdminPanel: React.FC = () => {
             }
           };
           break;
-        case 'GET /orders':
-          data = orders.slice(0, 4);
+        case 'GET /bids':
+          data = bids.slice(0, 4);
           break;
         case 'GET /shipments':
           data = shipments.slice(0, 4);
@@ -253,10 +253,10 @@ export const AdminPanel: React.FC = () => {
           };
 
           if (isOnline) {
-            addFarm(farmData);
-            reply = `✅ TradeGridAfrica WhatsApp enrollment SUCCESS!\nFarm: ${farmName}\nSize: ${size} Hectares\nStatus: Certified\nRef: fa100000-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
+            addCompany(farmData as any);
+            reply = `✅ TradeGridAfrica WhatsApp enrollment SUCCESS!\nCompany: ${farmName}\nSize: ${size} Hectares\nStatus: Certified\nRef: co100000-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
           } else {
-            setOfflineQueue(prev => [...prev, { type: 'register_farm', data: farmData }]);
+            setOfflineQueue(prev => [...prev, { type: 'register_company', data: farmData }]);
             reply = `💾 [OFFLINE QUEUED] Enrollment stored in local device sync queue. Will sync automatically when connection restores.`;
           }
         } else {
@@ -272,24 +272,23 @@ export const AdminPanel: React.FC = () => {
           const qty = Number(qtyMatch[1]);
           const price = Number(priceMatch[1]);
 
-          const listingData = {
-            farm_id: 'fa100000-0000-0000-0000-000000000001',
-            commodity: crop,
-            quantity: qty,
-            price: price,
-            status: 'available' as const,
-            export_ready: true,
-            harvest_date: new Date().toISOString().split('T')[0],
-            photos: [],
-            storage_availability: 'Local depot aggregator storage',
-            country_of_origin: 'Botswana'
+          const rfqData: Omit<Rfq, 'id' | 'created_at'> = {
+            buyer_company_id: 'co100000-0000-0000-0000-000000000001',
+            title: crop,
+            industry: 'Agriculture',
+            description: `Procurement Request for ${crop}`,
+            required_quantity: qty,
+            unit: 'Tons',
+            delivery_location: 'Botswana',
+            deadline: new Date().toISOString().split('T')[0],
+            status: 'open' as const
           };
 
           if (isOnline) {
-            addListing(listingData);
+            createRfq(rfqData);
             reply = `✅ TradeGridAfrica Crop Published via SMS!\nCommodity: ${crop}\nQuantity: ${qty} Tons\nPrice: $${price}/Ton\nRef: l0000001-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
           } else {
-            setOfflineQueue(prev => [...prev, { type: 'add_listing', data: listingData }]);
+            setOfflineQueue(prev => [...prev, { type: 'add_listing', data: rfqData }]);
             reply = `💾 [OFFLINE QUEUED] Listing stored in local device sync queue. Will sync automatically when connection restores.`;
           }
         } else {
@@ -308,10 +307,10 @@ export const AdminPanel: React.FC = () => {
     setIsOnline(nextState);
     if (nextState && offlineQueue.length > 0) {
       offlineQueue.forEach(item => {
-        if (item.type === 'register_farm') {
-          addFarm(item.data);
+        if (item.type === 'register_company') {
+          addCompany(item.data);
         } else if (item.type === 'add_listing') {
-          addListing(item.data);
+          createRfq(item.data);
         }
       });
       alert(`Synchronized ${offlineQueue.length} pending local outbox tasks to SADC blockchain ledger.`);
@@ -366,11 +365,11 @@ export const AdminPanel: React.FC = () => {
 
         <Card className="glass-card border-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Platform Listings</CardTitle>
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Platform rfqs</CardTitle>
             <ShoppingBag className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-100">{listings.length} Active</div>
+            <div className="text-2xl font-bold text-zinc-100">{rfqs.length} Active</div>
             <p className="text-xs text-zinc-400 mt-1">Crops & Beef products in database</p>
           </CardContent>
         </Card>
@@ -393,8 +392,8 @@ export const AdminPanel: React.FC = () => {
           <TabsTrigger value="fraud" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
             Fraud Alerts ({fraudAlerts.length})
           </TabsTrigger>
-          <TabsTrigger value="listings" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
-            Verify Listings
+          <TabsTrigger value="rfqs" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
+            Verify rfqs
           </TabsTrigger>
           <TabsTrigger value="users" className="data-[state=active]:bg-emerald-950 data-[state=active]:text-emerald-400">
             Onboarding & KYC
@@ -496,8 +495,8 @@ export const AdminPanel: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* Listings Moderation Tab */}
-        <TabsContent value="listings" className="mt-4">
+        {/* rfqs Moderation Tab */}
+        <TabsContent value="rfqs" className="mt-4">
           <Card className="glass-card border-zinc-900">
             <CardContent className="p-0">
               <table className="w-full text-left text-xs border-collapse">
@@ -513,16 +512,16 @@ export const AdminPanel: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {listings.map(l => (
+                  {rfqs.map(l => (
                     <tr key={l.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/10 text-zinc-300">
                       <td className="p-3 font-mono text-[11px]">{l.id.substring(0, 8)}...</td>
-                      <td className="p-3 font-medium text-zinc-200">{l.country_of_origin}</td>
-                      <td className="p-3 font-medium text-zinc-200">{l.commodity}</td>
-                      <td className="p-3">{l.quantity} Tons</td>
-                      <td className="p-3 text-emerald-400 font-bold">${l.price} / Ton</td>
+                      <td className="p-3 font-medium text-zinc-200">{l.delivery_location}</td>
+                      <td className="p-3 font-medium text-zinc-200">{l.industry}</td>
+                      <td className="p-3">{l.required_quantity} Tons</td>
+                      <td className="p-3 text-emerald-400 font-bold">${100} / Ton</td>
                       <td className="p-3">
                         <Badge className={
-                          l.status === 'available' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900 text-[9px]' :
+                          l.status === 'open' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900 text-[9px]' :
                           'bg-zinc-950 text-zinc-400 border border-zinc-800 text-[9px]'
                         }>
                           {l.status}
@@ -845,9 +844,9 @@ export const AdminPanel: React.FC = () => {
                       onChange={e => setApiEndpoint(e.target.value)}
                       className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2.5 h-9 focus:ring-emerald-700 outline-none"
                     >
-                      <option value="GET /listings">GET /listings</option>
-                      <option value="POST /listings">POST /listings (Sorghum batch)</option>
-                      <option value="GET /orders">GET /orders</option>
+                      <option value="GET /rfqs">GET /rfqs</option>
+                      <option value="POST /rfqs">POST /rfqs (Sorghum batch)</option>
+                      <option value="GET /bids">GET /bids</option>
                       <option value="GET /shipments">GET /shipments</option>
                       <option value="GET /procurement/bids">GET /procurement/bids</option>
                     </select>
@@ -1432,3 +1431,6 @@ export const AdminPanel: React.FC = () => {
     </div>
   );
 };
+
+
+

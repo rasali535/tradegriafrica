@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useApp, User, Farm } from '@/context/AppContext';
+import { useApp, User, Company } from '@/context/AppContext';
 import { 
   UserPlus, Sprout, Truck, ShieldCheck, Briefcase, Mail, Phone, 
   MapPin, CheckCircle2, ArrowRight, Lock, Building, Layers
@@ -22,19 +22,11 @@ export const OnboardingPortal: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [country, setCountry] = useState<'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa'>('Botswana');
 
-  // Farmer Specific Fields
-  const [farmName, setFarmName] = useState('');
-  const [farmSize, setFarmSize] = useState(50);
-  const [region, setRegion] = useState('');
-  const [commodityFocus, setCommodityFocus] = useState<string[]>(['Maize']);
-  const [productionCapacity, setProductionCapacity] = useState(100);
-
-  // Buyer Specific Fields
+  // Generic Company Fields
   const [companyName, setCompanyName] = useState('');
-
-  // Transporter Specific Fields
-  const [corridorFocus, setCorridorFocus] = useState('Trans-Kalahari Corridor');
-  const [transportMode, setTransportMode] = useState<'Road' | 'Rail' | 'Air'>('Road');
+  const [industry, setIndustry] = useState('Agriculture');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [region, setRegion] = useState('');
 
   // Onboarding On-chain Document Fields
   const [docType, setDocType] = useState('Business Registration Certificate');
@@ -43,9 +35,6 @@ export const OnboardingPortal: React.FC = () => {
 
   const [registeredUser, setRegisteredUser] = useState<User | null>(null);
 
-  const toggleCommodity = (crop: string) => {
-    setCommodityFocus(prev => prev.includes(crop) ? prev.filter(x => x !== crop) : [...prev, crop]);
-  };
 
   const handleOnboard = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,26 +61,24 @@ export const OnboardingPortal: React.FC = () => {
       if (userError) throw userError;
       const user = userData as User;
 
-      // 2. Perform role specific side-effects
-      if (role === 'farmer') {
-        if (!farmName || !region) {
-          alert("Please fill in your farm name and region.");
-          return;
-        }
-        
-        const { error: farmError } = await supabase.from('farms').insert({
-          owner_id: user.id,
-          farm_name: farmName,
-          farm_size: farmSize,
-          country,
-          region,
-          commodity_focus: commodityFocus,
-          production_capacity: productionCapacity,
-          certification_status: 'Certified'
-        });
-        
-        if (farmError) throw farmError;
+      // 2. Perform company profile side-effects
+      if (!companyName || !region || !registrationNumber) {
+        alert("Please fill in your company name, region, and registration number.");
+        return;
       }
+      
+      const { error: companyError } = await supabase.from('companies').insert({
+        owner_id: user.id,
+        company_name: companyName,
+        industry,
+        country,
+        region,
+        registration_number: registrationNumber,
+        verification_status: 'Pending',
+        trust_score: 50
+      });
+      
+      if (companyError) throw companyError;
 
       // 3. Set newly registered user as current user for instant sandbox test
       setCurrentUser(user);
@@ -107,9 +94,9 @@ export const OnboardingPortal: React.FC = () => {
     setName('');
     setEmail('');
     setPhone('');
-    setFarmName('');
-    setRegion('');
     setCompanyName('');
+    setRegion('');
+    setRegistrationNumber('');
     setRegisteredUser(null);
   };
 
@@ -149,10 +136,10 @@ export const OnboardingPortal: React.FC = () => {
         <div className="space-y-1 z-10">
           <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-emerald-400" />
-            SADC Agribusiness Onboarding
+            SADC B2B Onboarding
           </h2>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Register your farm, procurement business, or logistics company to participate in the SADC agricultural free trade corridor.
+            Register your procurement business, supply company, or logistics fleet to participate in the SADC free trade network.
           </p>
         </div>
         <Badge className="bg-amber-950/80 text-amber-400 border border-amber-900 z-10">
@@ -169,8 +156,8 @@ export const OnboardingPortal: React.FC = () => {
           <div className="p-2 bg-zinc-900 rounded-lg w-fit text-emerald-400 mb-3 border border-zinc-800">
             <Sprout className="h-5 w-5" />
           </div>
-          <h3 className="font-bold text-zinc-100 text-sm">Farmer Portal</h3>
-          <p className="text-xs text-zinc-400 mt-1">List agricultural crops/livestock, request biosecurity audits, and gain trade financing eligibility.</p>
+          <h3 className="font-bold text-zinc-100 text-sm">Supplier / Producer</h3>
+          <p className="text-xs text-zinc-400 mt-1">List your industrial products, request compliance audits, and gain trade financing eligibility.</p>
         </Card>
 
         <Card 
@@ -259,153 +246,68 @@ export const OnboardingPortal: React.FC = () => {
             </div>
           </div>
 
-          {/* Farmer Fields */}
-          {role === 'farmer' && (
-            <div className="space-y-6 pt-4 border-t border-zinc-900">
-              <div className="border-b border-zinc-900 pb-3">
-                <h3 className="font-bold text-zinc-200 text-sm">Farm Profile</h3>
-                <p className="text-xs text-zinc-500">Provide details on your farm scale, region, and primary crops.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="space-y-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Farm Name</label>
-                  <Input
-                    type="text"
-                    required
-                    value={farmName}
-                    onChange={e => setFarmName(e.target.value)}
-                    placeholder="e.g. Chobe Organic Valley"
-                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Farm Region</label>
-                  <Input
-                    type="text"
-                    required
-                    value={region}
-                    onChange={e => setRegion(e.target.value)}
-                    placeholder="e.g. Chobe District"
-                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Farm Size (Hectares)</label>
-                  <Input
-                    type="number"
-                    value={farmSize}
-                    onChange={e => setFarmSize(parseInt(e.target.value) || 1)}
-                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Est. Annual Capacity (Tons)</label>
-                  <Input
-                    type="number"
-                    value={productionCapacity}
-                    onChange={e => setProductionCapacity(parseInt(e.target.value) || 1)}
-                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                  />
-                </div>
-
-                <div className="space-y-2 col-span-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block mb-1">Commodity Focus</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Maize', 'Sorghum', 'Beef', 'Horticulture', 'Poultry feed products'].map(crop => {
-                      const selected = commodityFocus.includes(crop);
-                      return (
-                        <button
-                          key={crop}
-                          type="button"
-                          onClick={() => toggleCommodity(crop)}
-                          className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${selected ? 'border-emerald-800 bg-emerald-950/30 text-emerald-400' : 'border-zinc-900 bg-zinc-950 text-zinc-500 hover:border-zinc-800'}`}
-                        >
-                          {crop}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
+          {/* Generic Company Fields */}
+          <div className="space-y-6 pt-4 border-t border-zinc-900">
+            <div className="border-b border-zinc-900 pb-3">
+              <h3 className="font-bold text-zinc-200 text-sm">Company Profile</h3>
+              <p className="text-xs text-zinc-500">Provide details on your business identity and registration.</p>
             </div>
-          )}
 
-          {/* Buyer Fields */}
-          {role === 'buyer' && (
-            <div className="space-y-4 pt-4 border-t border-zinc-900">
-              <div className="border-b border-zinc-900 pb-3">
-                <h3 className="font-bold text-zinc-200 text-sm">Procurement Profile</h3>
-                <p className="text-xs text-zinc-500">Provide details on your distribution brand.</p>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Company / Distributing Brand Name</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div className="space-y-2 col-span-2 md:col-span-1">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Company Name</label>
                 <Input
                   type="text"
                   required
                   value={companyName}
                   onChange={e => setCompanyName(e.target.value)}
-                  placeholder="e.g. SADC Food Distributors Ltd"
+                  placeholder="e.g. SADC Industrial Corp"
+                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Industry</label>
+                <select
+                  value={industry}
+                  onChange={e => setIndustry(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
+                >
+                  <option value="Agriculture">Agriculture</option>
+                  <option value="Mining">Mining</option>
+                  <option value="Construction">Construction</option>
+                  <option value="Logistics">Logistics</option>
+                  <option value="Manufacturing">Manufacturing</option>
+                  <option value="ICT">ICT</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Operating Region</label>
+                <Input
+                  type="text"
+                  required
+                  value={region}
+                  onChange={e => setRegion(e.target.value)}
+                  placeholder="e.g. Gaborone District"
+                  className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Registration Number</label>
+                <Input
+                  type="text"
+                  required
+                  value={registrationNumber}
+                  onChange={e => setRegistrationNumber(e.target.value)}
+                  placeholder="e.g. BW-1029384"
                   className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
                 />
               </div>
             </div>
-          )}
-
-          {/* Transporter Fields */}
-          {role === 'transporter' && (
-            <div className="space-y-6 pt-4 border-t border-zinc-900">
-              <div className="border-b border-zinc-900 pb-3">
-                <h3 className="font-bold text-zinc-200 text-sm">Logistics Carrier Profile</h3>
-                <p className="text-xs text-zinc-500">Configure route focuses and corridor carrier modes.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="space-y-2 col-span-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Company / Fleet Brand Name</label>
-                  <Input
-                    type="text"
-                    required
-                    value={companyName}
-                    onChange={e => setCompanyName(e.target.value)}
-                    placeholder="e.g. Kalahari Express Logistics"
-                    className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Primary Corridor Route</label>
-                  <select
-                    value={corridorFocus}
-                    onChange={e => setCorridorFocus(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
-                  >
-                    <option value="Trans-Kalahari Corridor">Trans-Kalahari Corridor (Namibia ⇆ Botswana ⇆ SA)</option>
-                    <option value="Beitbridge Corridor">Beitbridge Corridor (SA ⇆ Zimbabwe)</option>
-                    <option value="North-South Corridor">North-South Corridor (Zambia ⇆ Botswana ⇆ SA)</option>
-                    <option value="Walvis Bay Corridor">Walvis Bay Corridor (Namibia ⇆ Zambia)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Freight Carrier Mode</label>
-                  <select
-                    value={transportMode}
-                    onChange={e => setTransportMode(e.target.value as any)}
-                    className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
-                  >
-                    <option value="Road">Road Carrier (Semi-trucks)</option>
-                    <option value="Rail">Rail Cargo (Freight trains)</option>
-                    <option value="Air">Air Cargo (Express transport)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
 
           {/* Compliance & Verification Documents */}
           <div className="space-y-6 pt-4 border-t border-zinc-900">

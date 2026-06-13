@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 export const LogisticsHub: React.FC = () => {
-  const { users, shipments, orders, assignTransporter } = useApp();
+  const { users, shipments, bids, assignTransporter, formatCurrency } = useApp();
   const [search, setSearch] = useState('');
   const [corridorFilter, setCorridorFilter] = useState('All');
   const [modeFilter, setModeFilter] = useState('All');
@@ -65,6 +65,14 @@ export const LogisticsHub: React.FC = () => {
       tier: 'Green Corridor Tier 1'
     }
   };
+
+  const borderPosts = [
+    { name: 'Kazungula (Botswana/Zambia)', delayHours: 4 },
+    { name: 'Pioneer Gate (Botswana/SA)', delayHours: 2 },
+    { name: 'Kopfontein (Botswana/SA)', delayHours: 3 },
+    { name: 'Beitbridge (SA/Zimbabwe)', delayHours: 12 },
+    { name: 'Plumtree (Botswana/Zimbabwe)', delayHours: 5 },
+  ];
 
   // Fallback details for new dynamic onboarding transporters
   const getTransporterDetails = (userId: string, name: string) => {
@@ -302,8 +310,19 @@ export const LogisticsHub: React.FC = () => {
                   </h4>
                   <p className="text-[11px] text-zinc-400">
                     Clearance Class: <strong className="text-zinc-200">{details.certification}</strong>. 
-                    Authorized to pass phytosanitary customs gates at Pioneer Gate, Plumtree, Beitbridge, and Kazungula Bridge.
+                    Authorized to pass phytosanitary customs gates at Pioneer Gate, Plumtree, Beitbridge, Kopfontein, and Kazungula Bridge.
                   </p>
+                  <div className="mt-2 space-y-1">
+                    <h5 className="font-bold text-zinc-500 text-[9px] uppercase">Live Border Delays (AI Estimated)</h5>
+                    <div className="grid grid-cols-2 gap-1">
+                      {borderPosts.slice(0, 4).map(bp => (
+                        <div key={bp.name} className="flex justify-between items-center bg-zinc-900/50 p-1 rounded text-[10px]">
+                          <span className="text-zinc-400 truncate pr-1">{bp.name}</span>
+                          <span className={bp.delayHours > 5 ? "text-amber-400 font-bold" : "text-emerald-400 font-bold"}>{bp.delayHours}h</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Booking form */}
@@ -325,10 +344,10 @@ export const LogisticsHub: React.FC = () => {
                           className="w-full bg-zinc-900 border border-zinc-800 text-zinc-200 rounded p-1.5 text-xs outline-none"
                         >
                           {unassignedShipments.map(s => {
-                            const order = orders.find(o => o.id === s.order_id);
+                            const order = bids.find(o => o.id === s.bid_id);
                             return (
                               <option key={s.id} value={s.id}>
-                                Shipment {s.id.substring(0, 6)} ({s.route_from} ➔ {s.route_to}) - Fee: ${(order ? order.amount * 0.08 : 450).toFixed(0)}
+                                Shipment {s.id.substring(0, 6)} ({s.route_from} ➔ {s.route_to}) - Fee: {formatCurrency(order ? order.total_price * 0.08 : 450)}
                               </option>
                             );
                           })}
@@ -338,10 +357,10 @@ export const LogisticsHub: React.FC = () => {
                       <div className="flex justify-between items-center pt-2 border-t border-zinc-900">
                         <span className="text-zinc-400">Est. Logistics Fee (8% SADC Waived)</span>
                         <strong className="text-emerald-400 text-sm">
-                          ${(() => {
+                          {(() => {
                             const ship = shipments.find(s => s.id === selectedShipmentId);
-                            const order = ship ? orders.find(o => o.id === ship.order_id) : null;
-                            return order ? (order.amount * 0.08).toLocaleString() : '450';
+                            const order = ship ? bids.find(o => o.id === ship.bid_id) : null;
+                            return formatCurrency(order ? order.total_price * 0.08 : 450);
                           })()}
                         </strong>
                       </div>
@@ -371,3 +390,6 @@ export const LogisticsHub: React.FC = () => {
     </div>
   );
 };
+
+
+

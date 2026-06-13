@@ -22,7 +22,7 @@ interface AgentLog {
 }
 
 export const AIAgentCenter: React.FC = () => {
-  const { placeOrder, triggerEvent } = useApp();
+  const { submitBid, triggerEvent, formatCurrency, currency } = useApp();
   
   // Prompt and Pipeline States
   const [query, setQuery] = useState("I want to export 12 tons of maize from Botswana to South Africa");
@@ -118,10 +118,18 @@ export const AIAgentCenter: React.FC = () => {
       const price = pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_unit || 320;
       
       // Create listing first or place order directly
-      // Since placeOrder handles both, let's trigger it!
+      // Since submitBid handles both, let's trigger it!
       // First, we find or create an order
       // We will simulate placing the order
-      const order = placeOrder('l0000002-0000-0000-0000-000000000005', parsed.quantity);
+      const order = submitBid({
+        rfq_id: 'rfq00000-0000-0000-0000-000000000001',
+        supplier_company_id: 'co100000-0000-0000-0000-000000000001',
+        price_per_unit: price,
+        total_price: parsed.quantity * price,
+        estimated_delivery_days: 14,
+        status: 'pending',
+        notes: ''
+      });
       
       triggerEvent("agent.deal_executed", {
         product: parsed.product,
@@ -129,7 +137,7 @@ export const AIAgentCenter: React.FC = () => {
         origin: parsed.origin_country,
         destination: parsed.destination_country,
         price,
-        order_id: order.id
+        bid_id: order.id
       });
 
       alert(`🚀 DEAL LOCKED IN SMART CONTRACT!\n\nOrder ID: ${order.id}\nValuation: $${(parsed.quantity * price).toLocaleString()} USD\nTradeGridAfrica Smart Contract registry has recorded the procurement. Check the Exporter compliance desk to approve.`);
@@ -354,7 +362,7 @@ export const AIAgentCenter: React.FC = () => {
                               <span className="font-semibold text-zinc-200">{buyer.buyer_type}</span>
                               <div className="flex justify-between text-[10px] text-zinc-400 mt-1">
                                 <span>Country: {buyer.country}</span>
-                                <span className="font-mono font-bold text-emerald-400">${buyer.estimated_price_per_unit}/unit</span>
+                                <span className="font-mono font-bold text-emerald-400">{formatCurrency(buyer.estimated_price_per_unit)}/unit</span>
                               </div>
                             </div>
                           ))}
@@ -403,6 +411,14 @@ export const AIAgentCenter: React.FC = () => {
                             </ul>
                           </div>
                         )}
+                        <div className="space-y-1 mt-2 pt-2 border-t border-zinc-800">
+                          <span className="text-zinc-500 text-[10px] font-mono block">SADC Member State Protocols:</span>
+                          <ul className="list-disc pl-4 text-[10px] text-zinc-300 space-y-1">
+                            <li><strong>South Africa:</strong> SARS Customs EDI required, SADC Certificate of Origin Form 61.</li>
+                            <li><strong>Namibia:</strong> NamRA ASYCUDA World pre-clearance, Transit Bond required for Walvis Bay.</li>
+                            <li><strong>Zambia:</strong> ZRA CE20 Customs Declaration, COMESA/SADC simplified trade regime check.</li>
+                          </ul>
+                        </div>
                       </div>
                     )}
                   </AgentStepCard>
@@ -427,7 +443,7 @@ export const AIAgentCenter: React.FC = () => {
                                 <span className="text-zinc-500">Port Gateway: {pipelineData.logistics.recommended_port}</span>
                               </div>
                               <div className="text-right">
-                                <span className="font-mono font-bold text-amber-400 block">${route.estimated_cost_usd} USD</span>
+                                <span className="font-mono font-bold text-amber-400 block">{formatCurrency(route.estimated_cost_usd)}</span>
                                 <span className="text-zinc-400 block font-mono">{route.transit_time_days} days ({route.mode})</span>
                               </div>
                             </div>
@@ -744,3 +760,6 @@ const AgentStepCard: React.FC<AgentStepProps> = ({
     </Card>
   );
 };
+
+
+

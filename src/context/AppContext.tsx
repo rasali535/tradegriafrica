@@ -58,40 +58,41 @@ export interface EventLog {
   created_at: string;
 }
 
-export interface Farm {
+export interface Company {
   id: string;
   owner_id: string;
-  farm_name: string;
-  farm_size: number;
+  company_name: string;
+  industry: string;
   country: string;
   region: string;
-  commodity_focus: string[];
-  production_capacity: number;
-  certification_status: string;
+  registration_number: string;
+  verification_status: 'Pending' | 'Verified' | 'Rejected';
+  trust_score: number;
 }
 
-export interface CommodityListing {
+export interface Rfq {
   id: string;
-  farm_id: string;
-  commodity: 'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products';
-  quantity: number;
-  price: number;
-  status: 'draft' | 'available' | 'reserved' | 'sold';
-  export_ready: boolean;
-  harvest_date: string;
-  photos: string[];
-  storage_availability: string;
-  country_of_origin: string;
+  buyer_company_id: string;
+  title: string;
+  description: string;
+  industry: string;
+  required_quantity: number;
+  unit: string;
+  delivery_location: string;
+  deadline: string;
+  status: 'open' | 'closed' | 'awarded';
   created_at: string;
 }
 
-export interface Order {
+export interface Bid {
   id: string;
-  buyer_id: string;
-  listing_id: string;
-  quantity: number;
-  amount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'completed';
+  rfq_id: string;
+  supplier_company_id: string;
+  price_per_unit: number;
+  total_price: number;
+  estimated_delivery_days: number;
+  status: 'pending' | 'accepted' | 'rejected' | 'negotiation';
+  notes: string;
   created_at: string;
 }
 
@@ -104,7 +105,7 @@ export interface GPSData {
 
 export interface Shipment {
   id: string;
-  order_id: string;
+  bid_id: string;
   transporter_id: string | null;
   status: 'pending' | 'transit' | 'delivered';
   route_from: string;
@@ -116,7 +117,7 @@ export interface Shipment {
 
 export interface Payment {
   id: string;
-  order_id: string;
+  bid_id: string;
   amount: number;
   status: 'pending' | 'released' | 'refunded';
   created_at: string;
@@ -124,7 +125,7 @@ export interface Payment {
 
 export interface Export {
   id: string;
-  order_id: string;
+  bid_id: string;
   country: string;
   readiness_score: number;
   status: 'incomplete' | 'pending_approval' | 'approved' | 'rejected';
@@ -163,9 +164,9 @@ export interface TradeCorridor {
 
 interface AppContextType {
   users: User[];
-  farms: Farm[];
-  listings: CommodityListing[];
-  orders: Order[];
+  companies: Company[];
+  rfqs: Rfq[];
+  bids: Bid[];
   shipments: Shipment[];
   payments: Payment[];
   exports: Export[];
@@ -179,10 +180,10 @@ interface AppContextType {
   currentUser: User | null;
   setCurrentUser: (user: User) => void;
   // Actions
-  addListing: (listing: Omit<CommodityListing, 'id' | 'created_at'>) => CommodityListing;
-  updateListing: (id: string, updates: Partial<CommodityListing>) => void;
-  placeOrder: (listingId: string, quantity: number) => Order;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  createRfq: (rfq: Omit<Rfq, 'id' | 'created_at'>) => Rfq;
+  updateRfqStatus: (id: string, status: Rfq['status']) => void;
+  submitBid: (bid: Omit<Bid, 'id' | 'created_at'>) => Bid;
+  updateBidStatus: (bidId: string, status: Bid['status']) => void;
   assignTransporter: (shipmentId: string, transporterId: string) => void;
   updateShipmentStatus: (shipmentId: string, status: Shipment['status'], gps?: GPSData) => void;
   updateExportStatus: (exportId: string, status: Export['status'], readinessScore?: number, missingReqs?: string[]) => void;
@@ -196,10 +197,13 @@ interface AppContextType {
   generateApiKey: (name: string, role: string) => ApiKey;
   revokeApiKey: (id: string) => void;
   triggerEvent: (event: string, payload: any) => void;
-  addFarm: (farm: Omit<Farm, 'id'>) => Farm;
+  addCompany: (company: Omit<Company, 'id'>) => Company;
   registerUser: (user: Omit<User, 'id'>) => User;
   updateUserKycStatus: (id: string, status: 'pending' | 'approved' | 'rejected') => void;
   updateTradeCorridor: (id: string, updates: Partial<TradeCorridor>) => void;
+  currency: string;
+  setCurrency: (c: string) => void;
+  formatCurrency: (amountInUsd: number) => string;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -235,12 +239,12 @@ const SEED_USERS: User[] = [
   { id: 'a5000000-0000-0000-0000-000000000001', role: 'admin', name: 'TradeGridAfrica Operations', email: 'admin@tradegridafrica.com', phone: '+267 360 1234', country: 'Botswana', kyc_status: 'approved' }
 ];
 
-const SEED_FARMS: Farm[] = [
-  { id: 'fa100000-0000-0000-0000-000000000001', owner_id: 'f1000000-0000-0000-0000-000000000001', farm_name: 'Chobe Valley Farms', farm_size: 450, country: 'Botswana', region: 'Chobe District', commodity_focus: ['Maize', 'Sorghum', 'Horticulture'], production_capacity: 1200, certification_status: 'Certified' },
-  { id: 'fa100000-0000-0000-0000-000000000002', owner_id: 'f1000000-0000-0000-0000-000000000002', farm_name: 'Mazowe Agri-Estate', farm_size: 800, country: 'Zimbabwe', region: 'Mashonaland Central', commodity_focus: ['Maize', 'Horticulture', 'Poultry feed products'], production_capacity: 2500, certification_status: 'Certified' },
-  { id: 'fa100000-0000-0000-0000-000000000003', owner_id: 'f1000000-0000-0000-0000-000000000003', farm_name: 'Lusaka South Cooperatives', farm_size: 350, country: 'Zambia', region: 'Lusaka Province', commodity_focus: ['Maize', 'Sorghum', 'Poultry feed products'], production_capacity: 900, certification_status: 'Pending' },
-  { id: 'fa100000-0000-0000-0000-000000000004', owner_id: 'f1000000-0000-0000-0000-000000000004', farm_name: 'Okahandja Beef Ranches', farm_size: 5500, country: 'Namibia', region: 'Otjozondjupa', commodity_focus: ['Beef'], production_capacity: 800, certification_status: 'Certified' },
-  { id: 'fa100000-0000-0000-0000-000000000005', owner_id: 'f1000000-0000-0000-0000-000000000005', farm_name: 'Free State Grainlands', farm_size: 1200, country: 'South Africa', region: 'Free State', commodity_focus: ['Maize', 'Sorghum', 'Poultry feed products'], production_capacity: 4000, certification_status: 'Certified' }
+const SEED_COMPANIES: Company[] = [
+  { id: 'co100000-0000-0000-0000-000000000001', owner_id: 'f1000000-0000-0000-0000-000000000001', company_name: 'Chobe Valley Industrial', industry: 'Manufacturing', country: 'Botswana', region: 'Chobe District', registration_number: 'BW-10293', verification_status: 'Verified', trust_score: 92 },
+  { id: 'co100000-0000-0000-0000-000000000002', owner_id: 'f1000000-0000-0000-0000-000000000002', company_name: 'Mazowe Mining Co.', industry: 'Mining', country: 'Zimbabwe', region: 'Mashonaland Central', registration_number: 'ZW-92812', verification_status: 'Verified', trust_score: 88 },
+  { id: 'co100000-0000-0000-0000-000000000003', owner_id: 'f1000000-0000-0000-0000-000000000003', company_name: 'Lusaka South Tech', industry: 'ICT', country: 'Zambia', region: 'Lusaka Province', registration_number: 'ZM-22910', verification_status: 'Pending', trust_score: 45 },
+  { id: 'co100000-0000-0000-0000-000000000004', owner_id: 'f1000000-0000-0000-0000-000000000004', company_name: 'Okahandja Logistics', industry: 'Logistics', country: 'Namibia', region: 'Otjozondjupa', registration_number: 'NM-38192', verification_status: 'Verified', trust_score: 95 },
+  { id: 'co100000-0000-0000-0000-000000000005', owner_id: 'f1000000-0000-0000-0000-000000000005', company_name: 'Free State Construction', industry: 'Construction', country: 'South Africa', region: 'Free State', registration_number: 'ZA-99120', verification_status: 'Verified', trust_score: 91 }
 ];
 
 const SEED_COOPERATIVES: Cooperative[] = [
@@ -271,410 +275,78 @@ const SEED_EVENT_LOGS: EventLog[] = [
 ];
 
 
-// Generate 50 realistic listings
-const generateListings = (): CommodityListing[] => {
-  const result: CommodityListing[] = [
-    {
-      id: 'l0000001-0000-0000-0000-000000000001',
-      farm_id: 'fa100000-0000-0000-0000-000000000004',
-      commodity: 'Beef',
-      quantity: 25,
-      price: 4800,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-10',
-      photos: ['/beef.png'],
-      storage_availability: 'Cold Storage (Okahandja)',
-      country_of_origin: 'Namibia',
-      created_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000001-0000-0000-0000-000000000002',
-      farm_id: 'fa100000-0000-0000-0000-000000000004',
-      commodity: 'Beef',
-      quantity: 50,
-      price: 4750,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-12',
-      photos: ['/beef.png'],
-      storage_availability: 'Cold Storage (Windhoek)',
-      country_of_origin: 'Namibia',
-      created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000001-0000-0000-0000-000000000003',
-      farm_id: 'fa100000-0000-0000-0000-000000000001',
-      commodity: 'Beef',
-      quantity: 15,
-      price: 5100,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-15',
-      photos: ['/beef.png'],
-      storage_availability: 'Cold Storage (Gaborone)',
-      country_of_origin: 'Botswana',
-      created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000001-0000-0000-0000-000000000004',
-      farm_id: 'fa100000-0000-0000-0000-000000000004',
-      commodity: 'Beef',
-      quantity: 30,
-      price: 4700,
-      status: 'reserved',
-      export_ready: true,
-      harvest_date: '2026-05-08',
-      photos: ['/beef.png'],
-      storage_availability: 'Cold Storage (Walvis Bay)',
-      country_of_origin: 'Namibia',
-      created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000001-0000-0000-0000-000000000005',
-      farm_id: 'fa100000-0000-0000-0000-000000000004',
-      commodity: 'Beef',
-      quantity: 40,
-      price: 4650,
-      status: 'sold',
-      export_ready: true,
-      harvest_date: '2026-04-20',
-      photos: ['/beef.png'],
-      storage_availability: 'Cold Storage (Windhoek)',
-      country_of_origin: 'Namibia',
-      created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000001',
-      farm_id: 'fa100000-0000-0000-0000-000000000005',
-      commodity: 'Maize',
-      quantity: 500,
-      price: 290,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-01',
-      photos: ['/maize.png'],
-      storage_availability: 'Silo (Bloemfontein)',
-      country_of_origin: 'South Africa',
-      created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000002',
-      farm_id: 'fa100000-0000-0000-0000-000000000005',
-      commodity: 'Maize',
-      quantity: 1000,
-      price: 280,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-02',
-      photos: ['/maize.png'],
-      storage_availability: 'Silo (Kroonstad)',
-      country_of_origin: 'South Africa',
-      created_at: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000003',
-      farm_id: 'fa100000-0000-0000-0000-000000000002',
-      commodity: 'Maize',
-      quantity: 200,
-      price: 310,
-      status: 'available',
-      export_ready: false,
-      harvest_date: '2026-05-05',
-      photos: ['/maize.png'],
-      storage_availability: 'On-farm Barn (Mazowe)',
-      country_of_origin: 'Zimbabwe',
-      created_at: new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000004',
-      farm_id: 'fa100000-0000-0000-0000-000000000003',
-      commodity: 'Maize',
-      quantity: 150,
-      price: 305,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-04-28',
-      photos: ['/maize.png'],
-      storage_availability: 'Cooperative Silo (Lusaka)',
-      country_of_origin: 'Zambia',
-      created_at: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000005',
-      farm_id: 'fa100000-0000-0000-0000-000000000001',
-      commodity: 'Maize',
-      quantity: 80,
-      price: 330,
-      status: 'available',
-      export_ready: false,
-      harvest_date: '2026-05-14',
-      photos: ['/maize.png'],
-      storage_availability: 'Silo (Pandamatenga)',
-      country_of_origin: 'Botswana',
-      created_at: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000006',
-      farm_id: 'fa100000-0000-0000-0000-000000000005',
-      commodity: 'Maize',
-      quantity: 400,
-      price: 285,
-      status: 'reserved',
-      export_ready: true,
-      harvest_date: '2026-04-15',
-      photos: ['/maize.png'],
-      storage_availability: 'Silo (Welkom)',
-      country_of_origin: 'South Africa',
-      created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000002-0000-0000-0000-000000000007',
-      farm_id: 'fa100000-0000-0000-0000-000000000003',
-      commodity: 'Maize',
-      quantity: 300,
-      price: 295,
-      status: 'sold',
-      export_ready: true,
-      harvest_date: '2026-04-10',
-      photos: ['/maize.png'],
-      storage_availability: 'Cooperative Silo (Choma)',
-      country_of_origin: 'Zambia',
-      created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000003-0000-0000-0000-000000000001',
-      farm_id: 'fa100000-0000-0000-0000-000000000001',
-      commodity: 'Sorghum',
-      quantity: 120,
-      price: 350,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-02',
-      photos: ['/sorghum.png'],
-      storage_availability: 'Silo (Pandamatenga)',
-      country_of_origin: 'Botswana',
-      created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000003-0000-0000-0000-000000000002',
-      farm_id: 'fa100000-0000-0000-0000-000000000005',
-      commodity: 'Sorghum',
-      quantity: 500,
-      price: 310,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-05',
-      photos: ['/sorghum.png'],
-      storage_availability: 'Silo (Bethlehem)',
-      country_of_origin: 'South Africa',
-      created_at: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000003-0000-0000-0000-000000000003',
-      farm_id: 'fa100000-0000-0000-0000-000000000003',
-      commodity: 'Sorghum',
-      quantity: 250,
-      price: 320,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-06',
-      photos: ['/sorghum.png'],
-      storage_availability: 'Silo (Kabwe)',
-      country_of_origin: 'Zambia',
-      created_at: new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000003-0000-0000-0000-000000000004',
-      farm_id: 'fa100000-0000-0000-0000-000000000002',
-      commodity: 'Sorghum',
-      quantity: 80,
-      price: 340,
-      status: 'available',
-      export_ready: false,
-      harvest_date: '2026-05-10',
-      photos: ['/sorghum.png'],
-      storage_availability: 'On-farm Barn (Gweru)',
-      country_of_origin: 'Zimbabwe',
-      created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000004-0000-0000-0000-000000000001',
-      farm_id: 'fa100000-0000-0000-0000-000000000002',
-      commodity: 'Poultry feed products',
-      quantity: 100,
-      price: 420,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-01',
-      photos: ['/poultry_feed.png'],
-      storage_availability: 'Warehouse (Harare)',
-      country_of_origin: 'Zimbabwe',
-      created_at: new Date(Date.now() - 11 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000004-0000-0000-0000-000000000002',
-      farm_id: 'fa100000-0000-0000-0000-000000000005',
-      commodity: 'Poultry feed products',
-      quantity: 600,
-      price: 380,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-04',
-      photos: ['/poultry_feed.png'],
-      storage_availability: 'Warehouse (Pretoria)',
-      country_of_origin: 'South Africa',
-      created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000004-0000-0000-0000-000000000003',
-      farm_id: 'fa100000-0000-0000-0000-000000000003',
-      commodity: 'Poultry feed products',
-      quantity: 200,
-      price: 395,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-07',
-      photos: ['/poultry_feed.png'],
-      storage_availability: 'Warehouse (Lusaka)',
-      country_of_origin: 'Zambia',
-      created_at: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000005-0000-0000-0000-000000000001',
-      farm_id: 'fa100000-0000-0000-0000-000000000001',
-      commodity: 'Horticulture',
-      quantity: 10,
-      price: 850,
-      status: 'available',
-      export_ready: false,
-      harvest_date: '2026-05-18',
-      photos: ['/horticulture.png'],
-      storage_availability: 'Cold room (Francistown)',
-      country_of_origin: 'Botswana',
-      created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000005-0000-0000-0000-000000000002',
-      farm_id: 'fa100000-0000-0000-0000-000000000002',
-      commodity: 'Horticulture',
-      quantity: 30,
-      price: 750,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-16',
-      photos: ['/horticulture.png'],
-      storage_availability: 'Cold Storage (Mutare)',
-      country_of_origin: 'Zimbabwe',
-      created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
-    },
-    {
-      id: 'l0000005-0000-0000-0000-000000000003',
-      farm_id: 'fa100000-0000-0000-0000-000000000005',
-      commodity: 'Horticulture',
-      quantity: 100,
-      price: 700,
-      status: 'available',
-      export_ready: true,
-      harvest_date: '2026-05-15',
-      photos: ['/horticulture.png'],
-      storage_availability: 'Cold Depot (Nelspruit)',
-      country_of_origin: 'South Africa',
-      created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()
-    }
-  ];
-
-  // Dynamically generate the remaining listings up to 50
-  const commodities: Array<'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products'> = [
-    'Beef', 'Maize', 'Sorghum', 'Horticulture', 'Poultry feed products'
-  ];
-  const countries = ['Botswana', 'Zimbabwe', 'Zambia', 'Namibia', 'South Africa'];
-  const farmIds = [
-    'fa100000-0000-0000-0000-000000000001',
-    'fa100000-0000-0000-0000-000000000002',
-    'fa100000-0000-0000-0000-000000000003',
-    'fa100000-0000-0000-0000-000000000004',
-    'fa100000-0000-0000-0000-000000000005'
-  ];
-  const images = {
-    Beef: '/beef.png',
-    Maize: '/maize.png',
-    Sorghum: '/sorghum.png',
-    Horticulture: '/horticulture.png',
-    'Poultry feed products': '/poultry_feed.png'
-  };
-
-  for (let i = result.length + 1; i <= 50; i++) {
-    const commodity = commodities[i % commodities.length];
-    const country = countries[i % countries.length];
-    const farmId = farmIds[i % farmIds.length];
-    const qty = Math.floor(Math.random() * 450) + 10;
-    const price = commodity === 'Beef' 
-      ? Math.floor(Math.random() * 800) + 4200
-      : Math.floor(Math.random() * 150) + 250;
-
-    result.push({
-      id: `l0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
-      farm_id: farmId,
-      commodity: commodity,
-      quantity: qty,
-      price: price,
-      status: 'available',
-      export_ready: Math.random() > 0.3,
-      harvest_date: `2026-05-${(i % 28 + 1).toString().padStart(2, '0')}`,
-      photos: [images[commodity]],
-      storage_availability: `Regional Storage Facility`,
-      country_of_origin: country,
-      created_at: new Date(Date.now() - (i % 30 + 1) * 24 * 3600 * 1000).toISOString()
-    });
+const SEED_RFQS: Rfq[] = [
+  {
+    id: 'rfq10000-0000-0000-0000-000000000001',
+    buyer_company_id: 'co100000-0000-0000-0000-000000000004',
+    title: 'Heavy Duty Logistics Contract for Cross-Border Transport',
+    description: 'We are seeking a 12-month logistics contract for 500 tons of processed material monthly. Must include cold chain capability.',
+    industry: 'Logistics',
+    required_quantity: 500,
+    unit: 'Tons/Month',
+    delivery_location: 'Gaborone, Botswana',
+    deadline: new Date(Date.now() + 10 * 24 * 3600 * 1000).toISOString(),
+    status: 'open',
+    created_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 'rfq10000-0000-0000-0000-000000000002',
+    buyer_company_id: 'co100000-0000-0000-0000-000000000005',
+    title: 'Procurement of Construction Grade Steel',
+    description: 'Urgent requirement for structural steel for a new commercial development. Must meet SADC quality standards.',
+    industry: 'Construction',
+    required_quantity: 1200,
+    unit: 'Tons',
+    delivery_location: 'Johannesburg, South Africa',
+    deadline: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString(),
+    status: 'open',
+    created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 'rfq10000-0000-0000-0000-000000000003',
+    buyer_company_id: 'co100000-0000-0000-0000-000000000001',
+    title: 'Bulk Processing Chemicals (Industrial)',
+    description: 'Quarterly supply of specialized mining reagents and processing chemicals.',
+    industry: 'Mining',
+    required_quantity: 15000,
+    unit: 'Liters',
+    delivery_location: 'Francistown, Botswana',
+    deadline: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(), // Closed yesterday
+    status: 'closed',
+    created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString()
   }
-
-  return result;
-};
-
-const SEED_LISTINGS = generateListings();
-
-const SEED_ORDERS: Order[] = [
-  { id: 'o0000001-0000-0000-0000-000000000001', buyer_id: 'b2000000-0000-0000-0000-000000000001', listing_id: 'l0000001-0000-0000-0000-000000000005', quantity: 40, amount: 186000, status: 'completed', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
-  { id: 'o0000001-0000-0000-0000-000000000002', buyer_id: 'b2000000-0000-0000-0000-000000000002', listing_id: 'l0000002-0000-0000-0000-000000000007', quantity: 300, amount: 88500, status: 'completed', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
-  { id: 'o0000001-0000-0000-0000-000000000003', buyer_id: 'b2000000-0000-0000-0000-000000000001', listing_id: 'l0000002-0000-0000-0000-000000000006', quantity: 400, amount: 114000, status: 'approved', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
-  { id: 'o0000001-0000-0000-0000-000000000004', buyer_id: 'b2000000-0000-0000-0000-000000000003', listing_id: 'l0000001-0000-0000-0000-000000000004', quantity: 30, amount: 141000, status: 'approved', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() },
-  { id: 'o0000001-0000-0000-0000-000000000005', buyer_id: 'b2000000-0000-0000-0000-000000000002', listing_id: 'l0000002-0000-0000-0000-000000000001', quantity: 100, amount: 29000, status: 'pending', created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString() }
 ];
 
-// Add dummy orders to reach 20 orders total
-const fillOrders = (): Order[] => {
-  const result = [...SEED_ORDERS];
-  const buyers = ['b2000000-0000-0000-0000-000000000001', 'b2000000-0000-0000-0000-000000000002', 'b2000000-0000-0000-0000-000000000003'];
-  const statuses: Order['status'][] = ['completed', 'approved', 'pending', 'rejected'];
-
-  for (let i = result.length + 1; i <= 20; i++) {
-    const listing = SEED_LISTINGS[i % SEED_LISTINGS.length];
-    const buyerId = buyers[i % buyers.length];
-    const qty = Math.floor(listing.quantity * 0.5) || 5;
-    const amount = qty * listing.price;
-    const status = statuses[i % statuses.length];
-
-    result.push({
-      id: `o0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
-      buyer_id: buyerId,
-      listing_id: listing.id,
-      quantity: qty,
-      amount: amount,
-      status: status,
-      created_at: new Date(Date.now() - (i % 20 + 2) * 24 * 3600 * 1000).toISOString()
-    });
+const SEED_BIDS: Bid[] = [
+  {
+    id: 'bid10000-0000-0000-0000-000000000001',
+    rfq_id: 'rfq10000-0000-0000-0000-000000000001',
+    supplier_company_id: 'co100000-0000-0000-0000-000000000002',
+    price_per_unit: 1450,
+    total_price: 1450 * 500,
+    estimated_delivery_days: 14,
+    status: 'pending',
+    notes: 'We have 20 refrigerated trucks available on the requested corridor.',
+    created_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()
+  },
+  {
+    id: 'bid10000-0000-0000-0000-000000000002',
+    rfq_id: 'rfq10000-0000-0000-0000-000000000003',
+    supplier_company_id: 'co100000-0000-0000-0000-000000000002',
+    price_per_unit: 18.5,
+    total_price: 18.5 * 15000,
+    estimated_delivery_days: 7,
+    status: 'accepted',
+    notes: 'Can source directly from our South African processing plant and deliver via road.',
+    created_at: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString()
   }
-  return result;
-};
-
-const FULL_ORDERS = fillOrders();
+];
 
 const SEED_SHIPMENTS: Shipment[] = [
-  { id: 's0000001-0000-0000-0000-000000000001', order_id: 'o0000001-0000-0000-0000-000000000001', transporter_id: 't3000000-0000-0000-0000-000000000002', status: 'delivered', route_from: 'Windhoek', route_to: 'Johannesburg', gps: { lat: -26.2041, lng: 28.0473, speed: 0, bearing: 0 }, transport_mode: 'Road', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
-  { id: 's0000001-0000-0000-0000-000000000002', order_id: 'o0000001-0000-0000-0000-000000000002', transporter_id: 't3000000-0000-0000-0000-000000000001', status: 'delivered', route_from: 'Choma', route_to: 'Gaborone', gps: { lat: -24.6282, lng: 25.9231, speed: 0, bearing: 0 }, transport_mode: 'Road', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
-  { id: 's0000001-0000-0000-0000-000000000003', order_id: 'o0000001-0000-0000-0000-000000000003', transporter_id: 't3000000-0000-0000-0000-000000000002', status: 'transit', route_from: 'Welkom', route_to: 'Johannesburg', gps: { lat: -27.9830, lng: 26.7200, speed: 75, bearing: 45 }, transport_mode: 'Road', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
-  { id: 's0000001-0000-0000-0000-000000000004', order_id: 'o0000001-0000-0000-0000-000000000004', transporter_id: 't3000000-0000-0000-0000-000000000001', status: 'transit', route_from: 'Maun', route_to: 'Windhoek', gps: { lat: -21.1400, lng: 19.9800, speed: 80, bearing: 280 }, transport_mode: 'Road', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+  { id: 's0000001-0000-0000-0000-000000000001', bid_id: 'bid10000-0000-0000-0000-000000000002', transporter_id: 't3000000-0000-0000-0000-000000000002', status: 'delivered', route_from: 'Windhoek', route_to: 'Johannesburg', gps: { lat: -26.2041, lng: 28.0473, speed: 0, bearing: 0 }, transport_mode: 'Road', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 's0000001-0000-0000-0000-000000000002', bid_id: 'bid10000-0000-0000-0000-000000000002', transporter_id: 't3000000-0000-0000-0000-000000000001', status: 'delivered', route_from: 'Choma', route_to: 'Gaborone', gps: { lat: -24.6282, lng: 25.9231, speed: 0, bearing: 0 }, transport_mode: 'Road', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
+  { id: 's0000001-0000-0000-0000-000000000003', bid_id: 'bid10000-0000-0000-0000-000000000003', transporter_id: 't3000000-0000-0000-0000-000000000002', status: 'transit', route_from: 'Welkom', route_to: 'Johannesburg', gps: { lat: -27.9830, lng: 26.7200, speed: 75, bearing: 45 }, transport_mode: 'Road', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
+  { id: 's0000001-0000-0000-0000-000000000004', bid_id: 'bid10000-0000-0000-0000-000000000004', transporter_id: 't3000000-0000-0000-0000-000000000001', status: 'transit', route_from: 'Maun', route_to: 'Windhoek', gps: { lat: -21.1400, lng: 19.9800, speed: 80, bearing: 280 }, transport_mode: 'Road', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
 ];
 
 // Fill up to 20 shipments
@@ -690,14 +362,14 @@ const fillShipments = (): Shipment[] => {
   const statuses: Shipment['status'][] = ['delivered', 'transit', 'pending'];
 
   for (let i = result.length + 1; i <= 20; i++) {
-    const order = FULL_ORDERS[i % FULL_ORDERS.length];
+    const bid = SEED_BIDS[i % SEED_BIDS.length];
     const transporterId = transporters[i % transporters.length];
     const route = routes[i % routes.length];
     const status = statuses[i % statuses.length];
     
     result.push({
       id: `s0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
-      order_id: order.id,
+      bid_id: bid.id,
       transporter_id: status === 'pending' ? null : transporterId,
       status: status,
       route_from: route.from,
@@ -713,21 +385,19 @@ const fillShipments = (): Shipment[] => {
 const FULL_SHIPMENTS = fillShipments();
 
 const SEED_PAYMENTS: Payment[] = [
-  { id: 'p0000001-0000-0000-0000-000000000001', order_id: 'o0000001-0000-0000-0000-000000000001', amount: 186000, status: 'released', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
-  { id: 'p0000001-0000-0000-0000-000000000002', order_id: 'o0000001-0000-0000-0000-000000000002', amount: 88500, status: 'released', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
-  { id: 'p0000001-0000-0000-0000-000000000003', order_id: 'o0000001-0000-0000-0000-000000000003', amount: 114000, status: 'pending', created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
-  { id: 'p0000001-0000-0000-0000-000000000004', order_id: 'o0000001-0000-0000-0000-000000000004', amount: 141000, status: 'pending', created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+  { id: 'p0000001-0000-0000-0000-000000000001', bid_id: 'bid10000-0000-0000-0000-000000000001', amount: 186000, status: 'released', created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 'p0000001-0000-0000-0000-000000000002', bid_id: 'bid10000-0000-0000-0000-000000000002', amount: 88500, status: 'released', created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() }
 ];
 
 const fillPayments = (): Payment[] => {
   const result = [...SEED_PAYMENTS];
   for (let i = result.length + 1; i <= 20; i++) {
-    const order = FULL_ORDERS[i % FULL_ORDERS.length];
+    const bid = SEED_BIDS[i % SEED_BIDS.length];
     result.push({
       id: `p0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
-      order_id: order.id,
-      amount: order.amount,
-      status: order.status === 'completed' ? 'released' : 'pending',
+      bid_id: bid.id,
+      amount: bid.total_price,
+      status: bid.status === 'accepted' ? 'released' : 'pending',
       created_at: new Date(Date.now() - (i % 20 + 2) * 24 * 3600 * 1000).toISOString()
     });
   }
@@ -737,10 +407,8 @@ const fillPayments = (): Payment[] => {
 const FULL_PAYMENTS = fillPayments();
 
 const SEED_EXPORTS: Export[] = [
-  { id: 'e0000001-0000-0000-0000-000000000001', order_id: 'o0000001-0000-0000-0000-000000000001', country: 'South Africa', readiness_score: 100, status: 'approved', missing_requirements: [], certificates: { phytosanitary: 'ISSUED', sabs: 'APPROVED' }, created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
-  { id: 'e0000001-0000-0000-0000-000000000002', order_id: 'o0000001-0000-0000-0000-000000000002', country: 'Botswana', readiness_score: 100, status: 'approved', missing_requirements: [], certificates: { import_permit: 'ISSUED', quality_cert: 'ISSUED' }, created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() },
-  { id: 'e0000001-0000-0000-0000-000000000003', order_id: 'o0000001-0000-0000-0000-000000000003', country: 'South Africa', readiness_score: 85, status: 'pending_approval', missing_requirements: ['Quality Verification Audit'], certificates: { phytosanitary: 'ISSUED' }, created_at: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString() },
-  { id: 'e0000001-0000-0000-0000-000000000004', order_id: 'o0000001-0000-0000-0000-000000000004', country: 'Namibia', readiness_score: 60, status: 'incomplete', missing_requirements: ['Customs Declaration Clearance', 'SADC Certificate of Origin'], certificates: { veterinary_cert: 'ISSUED' }, created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString() }
+  { id: 'e0000001-0000-0000-0000-000000000001', bid_id: 'bid10000-0000-0000-0000-000000000001', country: 'South Africa', readiness_score: 100, status: 'approved', missing_requirements: [], certificates: { phytosanitary: 'ISSUED', sabs: 'APPROVED' }, created_at: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString() },
+  { id: 'e0000001-0000-0000-0000-000000000002', bid_id: 'bid10000-0000-0000-0000-000000000002', country: 'Botswana', readiness_score: 100, status: 'approved', missing_requirements: [], certificates: { import_permit: 'ISSUED', quality_cert: 'ISSUED' }, created_at: new Date(Date.now() - 22 * 24 * 3600 * 1000).toISOString() }
 ];
 
 const fillExports = (): Export[] => {
@@ -749,7 +417,7 @@ const fillExports = (): Export[] => {
   const statuses: Export['status'][] = ['approved', 'pending_approval', 'incomplete', 'rejected'];
 
   for (let i = result.length + 1; i <= 20; i++) {
-    const order = FULL_ORDERS[i % FULL_ORDERS.length];
+    const bid = SEED_BIDS[i % SEED_BIDS.length];
     const country = countries[i % countries.length];
     const status = statuses[i % statuses.length];
     const score = status === 'approved' ? 100 : status === 'pending_approval' ? 85 : status === 'incomplete' ? 45 : 20;
@@ -757,7 +425,7 @@ const fillExports = (): Export[] => {
 
     result.push({
       id: `e0000000-0000-0000-0000-${i.toString().padStart(12, '0')}`,
-      order_id: order.id,
+      bid_id: bid.id,
       country: country,
       readiness_score: score,
       status: status,
@@ -919,9 +587,9 @@ const SEED_TRADE_CORRIDORS: TradeCorridor[] = [
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(SEED_USERS);
-  const [farms, setFarms] = useState<Farm[]>(SEED_FARMS);
-  const [listings, setListings] = useState<CommodityListing[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [companies, setCompanies] = useState<Company[]>(SEED_COMPANIES);
+  const [rfqs, setRfqs] = useState<Rfq[]>([]);
+  const [bids, setBids] = useState<Bid[]>([]);
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [exports, setExports] = useState<Export[]>([]);
@@ -934,15 +602,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tradeCorridors, setTradeCorridors] = useState<TradeCorridor[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  // Currency State
+  const [currency, setCurrency] = useState<string>('USD');
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({
+    USD: 1,
+    ZAR: 18.5,
+    BWP: 13.5,
+    ZMW: 26.0,
+    NAD: 18.5
+  });
+
+  useEffect(() => {
+    // Fetch live exchange rates
+    fetch('https://open.er-api.com/v6/latest/USD')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.rates) {
+          setExchangeRates(prev => ({
+            ...prev,
+            ...data.rates
+          }));
+        }
+      })
+      .catch(err => console.error("Failed to fetch exchange rates", err));
+  }, []);
+
+  const formatCurrency = (amountInUsd: number) => {
+    const rate = exchangeRates[currency] || 1;
+    const converted = amountInUsd * rate;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(converted);
+  };
+
   useEffect(() => {
     const fetchLiveDb = async () => {
       if (!supabase) {
         console.warn("Supabase is not configured. Skipping live data fetch.");
         // Fallback to mock data
         setUsers(SEED_USERS);
-        setFarms(SEED_FARMS);
-        setListings(SEED_LISTINGS);
-        setOrders(FULL_ORDERS);
+        setCompanies(SEED_COMPANIES);
+        setRfqs(SEED_RFQS);
+        setBids(SEED_BIDS);
         setShipments(FULL_SHIPMENTS);
         setPayments(FULL_PAYMENTS);
         setExports(FULL_EXPORTS);
@@ -969,9 +668,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (!dbUsers || dbUsers.length === 0) {
           console.log("No live data found in Supabase. Falling back to mock data.");
           setUsers(SEED_USERS);
-          setFarms(SEED_FARMS);
-          setListings(SEED_LISTINGS);
-          setOrders(FULL_ORDERS);
+          setCompanies(SEED_COMPANIES);
+          setRfqs(SEED_RFQS);
+          setBids(SEED_BIDS);
           setShipments(FULL_SHIPMENTS);
           setPayments(FULL_PAYMENTS);
           setExports(FULL_EXPORTS);
@@ -1004,39 +703,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           kyc_status: 'approved'
         }));
 
-        // Map live RFQs -> CommodityListing (temporary bridge)
-        const mappedListings: CommodityListing[] = (dbRfqs || []).map((rfq: any) => ({
+        // Map live RFQs
+        const mappedRfqs: Rfq[] = (dbRfqs || []).map((rfq: any) => ({
           id: rfq.id,
-          farm_id: rfq.buyer_org_id,
-          commodity: rfq.title as any || 'Maize',
-          quantity: 100, // mock mapping
-          price: 300,
-          status: rfq.status === 'open' ? 'available' : 'sold',
-          export_ready: true,
-          harvest_date: rfq.deadline,
-          photos: ['/maize.png'],
-          storage_availability: 'Regional Storage',
-          country_of_origin: rfq.organizations?.country || 'Botswana',
+          buyer_company_id: rfq.buyer_org_id,
+          title: rfq.title || 'Procurement Request',
+          description: rfq.description || 'No description',
+          industry: rfq.industry || 'Agriculture',
+          required_quantity: rfq.required_quantity || 100,
+          unit: rfq.unit || 'Tons',
+          delivery_location: rfq.delivery_location || 'Gaborone',
+          deadline: rfq.deadline,
+          status: rfq.status === 'open' ? 'open' : 'closed',
           created_at: rfq.created_at
         }));
 
-        // Map live Contracts -> Orders
-        const mappedOrders: Order[] = (dbContracts || []).map((contract: any) => ({
+        // Map live Contracts -> Bids
+        const mappedBids: Bid[] = (dbContracts || []).map((contract: any) => ({
           id: contract.id,
-          buyer_id: contract.buyer_org_id,
-          listing_id: contract.rfq_id,
-          quantity: 100,
-          amount: 30000,
-          status: contract.status === 'active' ? 'approved' : contract.status === 'completed' ? 'completed' : 'pending',
+          rfq_id: contract.rfq_id,
+          supplier_company_id: contract.supplier_org_id || 'co000',
+          price_per_unit: contract.price || 0,
+          total_price: (contract.price || 0) * 100,
+          estimated_delivery_days: 14,
+          status: contract.status === 'active' ? 'accepted' : 'pending',
+          notes: '',
           created_at: contract.created_at
         }));
 
         setUsers(mappedUsers);
-        setListings(mappedListings);
-        setOrders(mappedOrders);
+        setRfqs(mappedRfqs);
+        setBids(mappedBids);
 
         // Keep static/unmigrated data as mock
-        setFarms(SEED_FARMS);
+        setCompanies(SEED_COMPANIES);
         setShipments(FULL_SHIPMENTS);
         setPayments(FULL_PAYMENTS);
         setExports(FULL_EXPORTS);
@@ -1077,100 +777,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // ACTIONS IMPLEMENTATION
-  const addListing = (newListing: Omit<CommodityListing, 'id' | 'created_at'>) => {
-    const created: CommodityListing = {
-      ...newListing,
-      id: `l0000000-0000-0000-0000-${(listings.length + 1).toString().padStart(12, '0')}`,
+  const createRfq = (newRfq: Omit<Rfq, 'id' | 'created_at'>) => {
+    const created: Rfq = {
+      ...newRfq,
+      id: `rfq00000-0000-0000-0000-${(rfqs.length + 1).toString().padStart(12, '0')}`,
       created_at: new Date().toISOString()
     };
-    const updatedList = [created, ...listings];
-    saveState('pt_listings', updatedList, setListings);
+    const updatedList = [created, ...rfqs];
+    saveState('pt_rfqs', updatedList, setRfqs);
     return created;
   };
 
-  const updateListing = (id: string, updates: Partial<CommodityListing>) => {
-    const updated = listings.map(l => l.id === id ? { ...l, ...updates } : l);
-    saveState('pt_listings', updated, setListings);
+  const updateRfqStatus = (id: string, status: Rfq['status']) => {
+    const updated = rfqs.map(r => r.id === id ? { ...r, status } : r);
+    saveState('pt_rfqs', updated, setRfqs);
   };
 
-  const placeOrder = (listingId: string, quantity: number) => {
-    const listing = listings.find(l => l.id === listingId);
-    if (!listing) throw new Error("Listing not found");
+  const submitBid = (newBid: Omit<Bid, 'id' | 'created_at'>) => {
+    const rfq = rfqs.find(r => r.id === newBid.rfq_id);
+    if (!rfq) throw new Error("RFQ not found");
 
-    const amount = quantity * listing.price;
-    const newOrder: Order = {
-      id: `o0000000-0000-0000-0000-${(orders.length + 1).toString().padStart(12, '0')}`,
-      buyer_id: currentUser?.id || 'b2000000-0000-0000-0000-000000000001',
-      listing_id: listingId,
-      quantity,
-      amount,
-      status: 'pending',
+    const created: Bid = {
+      ...newBid,
+      id: `bid00000-0000-0000-0000-${(bids.length + 1).toString().padStart(12, '0')}`,
       created_at: new Date().toISOString()
     };
-
-    // Update listing status or decrease quantity
-    const updatedListings = listings.map(l => {
-      if (l.id === listingId) {
-        const remaining = l.quantity - quantity;
-        return {
-          ...l,
-          quantity: remaining > 0 ? remaining : 0,
-          status: remaining <= 0 ? 'sold' : 'reserved' as any
-        };
-      }
-      return l;
-    });
-
-    // Create payment entry
-    const newPayment: Payment = {
-      id: `p0000000-0000-0000-0000-${(payments.length + 1).toString().padStart(12, '0')}`,
-      order_id: newOrder.id,
-      amount,
-      status: 'pending',
-      created_at: new Date().toISOString()
-    };
-
-    // Create export entry
-    const newExport: Export = {
-      id: `e0000000-0000-0000-0000-${(exports.length + 1).toString().padStart(12, '0')}`,
-      order_id: newOrder.id,
-      country: currentUser?.country || 'South Africa',
-      readiness_score: listing.export_ready ? 85 : 45,
-      status: listing.export_ready ? 'pending_approval' : 'incomplete',
-      missing_requirements: listing.export_ready 
-        ? ['Quality Verification Audit'] 
-        : ['SADC Certificate of Origin', 'Phytosanitary Certification', 'Quality Verification Audit'],
-      certificates: {},
-      created_at: new Date().toISOString()
-    };
-
-    // Create empty shipment entry (pending assignment)
-    const newShipment: Shipment = {
-      id: `s0000000-0000-0000-0000-${(shipments.length + 1).toString().padStart(12, '0')}`,
-      order_id: newOrder.id,
-      transporter_id: null,
-      status: 'pending',
-      route_from: listing.storage_availability.includes('(') 
-        ? listing.storage_availability.split('(')[1].replace(')', '') 
-        : listing.country_of_origin,
-      route_to: currentUser?.country || 'South Africa',
-      gps: null,
-      transport_mode: 'Road',
-      created_at: new Date().toISOString()
-    };
-
-    saveState('pt_listings', updatedListings, setListings);
-    saveState('pt_orders', [newOrder, ...orders], setOrders);
-    saveState('pt_payments', [newPayment, ...payments], setPayments);
-    saveState('pt_exports', [newExport, ...exports], setExports);
-    saveState('pt_shipments', [newShipment, ...shipments], setShipments);
-
-    return newOrder;
+    const updated = [created, ...bids];
+    saveState('pt_bids', updated, setBids);
+    triggerEvent('bid.submitted', { id: created.id, rfq_id: rfq.id, amount: created.total_price });
+    return created;
   };
 
-  const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    const updated = orders.map(o => o.id === orderId ? { ...o, status } : o);
-    saveState('pt_orders', updated, setOrders);
+  const updateBidStatus = (bidId: string, status: Bid['status']) => {
+    const updated = bids.map(b => b.id === bidId ? { ...b, status } : b);
+    saveState('pt_bids', updated, setBids);
+    const bid = bids.find(b => b.id === bidId);
+    if (bid) {
+      triggerEvent('bid.status_updated', { id: bidId, status, amount: bid.total_price });
+    }
   };
 
   const assignTransporter = (shipmentId: string, transporterId: string) => {
@@ -1202,18 +846,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             // Completed Order
             const ship = shipments.find(x => x.id === shipmentId);
             if (ship) {
-              setOrders(prev => {
-                const uOrders = prev.map(o => o.id === ship.order_id ? { ...o, status: 'completed' as const } : o);
-                if (typeof window !== 'undefined') localStorage.setItem('pt_orders', JSON.stringify(uOrders));
-                return uOrders;
+              setBids(prev => {
+                const uBids = prev.map(o => o.id === ship.bid_id ? { ...o, status: 'accepted' as const } : o);
+                if (typeof window !== 'undefined') localStorage.setItem('pt_bids', JSON.stringify(uBids));
+                return uBids;
               });
               setPayments(prev => {
-                const uPayments = prev.map(p => p.order_id === ship.order_id ? { ...p, status: 'released' as const } : p);
+                const uPayments = prev.map(p => p.bid_id === ship.bid_id ? { ...p, status: 'released' as const } : p);
                 if (typeof window !== 'undefined') localStorage.setItem('pt_payments', JSON.stringify(uPayments));
                 return uPayments;
               });
               setExports(prev => {
-                const uExports = prev.map(e => e.order_id === ship.order_id ? { ...e, status: 'approved' as const, readiness_score: 100 } : e);
+                const uExports = prev.map(e => e.bid_id === ship.bid_id ? { ...e, status: 'approved' as const, readiness_score: 100 } : e);
                 if (typeof window !== 'undefined') localStorage.setItem('pt_exports', JSON.stringify(uExports));
                 return uExports;
               });
@@ -1257,7 +901,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     saveState('pt_payments', updated, setPayments);
     const pm = payments.find(p => p.id === paymentId);
     if (pm) {
-      triggerEvent('payment.released', { id: paymentId, order_id: pm.order_id, amount: pm.amount });
+      triggerEvent('payment.released', { id: paymentId, bid_id: pm.bid_id, amount: pm.amount });
     }
   };
 
@@ -1328,14 +972,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     saveState('pt_event_logs', updated, setEventLogs);
   };
 
-  const addFarm = (newFarm: Omit<Farm, 'id'>) => {
-    const created: Farm = {
-      ...newFarm,
-      id: `fa100000-0000-0000-0000-${(farms.length + 1).toString().padStart(12, '0')}`
+  const addCompany = (newCompany: Omit<Company, 'id'>) => {
+    const created: Company = {
+      ...newCompany,
+      id: `co100000-0000-0000-0000-${(companies.length + 1).toString().padStart(12, '0')}`
     };
-    const updated = [...farms, created];
-    saveState('pt_farms', updated, setFarms);
-    triggerEvent('farm.registered', created);
+    const updated = [...companies, created];
+    saveState('pt_companies', updated, setCompanies);
+    triggerEvent('company.registered', created);
     return created;
   };
 
@@ -1372,29 +1016,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const resetAllData = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('pt_users');
-      localStorage.removeItem('pt_farms');
-      localStorage.removeItem('pt_listings');
-      localStorage.removeItem('pt_orders');
+      localStorage.removeItem('pt_companies');
+      localStorage.removeItem('pt_rfqs');
+      localStorage.removeItem('pt_bids');
       localStorage.removeItem('pt_shipments');
       localStorage.removeItem('pt_payments');
       localStorage.removeItem('pt_exports');
       localStorage.removeItem('pt_cooperatives');
-      localStorage.removeItem('pt_financing_requests');
+      localStorage.removeItem('pt_financingRequests');
       localStorage.removeItem('pt_webhooks');
-      localStorage.removeItem('pt_api_keys');
-      localStorage.removeItem('pt_event_logs');
+      localStorage.removeItem('pt_apiKeys');
+      localStorage.removeItem('pt_eventLogs');
       localStorage.removeItem('pt_current_user');
       localStorage.removeItem('pt_trade_agreements');
       localStorage.removeItem('pt_trade_corridors');
-      localStorage.removeItem('pt_nda_signed');
-      localStorage.removeItem('pt_nda_details');
-      localStorage.removeItem('pt_terms_signed');
-      localStorage.removeItem('pt_terms_details');
- 
+
       setUsers(SEED_USERS);
-      setFarms(SEED_FARMS);
-      setListings(SEED_LISTINGS);
-      setOrders(FULL_ORDERS);
+      setCompanies(SEED_COMPANIES);
+      setRfqs(SEED_RFQS);
+      setBids(SEED_BIDS);
       setShipments(FULL_SHIPMENTS);
       setPayments(FULL_PAYMENTS);
       setExports(FULL_EXPORTS);
@@ -1414,9 +1054,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider value={{
       users,
-      farms,
-      listings,
-      orders,
+      companies,
+      rfqs,
+      bids,
       shipments,
       payments,
       exports,
@@ -1429,10 +1069,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       tradeCorridors,
       currentUser,
       setCurrentUser: handleSetCurrentUser,
-      addListing,
-      updateListing,
-      placeOrder,
-      updateOrderStatus,
+      createRfq,
+      updateRfqStatus,
+      submitBid,
+      updateBidStatus,
       assignTransporter,
       updateShipmentStatus,
       updateExportStatus,
@@ -1445,10 +1085,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       generateApiKey,
       revokeApiKey,
       triggerEvent,
-      addFarm,
+      addCompany,
       registerUser,
       updateUserKycStatus,
-      updateTradeCorridor
+      updateTradeCorridor,
+      currency,
+      setCurrency,
+      formatCurrency
     }}>
       {children}
     </AppContext.Provider>
