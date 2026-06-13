@@ -4,18 +4,18 @@ import React, { useState } from 'react';
 import { 
   Globe, Shield, TrendingUp, Truck, Users, ArrowRight, CheckCircle, 
   MapPin, ShoppingBag, BarChart3, Star, Compass, Award, ExternalLink,
-  Sprout, Briefcase, Lock
+  Sprout, Briefcase, Lock, Bot, FileText
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface LandingPageProps {
-  onLaunchApp: (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding') => void;
+  onLaunchApp: (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents') => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
-  const [activeHeroTab, setActiveHeroTab] = useState<'marketplace' | 'logistics' | 'buyers'>('marketplace');
+  const [activeHeroTab, setActiveHeroTab] = useState<'marketplace' | 'logistics' | 'agents'>('marketplace');
   const [selectedCurrency, setSelectedCurrency] = useState<'USD' | 'BWP' | 'ZAR'>('USD');
   const [showApiResponse, setShowApiResponse] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -52,7 +52,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </h1>
             
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              TradeGridAfrica connects farmers, buyers, exporters, and transporters through digital contract engines, automated phytosanitary compliance registries, and transparent border tracking.
+              TradeGridAfrica is an autonomous agribusiness workflow engine. Our specialized AI Agents automate regional SADC trade intelligence, compliance, routing, and digital deal closing.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -132,15 +132,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     Logistics
                   </button>
                   <button 
-                    onClick={() => setActiveHeroTab('buyers')}
+                    onClick={() => setActiveHeroTab('agents')}
                     className={`px-3 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer w-full justify-center sm:w-auto ${
-                      activeHeroTab === 'buyers' 
+                      activeHeroTab === 'agents' 
                         ? 'bg-amber-950/65 text-amber-400 border border-amber-900/60' 
                         : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
-                    <Briefcase className="h-3 w-3" />
-                    Buyers
+                    <Bot className="h-3 w-3" />
+                    AI Agents
                   </button>
                 </div>
               </div>
@@ -319,59 +319,50 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                   </div>
                 )}
 
-                {/* BUYERS TAB PREVIEW */}
-                {activeHeroTab === 'buyers' && (
+                {/* AI AGENTS TAB PREVIEW */}
+                {activeHeroTab === 'agents' && (
                   <div className="space-y-4 animate-in fade-in duration-200">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Smart Contracts Registry</h3>
-                        <p className="text-[10px] text-zinc-500">Secured B2B purchasing accounts with autonomous release</p>
+                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Multi-Agent Orchestrator</h3>
+                        <p className="text-[10px] text-zinc-500">Autonomous workflow executing cross-border trade tasks</p>
                       </div>
                       <span className="text-[9px] bg-amber-950 text-amber-400 border border-amber-900/60 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Lock className="h-2.5 w-2.5 text-amber-400" /> SECURED
+                        <Bot className="h-2.5 w-2.5 text-amber-400 animate-pulse" /> ACTIVE
                       </span>
                     </div>
 
-                    {/* Escrow Contract Card */}
+                    {/* Agent Pipeline Card */}
                     <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="text-[10px] text-zinc-500 uppercase font-mono">Contract ID: SADC-1049</div>
-                          <div className="text-xs font-bold text-zinc-200">SADC Food Distributors (SA) ⇆ Chobe Valley (BW)</div>
+                          <div className="text-[10px] text-zinc-500 uppercase font-mono">Query: "Export 10T Maize BW → SA"</div>
+                          <div className="text-xs font-bold text-zinc-200">Executing Sequential AI Workflow...</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs font-extrabold text-amber-400">{formatPrice(16000)}</div>
-                          <div className="text-[9px] text-zinc-500">Contract Value</div>
+                          <div className="text-[10px] font-extrabold text-amber-400">98%</div>
+                          <div className="text-[9px] text-zinc-500">Confidence</div>
                         </div>
                       </div>
 
-                      {/* Escrow Progress Milestones */}
+                      {/* Agent Execution Flow */}
                       <div className="space-y-2 pt-1">
-                        <div className="flex justify-between text-[10px]">
-                          <span className="text-zinc-400 font-medium">Bilateral Milestone status</span>
-                          <span className="text-emerald-400 font-bold">75% Complete</span>
-                        </div>
-                        <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden flex">
-                          <div className="bg-emerald-500 h-full w-[75%] rounded-full"></div>
-                        </div>
-
-                        {/* Milestone indicators */}
-                        <div className="grid grid-cols-4 gap-1 pt-1 text-[8px] font-mono text-center">
-                          <div className="text-emerald-400 font-semibold">Deposit [✓]</div>
-                          <div className="text-emerald-400 font-semibold">Phytosanitary [✓]</div>
-                          <div className="text-emerald-400 font-semibold">In Transit [✓]</div>
-                          <div className="text-zinc-650 font-semibold">Payout [ ]</div>
+                        <div className="grid grid-cols-1 gap-1.5 text-[10px] font-mono">
+                          <div className="flex items-center gap-2 text-zinc-400"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Discovery]: Buyer found (SADC Foods)</div>
+                          <div className="flex items-center gap-2 text-zinc-400"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Compliance]: Pioneer Gate clearance valid</div>
+                          <div className="flex items-center gap-2 text-amber-400 animate-pulse"><TrendingUp className="h-3 w-3" /> [Logistics]: Calculating multi-modal routes...</div>
+                          <div className="flex items-center gap-2 text-zinc-600"><Lock className="h-3 w-3" /> [Deal Closing]: Awaiting contract draft</div>
                         </div>
                       </div>
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-555">Contracts automatically advance via digital milestone triggers</span>
+                      <span className="text-[10px] text-zinc-555">Real-time SADC API orchestration</span>
                       <Button 
-                        onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'dashboard')}
+                        onClick={() => onLaunchApp(undefined, 'ai_agents')}
                         className="bg-amber-600/10 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
                       >
-                        Enter Buyer Hub →
+                        Enter AI Agent Center →
                       </Button>
                     </div>
                   </div>
@@ -509,19 +500,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
       {/* Core Platform Pillars */}
       <section id="features" className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">
         <div className="text-center space-y-2 mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Regional Agritech Infrastructure Pillars</h2>
-          <p className="text-xs text-zinc-400 max-w-xl mx-auto">Digitizing the African agribusiness value chain to unlock cross-border trade.</p>
+          <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">AI-Native Infrastructure</Badge>
+          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Specialized Agribusiness AI Agents</h2>
+          <p className="text-xs text-zinc-400 max-w-xl mx-auto">Digitizing the African agribusiness value chain through a collaborative, autonomous agent ecosystem.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="glass-card border-zinc-900/60 p-6 flex flex-col justify-between hover:border-emerald-900/40 transition-all duration-300">
             <CardContent className="p-0 space-y-3">
               <div className="p-3 bg-emerald-950/40 border border-emerald-900/50 rounded-xl text-emerald-400 w-fit">
-                <ShoppingBag className="h-6 w-6" />
+                <Globe className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">B2B Commodity Marketplace</h3>
+              <h3 className="text-base font-bold text-zinc-100">Trade Discovery Agent</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Aggregated produce listings from local farmer cooperatives available to regional food buyers and millers with transparent pricing.
+                Analyzes regional SADC demand matrices, finds agricultural buyers, checks historical prices, and recommends optimal export corridors.
               </p>
             </CardContent>
           </Card>
@@ -529,11 +521,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Card className="glass-card border-zinc-900/60 p-6 flex flex-col justify-between hover:border-emerald-900/40 transition-all duration-300">
             <CardContent className="p-0 space-y-3">
               <div className="p-3 bg-amber-950/40 border border-amber-900/50 rounded-xl text-amber-500 w-fit">
-                <Truck className="h-6 w-6" />
+                <Shield className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">Cross-Border Logistics</h3>
+              <h3 className="text-base font-bold text-zinc-100">Compliance Agent</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Book authorized regional transporters, coordinate freight logistics, and monitor real-time customs queues at SADC borders.
+                Checks regional/international trade treaties, determines tariffs, validates biosecurity clearances, and identifies required border documents.
               </p>
             </CardContent>
           </Card>
@@ -541,11 +533,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Card className="glass-card border-zinc-900/60 p-6 flex flex-col justify-between hover:border-emerald-900/40 transition-all duration-300">
             <CardContent className="p-0 space-y-3">
               <div className="p-3 bg-blue-950/40 border border-blue-900/50 rounded-xl text-blue-400 w-fit">
-                <Shield className="h-6 w-6" />
+                <Truck className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">Smart Contract tracking</h3>
+              <h3 className="text-base font-bold text-zinc-100">Logistics Agent</h3>
               <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
-                Mitigate risk with digital smart contracts. Procurements are verified through milestone-based cargo receipt.
+                Formulates multimodal transport routing plans (road, rail, sea), tracks border gate queue delays, and estimates cargo transit costs.
               </p>
             </CardContent>
           </Card>
@@ -553,11 +545,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Card className="glass-card border-zinc-900/60 p-6 flex flex-col justify-between hover:border-emerald-900/40 transition-all duration-300">
             <CardContent className="p-0 space-y-3">
               <div className="p-3 bg-emerald-950/40 border border-emerald-900/50 rounded-xl text-emerald-400 w-fit">
-                <Compass className="h-6 w-6" />
+                <FileText className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">Export & Biosecurity Engine</h3>
+              <h3 className="text-base font-bold text-zinc-100">Documentation Compiler</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Country-specific regulatory checklist validator. Automated phytosanitary audits and custom clearance certificates.
+                Automatically structures dynamic trade documents like Commercial Invoices, Packing Lists, and SADC Certificates of Origin.
               </p>
             </CardContent>
           </Card>
@@ -565,11 +557,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Card className="glass-card border-zinc-900/60 p-6 flex flex-col justify-between hover:border-emerald-900/40 transition-all duration-300">
             <CardContent className="p-0 space-y-3">
               <div className="p-3 bg-amber-950/40 border border-amber-900/50 rounded-xl text-amber-500 w-fit">
-                <BarChart3 className="h-6 w-6" />
+                <Briefcase className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">Regional Trade Analytics</h3>
+              <h3 className="text-base font-bold text-zinc-100">Deal Closing Agent</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Access supply map heatmaps, demand deficits, and trade pricing updates to balance distribution corridors.
+                Drafts binding legal bilateral treaties, establishes digital settlement milestones, and generates robust B2B negotiation workflows.
               </p>
             </CardContent>
           </Card>
@@ -577,11 +569,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Card className="glass-card border-zinc-900/60 p-6 flex flex-col justify-between hover:border-emerald-900/40 transition-all duration-300">
             <CardContent className="p-0 space-y-3">
               <div className="p-3 bg-blue-950/40 border border-blue-900/50 rounded-xl text-blue-400 w-fit">
-                <Award className="h-6 w-6" />
+                <Bot className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-zinc-100">Bilateral Tariffs Exemption</h3>
+              <h3 className="text-base font-bold text-zinc-100">Workflow Orchestrator</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Integration with regional SADC trade certificates for simplified duty-free and tariff-exempt customs crossings.
+                The control tower that sequentially coordinates parameters across all five agents, enabling end-to-end operations directly from user prompt queries.
               </p>
             </CardContent>
           </Card>
@@ -608,8 +600,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 <p className="text-[10px] text-zinc-400">Average customs processing times at SADC borders exceed 18 hours, resulting in substantial product spoilage.</p>
               </div>
               <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
-                <div className="font-bold text-zinc-200">Trade Finance Gap</div>
-                <p className="text-[10px] text-zinc-400">Over $120B in requested trade credit goes unserved annually due to lack of verifiable supplier transaction history.</p>
+                <div className="font-bold text-zinc-200">Trade Intelligence Gap</div>
+                <p className="text-[10px] text-zinc-400">Over $120B in requested trade credit goes unserved annually due to disjointed data and inefficient trade workflows.</p>
               </div>
               <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
                 <div className="font-bold text-zinc-200">Regional Food Insecurity</div>
@@ -631,7 +623,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 Partner With TradeGridAfrica
               </h3>
               <p className="text-xs text-zinc-400">
-                Join our regional network. Choose your integration track below to request a pilot demonstration, partner with our customs biosecurity systems, or view investor packages.
+                Join our regional network. Choose your integration track below to request an AI Agent pilot, partner with our customs biosecurity systems, or view investor packages.
               </p>
             </div>
 
@@ -705,7 +697,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               For Banks
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Integrate with authenticated digital contracts, view transaction logs, and assess biosecurity audit histories for risk-scoring trade finance.
+              Leverage our predictive Deal Closing agent, view transaction logs, and assess compliance audit histories for risk-scoring trade finance.
             </p>
             <div className="text-[10px] font-semibold text-amber-400 bg-amber-950/30 border border-amber-900/40 w-fit px-2 py-0.5 rounded">
               Trade finance + risk scoring
@@ -747,7 +739,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-500" />
-              GPS tracking logs tied directly to contract milestones
+              GPS tracking logs dynamically analyzed by the Logistics Agent
             </div>
           </div>
         </div>

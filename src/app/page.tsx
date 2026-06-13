@@ -66,7 +66,7 @@ export default function Home() {
     }
   };
 
-  const handleLaunchApp = (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding') => {
+  const handleLaunchApp = (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents') => {
     let role = '';
     let region = '';
     let fleet = '';
