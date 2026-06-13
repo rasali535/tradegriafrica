@@ -24,7 +24,7 @@ export const OnboardingPortal: React.FC = () => {
 
   // Generic Company Fields
   const [companyName, setCompanyName] = useState('');
-  const [industry, setIndustry] = useState('Agriculture');
+  const [industry, setIndustry] = useState('Mining');
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [region, setRegion] = useState('');
 
@@ -273,7 +273,7 @@ export const OnboardingPortal: React.FC = () => {
                   onChange={e => setIndustry(e.target.value)}
                   className="w-full bg-zinc-950 border border-zinc-900 rounded-lg text-xs p-2 text-zinc-300 focus:border-emerald-800 outline-none h-9"
                 >
-                  <option value="Agriculture">Agriculture</option>
+                  <option value="Mining">Mining</option>
                   <option value="Mining">Mining</option>
                   <option value="Construction">Construction</option>
                   <option value="Logistics">Logistics</option>
@@ -330,7 +330,7 @@ export const OnboardingPortal: React.FC = () => {
                   <option value="Business Registration Certificate">Business Registration Certificate</option>
                   <option value="SADC Corridor Cross-Border Permit">SADC Corridor Cross-Border Permit</option>
                   <option value="Phytosanitary Regulatory Certificate">Phytosanitary Regulatory Certificate</option>
-                  <option value="National Agribusiness License">National Agribusiness License</option>
+                  <option value="National Industrial License">National Industrial License</option>
                   <option value="Biosecurity & Land Certificate">Biosecurity & Land Certificate</option>
                 </select>
               </div>

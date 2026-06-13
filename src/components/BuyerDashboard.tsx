@@ -213,7 +213,7 @@ export function BuyerDashboard() {
                     <select value={newRfqForm.industry} onChange={e => setNewRfqForm({...newRfqForm, industry: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-sm text-zinc-100 outline-none focus:border-emerald-500">
                       <option value="Mining">Mining</option>
                       <option value="Construction">Construction</option>
-                      <option value="Agriculture">Agriculture</option>
+                      <option value="Mining">Mining</option>
                       <option value="Logistics">Logistics</option>
                     </select>
                   </div>

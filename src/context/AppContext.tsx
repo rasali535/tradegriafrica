@@ -210,14 +210,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Initial Seed Data for local testing and investor demos
 const SEED_USERS: User[] = [
-  { id: 'f1000000-0000-0000-0000-000000000001', role: 'supplier', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana', kyc_status: 'approved', document_name: 'Botswana Smallholder Agri-Permit', document_ref: 'BW-AGR-4019', document_url: 'tshepo_agri_permit.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000001', role: 'supplier', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana', kyc_status: 'approved', document_name: 'Botswana Smallholder Trade-Permit', document_ref: 'BW-TRD-4019', document_url: 'tshepo_trade_permit.pdf' },
   { id: 'f1000000-0000-0000-0000-000000000002', role: 'supplier', name: 'Farai Moyo', email: 'farai@farmer.com', phone: '+263 77 123 4567', country: 'Zimbabwe', kyc_status: 'pending', document_name: 'Zimbabwe Biosecurity & Land Certificate', document_ref: 'ZW-BIO-8821', document_url: 'farai_moyo_land_cert.pdf' },
   { id: 'f1000000-0000-0000-0000-000000000003', role: 'supplier', name: 'Mwansa Mwape', email: 'mwansa@farmer.com', phone: '+260 97 123 4567', country: 'Zambia', kyc_status: 'approved', document_name: 'Zambia Cooperative Produce Code', document_ref: 'ZM-COOP-1029', document_url: 'mwansa_coop_code.pdf' },
   { id: 'f1000000-0000-0000-0000-000000000004', role: 'supplier', name: 'Ndapewa Shivute', email: 'ndapewa@farmer.com', phone: '+264 81 123 4567', country: 'Namibia', kyc_status: 'pending', document_name: 'Namibia Livestock Brand Registry', document_ref: 'NM-LBR-8832', document_url: 'ndapewa_livestock_brand.pdf' },
   { id: 'f1000000-0000-0000-0000-000000000005', role: 'supplier', name: 'Johan Pretorius', email: 'johan@farmer.com', phone: '+27 82 123 4567', country: 'South Africa', kyc_status: 'approved', document_name: 'SA Grain Export License', document_ref: 'ZA-GEL-9821', document_url: 'johan_grain_license.pdf' },
   
   { id: 'b2000000-0000-0000-0000-000000000001', role: 'buyer', name: 'SADC Food Distributors', email: 'orders@sadcfood.com', phone: '+27 11 987 6543', country: 'South Africa', kyc_status: 'approved', document_name: 'SADC Corporate Import Passport', document_ref: 'SADC-BUY-9021', document_url: 'sadc_food_dist_passport.pdf' },
-  { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana', kyc_status: 'approved', document_name: 'BW Agribusiness Buying License', document_ref: 'BW-ABL-2291', document_url: 'bot_milling_license.pdf' },
+  { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana', kyc_status: 'approved', document_name: 'BW Industrial Buying License', document_ref: 'BW-IBL-2291', document_url: 'bot_milling_license.pdf' },
   { id: 'b2000000-0000-0000-0000-000000000003', role: 'buyer', name: 'Zambezi Grain Millers', email: 'purchase@zambezigrain.co.zm', phone: '+260 211 987654', country: 'Zambia', kyc_status: 'pending', document_name: 'Zambia Import/Export License', document_ref: 'ZM-IEL-4481', document_url: 'zambezi_grain_license.pdf' },
   { id: 'b2000000-0000-0000-0000-000000000004', role: 'buyer', name: 'Namibia Agronomic Distributors', email: 'procure@nad.com.na', phone: '+264 61 300 4567', country: 'Namibia', kyc_status: 'approved', document_name: 'Namibia Agronomic Board Registry', document_ref: 'NM-NAB-7719', document_url: 'nam_agronomic_registry.pdf' },
   
@@ -225,12 +225,12 @@ const SEED_USERS: User[] = [
   { id: 't3000000-0000-0000-0000-000000000002', role: 'transporter', name: 'Limpopo Corridor Freighters', email: 'bookings@limpopofreight.co.za', phone: '+27 15 516 1234', country: 'South Africa', kyc_status: 'pending', document_name: 'Cross-Border Carrier Permit', document_ref: 'RSA-CBP-3392', document_url: 'limpopo_corridor_freight.pdf' },
   { id: 't3000000-0000-0000-0000-000000000003', role: 'transporter', name: 'Trans-Kalahari Logistics', email: 'ops@transkalahari.com.na', phone: '+264 81 222 3333', country: 'Namibia', kyc_status: 'approved', document_name: 'Namibia Cross-Border Logistics License', document_ref: 'NM-CBL-4432', document_url: 'trans_kalahari_license.pdf' },
   
-  { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Agribusiness Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe', kyc_status: 'approved', document_name: 'AfriTrade Customs Passport', document_ref: 'AFR-CP-1102', document_url: 'afritrade_customs.pdf' },
+  { id: 'e4000000-0000-0000-0000-000000000001', role: 'exporter', name: 'AfriTrade Industrial Group', email: 'export@afritrade.org', phone: '+263 4 700123', country: 'Zimbabwe', kyc_status: 'approved', document_name: 'AfriTrade Customs Passport', document_ref: 'AFR-CP-1102', document_url: 'afritrade_customs.pdf' },
   { id: 'e4000000-0000-0000-0000-000000000002', role: 'exporter', name: 'Atlantic Trade Linkers', email: 'customs@atlantictrade.co.na', phone: '+264 61 290 1234', country: 'Namibia', kyc_status: 'approved', document_name: 'Atlantic Port clearance Permit', document_ref: 'ATL-PCP-0922', document_url: 'atlantic_clearance.pdf' },
   
-  { id: 'g6000000-0000-0000-0000-000000000001', role: 'government', name: 'Ministry of Agriculture (Botswana)', email: 'policy@agric.gov.bw', phone: '+267 368 9000', country: 'Botswana', kyc_status: 'approved' },
-  { id: 'g6000000-0000-0000-0000-000000000002', role: 'government', name: 'Ministry of Agriculture (Zambia)', email: 'export@mfl.gov.zm', phone: '+260 211 251379', country: 'Zambia', kyc_status: 'approved' },
-  { id: 'g6000000-0000-0000-0000-000000000003', role: 'government', name: 'Ministry of Agriculture, Water & Land Reform (Namibia)', email: 'trade@mawlr.gov.na', phone: '+264 61 208 7111', country: 'Namibia', kyc_status: 'approved' },
+  { id: 'g6000000-0000-0000-0000-000000000001', role: 'government', name: 'Ministry of Trade (Botswana)', email: 'policy@trade.gov.bw', phone: '+267 368 9000', country: 'Botswana', kyc_status: 'approved' },
+  { id: 'g6000000-0000-0000-0000-000000000002', role: 'government', name: 'Ministry of Trade (Zambia)', email: 'export@mcti.gov.zm', phone: '+260 211 251379', country: 'Zambia', kyc_status: 'approved' },
+  { id: 'g6000000-0000-0000-0000-000000000003', role: 'government', name: 'Ministry of Industrialisation & Trade (Namibia)', email: 'trade@mit.gov.na', phone: '+264 61 208 7111', country: 'Namibia', kyc_status: 'approved' },
   
   { id: 'k7000000-0000-0000-0000-000000000001', role: 'bank', name: 'Standard Bank SADC Trade', email: 'structured.trade@standardbank.co.za', phone: '+27 11 636 9111', country: 'South Africa', kyc_status: 'approved' },
   { id: 'k7000000-0000-0000-0000-000000000002', role: 'bank', name: 'BancABC Trade Finance', email: 'trade.desk@bancabc.co.bw', phone: '+267 367 4300', country: 'Botswana', kyc_status: 'approved' },
@@ -248,7 +248,7 @@ const SEED_COMPANIES: Company[] = [
 ];
 
 const SEED_COOPERATIVES: Cooperative[] = [
-  { id: 'c1000000-0000-0000-0000-000000000001', name: 'Limpopo Agricultural Cooperative', members: ['f1000000-0000-0000-0000-000000000005'], total_output: 1200, country: 'South Africa' },
+  { id: 'c1000000-0000-0000-0000-000000000001', name: 'Limpopo Industrial Cooperative', members: ['f1000000-0000-0000-0000-000000000005'], total_output: 1200, country: 'South Africa' },
   { id: 'c1000000-0000-0000-0000-000000000002', name: 'Chobe Valley Organic Cooperative', members: ['f1000000-0000-0000-0000-000000000001'], total_output: 850, country: 'Botswana' },
   { id: 'c1000000-0000-0000-0000-000000000003', name: 'Mazowe Smallholder Pool', members: ['f1000000-0000-0000-0000-000000000002'], total_output: 600, country: 'Zimbabwe' },
   { id: 'c1000000-0000-0000-0000-000000000004', name: 'Kalahari Agronomic Coop', members: ['f1000000-0000-0000-0000-000000000004'], total_output: 750, country: 'Namibia' }
@@ -709,7 +709,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           buyer_company_id: rfq.buyer_org_id,
           title: rfq.title || 'Procurement Request',
           description: rfq.description || 'No description',
-          industry: rfq.industry || 'Agriculture',
+          industry: rfq.industry || 'Mining',
           required_quantity: rfq.required_quantity || 100,
           unit: rfq.unit || 'Tons',
           delivery_location: rfq.delivery_location || 'Gaborone',

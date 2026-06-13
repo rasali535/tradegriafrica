@@ -463,7 +463,7 @@ export const AIAgentCenter: React.FC = () => {
                     {pipelineData?.documents_ready && (
                       (() => {
                         const parsed = pipelineData.parsed_request;
-                        const seller = pipelineData.pipeline_logs?.[4]?.input?.seller || "Regional Agricultural Exporters";
+                        const seller = pipelineData.pipeline_logs?.[4]?.input?.seller || "Regional Industrial Suppliers";
                         const buyer = pipelineData.trade_opportunity?.buyers?.[0]?.buyer_name || "Global Commodity Importers";
                         const product = parsed.product;
                         const quantity = parsed.quantity;
@@ -534,7 +534,7 @@ export const AIAgentCenter: React.FC = () => {
                           </div>
                           <div className="flex flex-col justify-end gap-2">
                             <a
-                              href={`/api/documents/contract?buyer=${encodeURIComponent(pipelineData.pipeline_logs?.[4]?.input?.buyer || "Global Commodity Importers")}&seller=${encodeURIComponent(pipelineData.pipeline_logs?.[4]?.input?.seller || "Regional Agricultural Exporters")}&product=${encodeURIComponent(pipelineData.parsed_request.product)}&price=${pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_unit || 320}`}
+                              href={`/api/documents/contract?buyer=${encodeURIComponent(pipelineData.pipeline_logs?.[4]?.input?.buyer || "Global Commodity Importers")}&seller=${encodeURIComponent(pipelineData.pipeline_logs?.[4]?.input?.seller || "Regional Industrial Suppliers")}&product=${encodeURIComponent(pipelineData.parsed_request.product)}&price=${pipelineData.trade_opportunity?.buyers?.[0]?.estimated_price_per_unit || 320}`}
                               target="_blank"
                               rel="noreferrer"
                               className="p-2 border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-zinc-300 hover:text-zinc-100 rounded text-center flex items-center justify-center gap-1.5 transition-all text-[11px]"

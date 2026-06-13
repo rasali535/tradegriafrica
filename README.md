@@ -1,6 +1,6 @@
-# Pula Trade v2
+# Pula Trade Africa (TradeGrid Africa)
 
-Pula Trade v2 is a B2B procurement and supplier discovery platform focused on Botswana and the SADC region.
+TradeGrid Africa is an AI-powered, multi-agent enterprise B2B procurement and supplier discovery platform focused on optimizing industrial supply chains across Botswana and the SADC region.
 
 For the full product specification and architecture details, please refer to the [Product Specification](PULA_TRADE_V2_SPEC.md).
 

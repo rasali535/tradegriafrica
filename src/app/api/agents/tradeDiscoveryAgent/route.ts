@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   };
 
   const prompt = `You are the Trade Discovery Agent inside an AI-powered export platform for African SMEs.
-Your job is to identify realistic international buyers, markets, and pricing opportunities for agricultural and commodity exports.
+Your job is to identify realistic international buyers, markets, and pricing opportunities for industrial and commodity exports.
 You are NOT a chatbot. You are a structured trade intelligence engine.
 
 INPUT:
@@ -60,7 +60,7 @@ Given the input, you must:
 RULES:
 * Do NOT hallucinate specific company names unless highly confident
 * Prefer country-level and buyer-type intelligence over fake company listings
-* Use trade logic (supply/demand, geography, agriculture patterns)
+* Use trade logic (supply/demand, geography, industrial patterns)
 * Be conservative and realistic
 * Assume African SME exporter context
 

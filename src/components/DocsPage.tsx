@@ -29,7 +29,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
       return {
         agreement: 'Internal National Trade',
         relevance: 'National supply chains and domestic transport infrastructure.',
-        keyNote: 'Subject to local agricultural licensing and standard domestic logistics.',
+        keyNote: 'Subject to local enterprise licensing and standard domestic logistics.',
         rules: ['National health inspectorate clearances', 'Domestic cargo insurance regulations'],
         status: 'Unrestricted'
       };
@@ -68,7 +68,7 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
           keyNote: 'Important corridor via Plumtree. Non-tariff barriers like import permits can cause border holding queues.',
           rules: [
             '25% local content threshold validation',
-            'Bilateral import/export permits from Ministries of Agriculture',
+            'Bilateral import/export permits from Ministries of Trade',
             'Plumtree customs queue priority check'
           ],
           status: 'Active Corridor'
@@ -331,7 +331,7 @@ To bridge the regional trade gap and resolve the trust deficit between cross-bor
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <span className="text-[10px] text-zinc-500 font-semibold block mb-0.5">Agricultural Trade Impact:</span>
+                  <span className="text-[10px] text-zinc-500 font-semibold block mb-0.5">Industrial Trade Impact:</span>
                   <p className="text-zinc-300 text-xs leading-relaxed">{bilateralData.relevance}</p>
                 </div>
                 <div>

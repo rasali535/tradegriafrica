@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const origin = input.origin || "Botswana";
   const destination = input.destination || "South Africa";
-  const cargoType = input.cargo_type || "agricultural";
+  const cargoType = input.cargo_type || "industrial";
   const weight = parseFloat(input.weight_tons) || 10;
 
   const fallbackOutput = {

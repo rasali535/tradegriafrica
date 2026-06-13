@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TradeGridAfrica | Powering Agricultural Trade Across Africa",
-  description: "Cross-border agricultural trade infrastructure connecting farmers, buyers, exporters, transporters, cooperatives, and governments across the SADC corridor.",
-  keywords: "agriculture, SADC trade, Africa agritech, cross border trade, farmers marketplace, logistics tracking",
+  title: "Pula Trade Africa | Powering Enterprise Trade Across Africa",
+  description: "Cross-border B2B trade infrastructure connecting suppliers, buyers, exporters, transporters, and governments across the SADC corridor.",
+  keywords: "b2b, SADC trade, Africa enterprise, cross border trade, suppliers marketplace, logistics tracking",
 };
 
 export default function RootLayout({

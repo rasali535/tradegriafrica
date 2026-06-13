@@ -430,7 +430,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
                 <div className="space-y-1">
                   <h4 className="font-bold text-zinc-200 text-xs">Digital Seal Applied</h4>
                   <p className="text-[10px] text-zinc-555 leading-normal px-2 font-sans">
-                    This transaction is anchored in the bilateral agricultural passport protocol. Access is provisioned.
+                    This transaction is anchored in the bilateral enterprise trade protocol. Access is provisioned.
                   </p>
                 </div>
               </div>
@@ -923,7 +923,7 @@ export const NdaSignSystem: React.FC<NdaSignSystemProps> = ({ onSignSuccess, cur
                   onChange={e => setDecConfidential(e.target.checked)}
                   className="mt-0.5 accent-[#0091ff] h-4 w-4 rounded bg-zinc-950 border-zinc-850 cursor-pointer focus:ring-0 focus:ring-offset-0"
                 />
-                <span>I agree to keep confidential all agricultural trade demand matrices and pricing.</span>
+                <span>I agree to keep confidential all industrial trade demand matrices and pricing.</span>
               </label>
 
               <label className="flex items-start gap-3.5 cursor-pointer select-none">

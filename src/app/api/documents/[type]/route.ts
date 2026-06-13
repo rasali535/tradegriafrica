@@ -7,7 +7,7 @@ export async function GET(
   const { type } = await params;
   const searchParams = request.nextUrl.searchParams;
   
-  const seller = searchParams.get("seller") || "Regional Agricultural Cooperative";
+  const seller = searchParams.get("seller") || "Regional Industrial Cooperative";
   const buyer = searchParams.get("buyer") || "Global Commodity Importers";
   const product = searchParams.get("product") || "Maize";
   const quantity = searchParams.get("quantity") || "10";
@@ -39,8 +39,8 @@ export async function GET(
         <div>
           <h2 class="font-bold text-zinc-900 uppercase tracking-wide mb-2 text-[10px]">Seller / Exporter</h2>
           <p class="font-bold text-zinc-900">${seller}</p>
-          <p>SADC Agricultural Corridor Gate 4</p>
-          <p>Botswana Agricultural Trust</p>
+          <p>SADC Industrial Corridor Gate 4</p>
+          <p>Botswana Industrial Trust</p>
           <p class="mt-1">Reg Ref: BW-AGR-90211</p>
         </div>
         <div>
@@ -65,7 +65,7 @@ export async function GET(
           <tr>
             <td class="py-4">
               <span class="font-bold text-zinc-900">${product}</span>
-              <p class="text-[10px] text-zinc-500 mt-0.5">High-grade agricultural commodity for regional export. Phytosanitary certified.</p>
+              <p class="text-[10px] text-zinc-500 mt-0.5">High-grade industrial commodity for regional export. Compliance certified.</p>
               <p class="text-[10px] text-zinc-500 mt-1">Incoterms: <strong>DAP (Delivered at Place)</strong></p>
             </td>
             <td class="py-4 text-right font-mono">${numQty} Tons</td>
@@ -107,7 +107,7 @@ export async function GET(
           <p class="text-xs text-zinc-500 font-mono mt-1">Serial No: ${serialNo} | Date: ${date}</p>
         </div>
         <div class="text-right">
-          <span class="px-3 py-1 text-xs font-mono font-bold bg-blue-100 text-blue-800 border border-blue-200 rounded">AGRICULTURAL CARGO</span>
+          <span class="px-3 py-1 text-xs font-mono font-bold bg-blue-100 text-blue-800 border border-blue-200 rounded">INDUSTRIAL CARGO</span>
         </div>
       </div>
 
@@ -115,7 +115,7 @@ export async function GET(
         <div>
           <h2 class="font-bold text-zinc-900 uppercase tracking-wide mb-2 text-[10px]">Consignor</h2>
           <p class="font-bold text-zinc-900">${seller}</p>
-          <p>SADC Agricultural Corridor Gate 4</p>
+          <p>SADC Industrial Corridor Gate 4</p>
         </div>
         <div>
           <h2 class="font-bold text-zinc-900 uppercase tracking-wide mb-2 text-[10px]">Consignee</h2>
@@ -126,7 +126,7 @@ export async function GET(
 
       <div class="grid grid-cols-2 gap-8 mb-8 text-xs text-zinc-700 bg-zinc-50 p-4 border border-zinc-200 rounded">
         <div>
-          <p><strong>Cargo Type:</strong> Bulk Agricultural Produce</p>
+          <p><strong>Cargo Type:</strong> Bulk Industrial Materials</p>
           <p><strong>Total Weight:</strong> ${numQty} Metric Tons</p>
           <p class="mt-2 text-[10px] text-zinc-500"><strong class="text-zinc-700">Logistics Tracking No:</strong> <span class="font-mono text-emerald-600 bg-emerald-50 px-1 rounded">TGA-TRK-${Math.random().toString(36).substring(2, 10).toUpperCase()}</span></p>
         </div>
@@ -149,7 +149,7 @@ export async function GET(
         <tbody class="text-xs text-zinc-800 divide-y divide-zinc-200">
           <tr>
             <td class="py-4">
-              <span class="font-bold text-zinc-900">SADC-AGRI-${product.toUpperCase()}</span>
+              <span class="font-bold text-zinc-900">SADC-IND-${product.toUpperCase()}</span>
               <p class="text-[10px] text-zinc-500 mt-0.5">Origin code verified. Moisture content below 12.5%.</p>
               <p class="text-[10px] text-zinc-500 mt-0.5">GPS Tracking enabled on all pallets.</p>
             </td>
@@ -177,7 +177,7 @@ export async function GET(
         <div>
           <h2 class="font-bold text-zinc-900 uppercase tracking-wide mb-2 text-[10px]">Exporter (Name, Address, Country)</h2>
           <p class="font-bold text-zinc-900">${seller}</p>
-          <p>SADC Agricultural Corridor Gate 4</p>
+          <p>SADC Industrial Corridor Gate 4</p>
           <p>Botswana</p>
         </div>
         <div>
@@ -221,7 +221,7 @@ export async function GET(
           <tr>
             <td class="py-4">
               <span class="font-bold text-zinc-900">${product} (Bulk)</span>
-              <p class="text-[10px] text-zinc-500 mt-0.5">Agricultural crop harvested within regional borders.</p>
+              <p class="text-[10px] text-zinc-500 mt-0.5">Industrial material sourced within regional borders.</p>
             </td>
             <td class="py-4 text-right font-mono">1005.90.00</td>
             <td class="py-4 text-right font-mono">${numQty} Tons</td>
@@ -274,7 +274,7 @@ export async function GET(
         <p>The Seller shall initiate shipment via TradeGridAfrica Multimodal Logistics within 5 business days. A dedicated GPS Tracking ID will be provided to the Buyer. Title and risk of loss pass to the Buyer upon physical delivery at the agreed destination hub.</p>
 
         <h3 class="font-bold text-zinc-900 uppercase tracking-wide text-[10px] mt-4">4. GOVERNING LAW, BIOCLEARANCE, & DISPUTES</h3>
-        <p>The contract is governed by standard SADC Agribusiness Trade protocols. The Seller guarantees the cargo complies with target border biosecurity rules (including FMD movement restrictions) and has been tested for standard contaminants. Any disputes shall be resolved via binding arbitration under the rules of the SADC Commercial Tribunal.</p>
+        <p>The contract is governed by standard SADC Enterprise Trade protocols. The Seller guarantees the cargo complies with target border compliance rules (including heavy load movement restrictions) and has been tested for standard structural defects. Any disputes shall be resolved via binding arbitration under the rules of the SADC Commercial Tribunal.</p>
       </div>
 
       <div class="grid grid-cols-2 gap-12 mt-12 pt-8 border-t border-zinc-200 text-xs">

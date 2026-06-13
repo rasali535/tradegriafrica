@@ -300,7 +300,7 @@ export async function POST(request: NextRequest) {
         </div>
         <div style="padding: 20px;">
           <p>Dear <strong>${full_name}</strong>,</p>
-          <p>Thank you for acknowledging and signing the Terms of Service and Data Protection Policy to access the TradeGridAfrica digital agribusiness export desk.</p>
+          <p>Thank you for acknowledging and signing the Terms of Service and Data Protection Policy to access the TradeGridAfrica digital industrial export desk.</p>
           <p>Your signature has been registered and verified on the SADC regional operations database. Your platform credentials have been authorized.</p>
           
           <table style="width: 100%; font-size: 13px; margin: 20px 0; border-collapse: collapse;">
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
           <p style="font-size: 12px; color: #718096; line-height: 1.5;">A copy of your signed agreement is attached to this email as a PDF. Please retain this for your files.</p>
         </div>
         <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 10px; color: #a0aec0; text-align: center;">
-          TradeGridAfrica Inc. • Botswana Agricultural Corridor Corridor Gate 4 • Gaborone, Botswana
+          TradeGridAfrica Inc. • Botswana Industrial Corridor Gate 4 • Gaborone, Botswana
         </div>
       </div>
     `
@@ -325,7 +325,7 @@ export async function POST(request: NextRequest) {
         </div>
         <div style="padding: 20px;">
           <p>Dear <strong>${full_name}</strong>,</p>
-          <p>Thank you for signing the Mutual Non-Disclosure Agreement (NDA) to access the TradeGridAfrica digital agribusiness export desk.</p>
+          <p>Thank you for signing the Mutual Non-Disclosure Agreement (NDA) to access the TradeGridAfrica digital industrial export desk.</p>
           <p>Your signature has been registered and verified on the SADC regional operations database. Your platform credentials have been authorized.</p>
           
           <table style="width: 100%; font-size: 13px; margin: 20px 0; border-collapse: collapse;">
@@ -338,7 +338,7 @@ export async function POST(request: NextRequest) {
           <p style="font-size: 12px; color: #718096; line-height: 1.5;">A copy of your signed agreement is attached to this email as a PDF. Please retain this for your files.</p>
         </div>
         <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 10px; color: #a0aec0; text-align: center;">
-          TradeGridAfrica Inc. • Botswana Agricultural Corridor Corridor Gate 4 • Gaborone, Botswana
+          TradeGridAfrica Inc. • Botswana Industrial Corridor Gate 4 • Gaborone, Botswana
         </div>
       </div>
     `;

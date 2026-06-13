@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const seller = input.seller || "Regional Agricultural Cooperative";
+  const seller = input.seller || "Regional Industrial Cooperative";
   const buyer = input.buyer || "Global Commodity Importers";
   const product = input.product || "maize";
   const quantity = parseFloat(input.quantity) || 10;

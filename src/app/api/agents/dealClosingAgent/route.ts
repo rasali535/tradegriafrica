@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   }
 
   const buyer = input.buyer || "Global Commodity Importers";
-  const seller = input.seller || "Regional Agricultural Cooperative";
+  const seller = input.seller || "Regional Industrial Cooperative";
   const product = input.product || "maize";
   const price = parseFloat(input.price_per_unit) || 320;
 

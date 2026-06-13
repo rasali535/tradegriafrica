@@ -275,7 +275,7 @@ export const AdminPanel: React.FC = () => {
           const rfqData: Omit<Rfq, 'id' | 'created_at'> = {
             buyer_company_id: 'co100000-0000-0000-0000-000000000001',
             title: crop,
-            industry: 'Agriculture',
+            industry: 'Mining',
             description: `Procurement Request for ${crop}`,
             required_quantity: qty,
             unit: 'Tons',
@@ -358,7 +358,7 @@ export const AdminPanel: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold text-zinc-100">${totalValueTraded.toLocaleString()}</div>
             <p className="text-xs text-emerald-400 font-semibold mt-1">
-              {totalVolumeTraded.toLocaleString()} Tons agricultural products
+              {totalVolumeTraded.toLocaleString()} Tons industrial products
             </p>
           </CardContent>
         </Card>
@@ -886,7 +886,7 @@ export const AdminPanel: React.FC = () => {
                 </h4>
                 <form onSubmit={handleCreateKey} className="space-y-2 mb-4">
                   <Input 
-                    placeholder="e.g. Botswana Agrichain Sync" 
+                    placeholder="e.g. Botswana Supplychain Sync" 
                     value={newKeyName} 
                     onChange={e => setNewKeyName(e.target.value)}
                     className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs h-8"
@@ -1103,7 +1103,7 @@ export const AdminPanel: React.FC = () => {
               <div>
                 <div className="border-b border-zinc-800 pb-3 mb-4">
                   <h3 className="font-bold text-zinc-100 text-xs">SADC Expansion Corridor Pilot Hubs</h3>
-                  <p className="text-[10px] text-zinc-500 mt-0.5">Pilot statistics across primary agricultural transport lanes</p>
+                  <p className="text-[10px] text-zinc-500 mt-0.5">Pilot statistics across primary industrial transport lanes</p>
                 </div>
 
                 <div className="space-y-3.5 text-xs">

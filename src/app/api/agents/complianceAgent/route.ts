@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   };
 
   const prompt = `You are the Trade Compliance Agent for an international export platform.
-Your role is to ensure that any cross-border trade complies with import/export regulations, agricultural and sanitary rules, tariffs, and trade agreements.
+Your role is to ensure that any cross-border trade complies with import/export regulations, industrial and safety rules, tariffs, and trade agreements.
 You are NOT a legal advisor. You provide structured compliance intelligence.
 
 INPUT:
@@ -51,7 +51,7 @@ RULES:
 * Do NOT fabricate exact legal citations
 * If uncertain, generalize (e.g. "SPS certification likely required")
 * Assume standard international trade rules
-* Prioritize agricultural export realism
+* Prioritize industrial export realism
 
 OUTPUT FORMAT (STRICT JSON ONLY):
 {

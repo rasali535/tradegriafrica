@@ -592,7 +592,7 @@ export default function Home() {
               <span className="font-extrabold tracking-tight text-zinc-300">TradeGridAfrica</span>
             </div>
             <p className="leading-relaxed max-w-xs text-zinc-400">
-              Cross-border agribusiness trading & logistics corridor engine for South Africa, Botswana, Namibia, Zimbabwe, and Zambia.
+              Cross-border enterprise trading & logistics corridor engine for South Africa, Botswana, Namibia, Zimbabwe, and Zambia.
             </p>
           </div>
           <div>

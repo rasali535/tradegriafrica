@@ -73,7 +73,7 @@ export const CorridorMap: React.FC<CorridorMapProps> = ({ activeShipment }) => {
         <div>
           <h3 className="font-semibold text-zinc-100 flex items-center gap-2">
             <Navigation className="h-4 w-4 text-emerald-500 animate-pulse" />
-            SADC Agribusiness Trade Corridor
+            SADC Enterprise Trade Corridor
           </h3>
           <p className="text-xs text-zinc-400">Real-time border tracking and logistics flow</p>
         </div>

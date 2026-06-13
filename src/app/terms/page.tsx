@@ -20,7 +20,7 @@ export default function TermsAndConditionsPage() {
           <p>By accessing this website, we assume you accept these terms and conditions. Do not continue to use TradeGrid Africa if you do not agree to take all of the terms and conditions stated on this page.</p>
           
           <h2 className="text-xl font-bold text-zinc-100 mt-8 mb-4">2. Platform Services</h2>
-          <p>TradeGrid Africa provides an AI-powered platform for cross-border agribusiness trading within the SADC region. We act as facilitators and orchestrators of trade data, logistics, and compliance checks but are not legally liable for individual transactions executed between independent entities on the platform.</p>
+          <p>TradeGrid Africa provides an AI-powered platform for cross-border enterprise trading within the SADC region. We act as facilitators and orchestrators of trade data, logistics, and compliance checks but are not legally liable for individual transactions executed between independent entities on the platform.</p>
 
           <h2 className="text-xl font-bold text-zinc-100 mt-8 mb-4">3. User Responsibilities</h2>
           <p>You agree to use the platform only for lawful purposes. You must not use our platform in any way that causes, or may cause, damage to the website or impairment of the availability or accessibility of the website.</p>

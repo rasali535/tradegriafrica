@@ -4,7 +4,7 @@ import { callGemini } from "@/lib/gemini";
 // Helper to run Trade Discovery logic
 async function runTradeDiscovery(product: string, quantity: number, origin: string) {
   const prompt = `You are the Trade Discovery Agent inside an AI-powered export platform for African SMEs.
-Your job is to identify REAL international buyers, markets, and pricing opportunities for agricultural and commodity exports.
+Your job is to identify REAL international buyers, markets, and pricing opportunities for industrial and commodity exports.
 You MUST pull information from live commodity exchanges and use REAL data, REAL corporate buyer names, and REAL current market prices. Avoid generic names like 'Dubai Foods LLC'. Provide actual corporations that import these goods.
 
 INPUT:
@@ -46,7 +46,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
 // Helper to run Compliance logic
 async function runCompliance(product: string, origin: string, destination: string) {
   const prompt = `You are the Trade Compliance Agent for an international export platform.
-Your role is to ensure that any cross-border trade complies with import/export regulations, agricultural and sanitary rules, tariffs, and trade agreements.
+Your role is to ensure that any cross-border trade complies with import/export regulations, industrial and safety rules, tariffs, and trade agreements.
 
 INPUT:
 ${JSON.stringify({ product, origin_country: origin, destination_country: destination }, null, 2)}
@@ -79,7 +79,7 @@ async function runLogistics(origin: string, destination: string, weight: number)
 You design shipping routes, estimate costs, and evaluate logistics feasibility.
 
 INPUT:
-${JSON.stringify({ origin, destination, cargo_type: "agricultural", weight_tons: weight }, null, 2)}
+${JSON.stringify({ origin, destination, cargo_type: "industrial", weight_tons: weight }, null, 2)}
 
 OUTPUT FORMAT (STRICT JSON ONLY):
 {
@@ -268,7 +268,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
 }`;
 
   const fallback = {
-    answer: "Based on current SADC regulations, there may be specific movement restrictions or phytosanitary requirements for this commodity. Please consult the local Ministry of Agriculture for real-time updates on cross-border disease control zones.",
+    answer: "Based on current SADC regulations, there may be specific movement restrictions or compliance requirements for this commodity. Please consult the local Ministry of Trade for real-time updates on cross-border logistics control zones.",
     sources: ["SADC Protocol on Trade", "Regional Sanitary and Phytosanitary Guidelines"],
     confidence_score: 0.85
   };
@@ -355,7 +355,7 @@ Return ONLY a JSON object:
 
     const primaryBuyer = discoveryResult.data?.buyers?.[0] || {};
     const buyerName = primaryBuyer.buyer_name || primaryBuyer.buyer_type || "Tiger Brands Group";
-    const sellerName = `${parsed.origin_country} National Agricultural Cooperative`;
+    const sellerName = `${parsed.origin_country} National Industrial Cooperative`;
     const pricePerUnit = primaryBuyer.estimated_price_per_unit || 320;
     const targetDestination = primaryBuyer.country || "South Africa";
 
@@ -421,7 +421,7 @@ Return ONLY a JSON object:
       },
       {
         agent: "logisticsAgent",
-        input: { origin: parsed.origin_country, destination: targetDestination, cargo_type: "agricultural", weight_tons: parsed.quantity },
+        input: { origin: parsed.origin_country, destination: targetDestination, cargo_type: "industrial", weight_tons: parsed.quantity },
         output: logisticsResult.data,
         latency_ms: logisticsResult.latency_ms || logisticsLatency,
         confidence_score: logisticsResult.data?.confidence_score || logisticsResult.confidence_score,
