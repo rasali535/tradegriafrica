@@ -1,5 +1,18 @@
 [
   {
+    "id": "90kp4optkuu",
+    "user_email": "tshepo@farmer.com",
+    "ip_address": "::1",
+    "device_metadata": {
+      "deviceType": "Desktop",
+      "os": "Windows NT 10.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+      "timestamp": "2026-06-13T18:08:55.004Z"
+    },
+    "action": "NDA_SIGNED",
+    "created_at": "2026-06-13T18:08:55.392Z"
+  },
+  {
     "id": "icamjrqf1ts",
     "user_email": "maplininc@gmail.com",
     "ip_address": "::1",

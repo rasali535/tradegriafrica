@@ -71,6 +71,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               >
                 Launch Sandbox Console
               </Button>
+              <Button 
+                variant="outline" 
+                className="border-amber-800/60 text-amber-500 bg-amber-950/20 hover:bg-amber-900/40 hover:text-amber-400 px-5 py-2.5 text-xs transition-all cursor-pointer"
+              >
+                Partner with Us
+              </Button>
             </div>
 
             {/* Quick Metrics */}
@@ -378,71 +384,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         </div>
       </section>
 
-      {/* Problem Block Section */}
-      <section className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="p-8 rounded-2xl border border-zinc-800/60 bg-zinc-950/40 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 space-y-4 text-left">
-              <Badge className="bg-red-950/40 text-red-400 border border-red-900/60 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5">
-                The Friction Point
-              </Badge>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-zinc-100 leading-tight">
-                African agricultural trade loses value because of corridor friction
-              </h2>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Physical and operational fragmentation blocks economic growth across SADC trade routes. Border delays decay crops before they reach markets, while trust deficits restrict transaction volume.
-              </p>
-              <div className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 pt-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                TradeGridAfrica solves this.
-              </div>
-            </div>
-            
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
-                <div className="text-sm font-bold text-zinc-200">Fragmented Buyers</div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">Lack of structured aggregation prevents smallholders from matching bulk supply contracts.</p>
-              </div>
-              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
-                <div className="text-sm font-bold text-zinc-200">Border Delays</div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">Manual phytosanitary documentation causes severe queue hold-ups, causing post-harvest loss.</p>
-              </div>
-              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
-                <div className="text-sm font-bold text-zinc-200">Transport Inefficiencies</div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">Unverified logistics options result in insecure transshipment runs and untracked freight.</p>
-              </div>
-              <div className="p-4 rounded-xl border border-zinc-900/60 bg-zinc-950/80 space-y-2 hover:border-red-900/30 transition-all duration-305 text-left">
-                <div className="text-sm font-bold text-zinc-200">Export Complexity & Payment Risk</div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">Absence of secure cross-border smart contracts exposes sellers and buyers to payment default.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Counter Metrics / Stats */}
-      <section className="max-w-7xl mx-auto px-4 pb-20">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 p-6 rounded-2xl glass-card border-zinc-900 text-center">
-          <div className="p-4 space-y-1">
-            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">5 SADC Nations</div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Demo Network</div>
-          </div>
-          <div className="p-4 space-y-1 border-l border-zinc-800/80">
-            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Cross-Border</div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Pilot Ready Infrastructure</div>
-          </div>
-          <div className="p-4 space-y-1 border-l border-zinc-800/80">
-            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-200">Role Simulation</div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Sandbox Active</div>
-          </div>
-          <div className="p-4 space-y-1 border-l border-zinc-800/80">
-            <div className="text-2xl md:text-3xl font-extrabold text-zinc-100 bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">Active Prototype</div>
-            <div className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Smart Contracts Enabled</div>
-          </div>
-        </div>
-      </section>
 
       {/* Interactive Role Switcher Section */}
       <section className="max-w-7xl mx-auto px-4 pb-20">
@@ -646,137 +588,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         </div>
       </section>
 
-      {/* Platform Architecture Section */}
-      <section className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-5 space-y-4 text-left">
-            <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">Technical Moat</Badge>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-zinc-100 leading-tight">
-              A Unified Regional Infrastructure Stack
-            </h2>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              TradeGridAfrica integrates verification checks, payments, transit logistics, and regulatory filing into a single API-driven solution for cross-border trade.
-            </p>
-            
-            {/* Interactive API Validation Endpoint block */}
-            <div className="pt-2 space-y-2">
-              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-900 text-[11px] font-mono relative overflow-hidden group">
-                <div className="flex justify-between items-center mb-2 border-b border-zinc-900 pb-2">
-                  <span className="text-zinc-500">HTTP/1.1 Endpoint</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        if (typeof navigator !== 'undefined') {
-                          navigator.clipboard.writeText("GET /api/v1/sadc/corridors/validate?id=PULA-1049");
-                        }
-                        setIsCopied(true);
-                        setTimeout(() => setIsCopied(false), 2000);
-                      }}
-                      className="px-2 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-450 hover:text-zinc-200 transition-colors text-[10px] cursor-pointer"
-                    >
-                      {isCopied ? 'Copied!' : 'Copy Code'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsTesting(true);
-                        setTimeout(() => {
-                          setIsTesting(false);
-                          setShowApiResponse(prev => !prev);
-                        }, 800);
-                      }}
-                      className="px-2 py-0.5 rounded bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-900/60 transition-colors text-[10px] cursor-pointer"
-                    >
-                      {isTesting ? 'Testing...' : showApiResponse ? 'Hide Response' : 'Test Endpoint'}
-                    </button>
-                  </div>
-                </div>
-                <div className="text-zinc-400">
-                  <span className="text-emerald-500">// API Validation Endpoint</span><br/>
-                  <span className="text-zinc-500">GET</span> <span className="text-zinc-200">/api/v1/sadc/corridors/validate?id=PULA-1049</span>
-                </div>
 
-                {showApiResponse && (
-                  <div className="mt-3 pt-3 border-t border-zinc-900 text-zinc-400 space-y-1 animate-in slide-in-from-top duration-250">
-                    <div className="text-[10px] text-zinc-500">HTTP/1.1 200 OK</div>
-                    <pre className="text-[10px] leading-relaxed text-zinc-350 overflow-x-auto scrollbar-none font-mono">
-{`{
-  "status": "VALIDATED",
-  "contract_id": "PULA-1049",
-  "corridor": "Trans-Kalahari",
-  "parties": {
-    "exporter": "AfriTrade Group (ZW)",
-    "importer": "SADC Food Distributors (SA)"
-  },
-  "compliance": {
-    "phytosanitary_permit": "APPROVED_SADC_9022",
-    "biosecurity_score": 98.4,
-    "exemption_status": "GRANTED"
-  },
-  "milestones": {
-    "deposit_locked": true,
-    "customs_cleared": true,
-    "transit_active": true,
-    "payout_triggered": false
-  }
-}`}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 flex flex-col items-center">
-            <div className="w-full max-w-md space-y-3 relative">
-              {/* Connector line behind */}
-              <div className="absolute top-4 bottom-4 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-emerald-500/25 via-amber-500/25 to-blue-500/25 pointer-events-none"></div>
-
-              {/* Layer 5 */}
-              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-emerald-600/50 transition-colors shadow-lg">
-                <div className="text-[9px] uppercase font-bold tracking-wider text-emerald-400 mb-0.5">Layer 5</div>
-                <div className="text-sm font-extrabold text-zinc-200">Marketplace Layer</div>
-                <p className="text-[10px] text-zinc-500">SADC spot price board, cooperative aggregation, & buyer order desks</p>
-              </div>
-
-              <div className="flex justify-center text-zinc-600">↓</div>
-
-              {/* Layer 4 */}
-              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-amber-600/50 transition-colors shadow-lg">
-                <div className="text-[9px] uppercase font-bold tracking-wider text-amber-400 mb-0.5">Layer 4</div>
-                <div className="text-sm font-extrabold text-zinc-200">Contract Layer</div>
-                <p className="text-[10px] text-zinc-500">Bilateral deposit holding, inspection locking, & automated milestone payouts</p>
-              </div>
-
-              <div className="flex justify-center text-zinc-600">↓</div>
-
-              {/* Layer 3 */}
-              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-blue-600/50 transition-colors shadow-lg">
-                <div className="text-[9px] uppercase font-bold tracking-wider text-blue-400 mb-0.5">Layer 3</div>
-                <div className="text-sm font-extrabold text-zinc-200">Logistics Layer</div>
-                <p className="text-[10px] text-zinc-500">Authorized transit carriers, real-time GPS check-ins, & border congestion tracking</p>
-              </div>
-
-              <div className="flex justify-center text-zinc-600">↓</div>
-
-              {/* Layer 2 */}
-              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-purple-600/50 transition-colors shadow-lg">
-                <div className="text-[9px] uppercase font-bold tracking-wider text-purple-400 mb-0.5">Layer 2</div>
-                <div className="text-sm font-extrabold text-zinc-200">Compliance Registry</div>
-                <p className="text-[10px] text-zinc-500">Phytosanitary automated validation, biosecurity score monitoring, & customs clearances</p>
-              </div>
-
-              <div className="flex justify-center text-zinc-600">↓</div>
-
-              {/* Layer 1 */}
-              <div className="relative z-10 p-4 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center hover:border-emerald-600/50 transition-colors shadow-lg">
-                <div className="text-[9px] uppercase font-bold tracking-wider text-emerald-300 mb-0.5">Layer 1</div>
-                <div className="text-sm font-extrabold text-zinc-200">Trade Intelligence Layer</div>
-                <p className="text-[10px] text-zinc-500">Bilateral border wait-time analytics & SADC agricultural demand forecasts</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Market Opportunity & Partner Section */}
       <section className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">

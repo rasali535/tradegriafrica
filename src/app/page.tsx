@@ -5,19 +5,13 @@ import { useApp } from '@/context/AppContext';
 import { LandingPage } from '@/components/LandingPage';
 import { DocsPage } from '@/components/DocsPage';
 import { RoleSwitcher } from '@/components/RoleSwitcher';
-import { FarmerDashboard } from '@/components/FarmerDashboard';
+import { SupplierDashboard } from '@/components/SupplierDashboard';
 import { BuyerDashboard } from '@/components/BuyerDashboard';
-import { TransporterDashboard } from '@/components/TransporterDashboard';
-import { ExporterDashboard } from '@/components/ExporterDashboard';
-import { CooperativeDashboard } from '@/components/CooperativeDashboard';
 import { AdminPanel } from '@/components/AdminPanel';
-import { GovernmentDashboard } from '@/components/GovernmentDashboard';
-import { BankDashboard } from '@/components/BankDashboard';
 import { Marketplace } from '@/components/Marketplace';
 import { LogisticsHub } from '@/components/LogisticsHub';
 import { OnboardingPortal } from '@/components/OnboardingPortal';
 import { AIAgentCenter } from '@/components/AIAgentCenter';
-import { NdaSignSystem } from '@/components/NdaSignSystem';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
   HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus,
@@ -38,15 +32,10 @@ export default function Home() {
   const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents'>('dashboard');
-  const [isNdaUnlocked, setIsNdaUnlocked] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
-  // Universal IP gate — every visitor must sign the NCNDA before accessing anything
   useEffect(() => {
     setIsMounted(true);
-    if (typeof window === 'undefined') return;
-    const alreadySigned = localStorage.getItem('pt_nda_signed') === 'true';
-    setIsNdaUnlocked(alreadySigned);
   }, [currentUser]);
 
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -178,23 +167,13 @@ export default function Home() {
     if (!currentUser) return null;
     switch (currentUser.role) {
       case 'farmer':
-        return <FarmerDashboard />;
+        return <SupplierDashboard />;
       case 'buyer':
         return <BuyerDashboard />;
-      case 'transporter':
-        return <TransporterDashboard />;
-      case 'exporter':
-        return <ExporterDashboard />;
-      case 'cooperative':
-        return <CooperativeDashboard />;
-      case 'government':
-        return <GovernmentDashboard />;
-      case 'bank':
-        return <BankDashboard />;
       case 'admin':
         return <AdminPanel />;
       default:
-        return <FarmerDashboard />;
+        return <SupplierDashboard />;
     }
   };
 
@@ -215,14 +194,6 @@ export default function Home() {
 
   return (
     <div className="dark min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300">
-      {/* Universal NDA Gate Overlay */}
-      {!isNdaUnlocked && isMounted && (
-        <NdaSignSystem 
-          onSignSuccess={() => setIsNdaUnlocked(true)} 
-          currentUserData={currentUser}
-        />
-      )}
-
       {/* Premium Header/Navigation */}
       <header className="sticky top-0 z-50 glass-nav">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -539,8 +510,8 @@ export default function Home() {
               <RoleSwitcher />
             </div>
 
-            {/* Premium Sandbox Tab Bar & Content (blurred if locked) */}
-            <div className={`space-y-6 transition-all duration-300 ${!isNdaUnlocked ? 'opacity-30 blur-sm pointer-events-none' : ''}`}>
+            {/* Premium Sandbox Tab Bar & Content */}
+            <div className="space-y-6 transition-all duration-300">
               <div className="flex border-b border-zinc-900 gap-2 md:gap-4 overflow-x-auto scrollbar-none">
                 <button
                   onClick={() => setAppSubTab('dashboard')}
