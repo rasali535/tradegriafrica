@@ -44,15 +44,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           {/* Left Column: Headline and Pitch */}
           <div className="lg:col-span-5 space-y-6 text-left relative z-10">
             <Badge variant="outline" className="px-3.5 py-1 text-xs font-semibold tracking-wide border-emerald-900/60 bg-emerald-950/20 text-emerald-400">
-              🌱 SADC Cross-Border Agricultural Infrastructure
+              🌍 SADC Cross-Border Procurement Infrastructure
             </Badge>
             
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-zinc-100 leading-tight">
-              Unifying Agricultural Trade across <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-500">African Nations</span>
+              Unifying Enterprise Trade across <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-500">African Nations</span>
             </h1>
             
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              TradeGridAfrica is an autonomous agribusiness workflow engine. Our specialized AI Agents automate regional SADC trade intelligence, compliance, routing, and digital deal closing.
+              Pula Trade Africa is an autonomous B2B enterprise workflow engine. Our specialized AI Agents automate regional SADC trade intelligence, compliance, routing, and digital deal closing.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -153,8 +153,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                   <div className="space-y-4 animate-in fade-in duration-200">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Live Commodity Exchange</h3>
-                        <p className="text-[10px] text-zinc-500">Real-time SADC agricultural bulk produce listings</p>
+                        <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Live Supplier Exchange</h3>
+                        <p className="text-[10px] text-zinc-500">Real-time SADC B2B enterprise listings</p>
                       </div>
                       <div className="flex items-center gap-3">
                         {/* Currency Toggle */}
@@ -190,8 +190,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                             MZ
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-zinc-200">White Maize (Non-GMO)</div>
-                            <div className="text-[10px] text-zinc-500">Chobe Cooperative • Botswana</div>
+                            <div className="text-xs font-bold text-zinc-200">Industrial Steel (Grade A)</div>
+                            <div className="text-[10px] text-zinc-500">Chobe Industrials • Botswana</div>
                           </div>
                         </div>
                         <div className="text-right">
@@ -207,8 +207,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                             SG
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-zinc-200">Red Sorghum Grain</div>
-                            <div className="text-[10px] text-zinc-500">Beitbridge Farmers • Zimbabwe</div>
+                            <div className="text-xs font-bold text-zinc-200">Heavy Machinery Parts</div>
+                            <div className="text-[10px] text-zinc-500">Beitbridge Manufacturing • Zimbabwe</div>
                           </div>
                         </div>
                         <div className="text-right">
@@ -224,8 +224,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                             BF
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-zinc-200">Chilled Halal Beef Quarters</div>
-                            <div className="text-[10px] text-zinc-500">Francistown Abattoir • Botswana</div>
+                            <div className="text-xs font-bold text-zinc-200">Copper Wire Bulk</div>
+                            <div className="text-[10px] text-zinc-500">Francistown Metals • Botswana</div>
                           </div>
                         </div>
                         <div className="text-right">
@@ -236,7 +236,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     </div>
 
                     <div className="pt-2 border-t border-zinc-900/50 flex justify-between items-center">
-                      <span className="text-[10px] text-zinc-550">Phytosanitary & SADC exemption pre-validated</span>
+                      <span className="text-[10px] text-zinc-550">SADC trade exemption pre-validated</span>
                       <Button 
                         onClick={() => onLaunchApp('b2000000-0000-0000-0000-000000000001', 'marketplace')}
                         className="bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-900/60 text-[10px] h-7 font-bold transition-all px-3 cursor-pointer"
@@ -302,7 +302,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-900/60 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span className="text-[10px] text-zinc-300">Truck #L-KGL-402 (Maize): <strong>Passing Kazungula Bridge</strong></span>
+                        <span className="text-[10px] text-zinc-300">Truck #L-KGL-402 (Steel): <strong>Passing Kazungula Bridge</strong></span>
                       </div>
                       <span className="text-[9px] text-zinc-500 font-mono">GPS: LOCK</span>
                     </div>
@@ -336,7 +336,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <div className="text-[10px] text-zinc-500 uppercase font-mono">Query: "Export 10T Maize BW → SA"</div>
+                          <div className="text-[10px] text-zinc-500 uppercase font-mono">Query: "Export 10T Steel BW → SA"</div>
                           <div className="text-xs font-bold text-zinc-200">Executing Sequential AI Workflow...</div>
                         </div>
                         <div className="text-right">
@@ -390,20 +390,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/10"></div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-900/60">Farmer</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-900/60">Supplier</span>
                 <span className="text-[10px] font-medium text-zinc-500">Botswana</span>
               </div>
               <div>
                 <h3 className="font-bold text-zinc-200 text-sm group-hover:text-emerald-400 transition-colors">Tshepo Mokgosi</h3>
-                <p className="text-[11px] text-zinc-500 mt-1">Chobe Valley Farms</p>
-                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Manage beef/maize listings, request biosecurity audits, view SADC regional demand maps.</p>
+                <p className="text-[11px] text-zinc-500 mt-1">Chobe Valley Industrials</p>
+                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Manage B2B listings, request compliance audits, view SADC regional demand maps.</p>
               </div>
             </div>
             <Button 
               onClick={() => onLaunchApp('f1000000-0000-0000-0000-000000000001')}
               className="mt-6 w-full text-xs bg-emerald-950/40 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-900/60 group-hover:border-emerald-600 font-semibold py-1.5 h-8 cursor-pointer"
             >
-              Access Farmer view
+              Access Supplier view
             </Button>
           </div>
 
@@ -461,8 +461,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </div>
               <div>
                 <h3 className="font-bold text-zinc-200 text-sm group-hover:text-purple-400 transition-colors">AfriTrade Group</h3>
-                <p className="text-[11px] text-zinc-500 mt-1">Agribusiness Linkers</p>
-                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Verify biosecurity guidelines, issue Phytosanitary permits, clear custom duty exemptions.</p>
+                <p className="text-[11px] text-zinc-500 mt-1">Enterprise B2B Linkers</p>
+                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Verify enterprise guidelines, issue regional trade permits, clear custom duty exemptions.</p>
               </div>
             </div>
             <Button 
@@ -484,7 +484,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               <div>
                 <h3 className="font-bold text-zinc-200 text-sm group-hover:text-zinc-300 transition-colors">PulaOperations</h3>
                 <p className="text-[11px] text-zinc-500 mt-1">Platform Admin</p>
-                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Oversee regional contracts, track border waiting times, review active shipments and biosecurity scores.</p>
+                <p className="text-xs text-zinc-400 mt-3 leading-relaxed">Oversee regional contracts, track border waiting times, review active shipments and compliance scores.</p>
               </div>
             </div>
             <Button 
@@ -501,8 +501,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
       <section id="features" className="max-w-7xl mx-auto px-4 py-16 border-t border-zinc-900">
         <div className="text-center space-y-2 mb-12">
           <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">AI-Native Infrastructure</Badge>
-          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Specialized Agribusiness AI Agents</h2>
-          <p className="text-xs text-zinc-400 max-w-xl mx-auto">Digitizing the African agribusiness value chain through a collaborative, autonomous agent ecosystem.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Specialized B2B AI Agents</h2>
+          <p className="text-xs text-zinc-400 max-w-xl mx-auto">Digitizing the African enterprise value chain through a collaborative, autonomous agent ecosystem.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -513,7 +513,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </div>
               <h3 className="text-base font-bold text-zinc-100">Trade Discovery Agent</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Analyzes regional SADC demand matrices, finds agricultural buyers, checks historical prices, and recommends optimal export corridors.
+                Analyzes regional SADC demand matrices, finds enterprise buyers, checks historical prices, and recommends optimal export corridors.
               </p>
             </CardContent>
           </Card>
@@ -525,7 +525,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               </div>
               <h3 className="text-base font-bold text-zinc-100">Compliance Agent</h3>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Checks regional/international trade treaties, determines tariffs, validates biosecurity clearances, and identifies required border documents.
+                Checks regional/international trade treaties, determines tariffs, validates compliance clearances, and identifies required border documents.
               </p>
             </CardContent>
           </Card>
@@ -588,10 +588,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <div className="lg:col-span-6 space-y-6 text-left">
             <Badge className="bg-amber-950 text-amber-400 border border-amber-900 text-xs">Market Opportunity</Badge>
             <h2 className="text-3xl font-extrabold text-zinc-100 leading-tight">
-              Unlocking the $300B+ African Agribusiness Sector
+              Unlocking the $300B+ African Enterprise Sector
             </h2>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Sub-Saharan Africa possesses 60% of the world's uncultivated arable land, yet cross-border food distribution remains severely bottlenecked by paper-based processes and logistics fragmentation.
+              Sub-Saharan Africa possesses massive industrial potential, yet cross-border enterprise distribution remains severely bottlenecked by paper-based processes and logistics fragmentation.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -604,8 +604,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 <p className="text-[10px] text-zinc-400">Over $120B in requested trade credit goes unserved annually due to disjointed data and inefficient trade workflows.</p>
               </div>
               <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
-                <div className="font-bold text-zinc-200">Regional Food Insecurity</div>
-                <p className="text-[10px] text-zinc-400">Regional supply mismatches lead to food security spikes in some nations while adjacent markets experience surplus decay.</p>
+                <div className="font-bold text-zinc-200">Regional Supply Insecurity</div>
+                <p className="text-[10px] text-zinc-400">Regional supply mismatches lead to enterprise bottlenecks in some nations while adjacent markets experience surplus decay.</p>
               </div>
               <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-1">
                 <div className="font-bold text-zinc-200">Expanding Digital Coverage</div>
@@ -623,7 +623,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                 Partner With TradeGridAfrica
               </h3>
               <p className="text-xs text-zinc-400">
-                Join our regional network. Choose your integration track below to request an AI Agent pilot, partner with our customs biosecurity systems, or view investor packages.
+                Join our regional network. Choose your integration track below to request an AI Agent pilot, partner with our customs compliance systems, or view investor packages.
               </p>
             </div>
 
@@ -635,7 +635,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               >
                 <div>
                   <div className="text-xs font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Request Pilot</div>
-                  <p className="text-[10px] text-zinc-500">Register cooperative aggregation hubs or food importing accounts.</p>
+                  <p className="text-[10px] text-zinc-500">Register corporate aggregation hubs or enterprise procurement accounts.</p>
                 </div>
                 <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
               </button>
@@ -647,7 +647,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               >
                 <div>
                   <div className="text-xs font-bold text-zinc-200 group-hover:text-amber-400 transition-colors">Government Partnership</div>
-                  <p className="text-[10px] text-zinc-500">Integrate biosecurity checkpoints and border manifest automation.</p>
+                  <p className="text-[10px] text-zinc-500">Integrate compliance checkpoints and border manifest automation.</p>
                 </div>
                 <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
               </button>
@@ -672,7 +672,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         <div className="text-center space-y-2 mb-12">
           <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 text-xs">Collaborative Networks</Badge>
           <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Tailored Partnerships for SADC Development</h2>
-          <p className="text-xs text-zinc-400 max-w-xl mx-auto">TradeGridAfrica integrates multi-sector institutions into a unified digital corridor.</p>
+          <p className="text-xs text-zinc-400 max-w-xl mx-auto">Pula Trade Africa integrates multi-sector institutions into a unified digital corridor.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -683,10 +683,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               For Governments
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Unlock biosecurity compliance automation, food security analytics, and cross-border customs data feeds to optimize trade flow.
+              Unlock compliance automation, industrial output analytics, and cross-border customs data feeds to optimize trade flow.
             </p>
             <div className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/30 border border-emerald-900/40 w-fit px-2 py-0.5 rounded">
-              Food security + trade intelligence
+              Economic security + trade intelligence
             </div>
           </div>
 
@@ -711,10 +711,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
               For Cooperatives
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Access regional bulk buyer networks, verify exporter biosecurity standards, and coordinate transport fleets from local agricultural aggregation centers.
+              Access regional bulk buyer networks, verify exporter compliance standards, and coordinate transport fleets from local industrial hubs.
             </p>
             <div className="text-[10px] font-semibold text-blue-400 bg-blue-950/30 border border-blue-900/40 w-fit px-2 py-0.5 rounded">
-              Aggregation + logistics
+              B2B Aggregation + logistics
             </div>
           </div>
         </div>
@@ -726,7 +726,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
           <Badge className="bg-amber-950 text-amber-400 border border-amber-900 text-xs">Live Corridor Tracking</Badge>
           <h2 className="text-3xl font-bold text-zinc-100 leading-tight">Connecting the Kalahari, Maputo, and North-South Corridor Route</h2>
           <p className="text-xs text-zinc-400 leading-relaxed">
-            By connecting logistics vectors directly with customs biosecurity hubs, TradeGridAfrica reduces agricultural product decay rates and border waiting times.
+            By connecting logistics vectors directly with customs hubs, Pula Trade Africa reduces product transit times and border waiting times.
           </p>
           <div className="space-y-3 text-xs text-zinc-300">
             <div className="flex items-center gap-2">
@@ -763,7 +763,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         <div className="max-w-xl mx-auto space-y-6">
           <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">Ready to accelerate African Trade?</h2>
           <p className="text-xs text-zinc-400">
-            Experience the full platform demo right now in the sandbox. Switch roles to view how TradeGridAfrica serves Farmers, Buyers, Exporters, and Transporters.
+            Experience the full platform demo right now in the sandbox. Switch roles to view how Pula Trade Africa serves Suppliers, Buyers, Exporters, and Transporters.
           </p>
           <Button 
             onClick={() => onLaunchApp()}

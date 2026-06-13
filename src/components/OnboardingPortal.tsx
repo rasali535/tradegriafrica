@@ -14,7 +14,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 export const OnboardingPortal: React.FC = () => {
   const { setCurrentUser } = useApp();
-  const [role, setRole] = useState<'farmer' | 'buyer' | 'transporter'>('farmer');
+  const [role, setRole] = useState<'supplier' | 'buyer' | 'transporter'>('supplier');
   
   // Shared Form Fields
   const [name, setName] = useState('');
@@ -45,7 +45,7 @@ export const OnboardingPortal: React.FC = () => {
     }
 
     try {
-      const companyOrName = role === 'farmer' ? name : role === 'buyer' ? companyName || `${name} Distributors` : companyName || name;
+      const companyOrName = role === 'supplier' ? name : role === 'buyer' ? companyName || `${name} Distributors` : companyName || name;
       
       if (!supabase) throw new Error("Supabase connection is not configured.");
 
@@ -150,11 +150,11 @@ export const OnboardingPortal: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Role Cards Selector */}
         <Card 
-          onClick={() => setRole('farmer')}
-          className={`cursor-pointer transition-all duration-300 p-4 border text-left ${role === 'farmer' ? 'border-emerald-800 bg-emerald-950/10' : 'border-zinc-900 hover:border-zinc-800 bg-zinc-950/40'}`}
+          onClick={() => setRole('supplier')}
+          className={`cursor-pointer transition-all duration-300 p-4 border text-left ${role === 'supplier' ? 'border-emerald-800 bg-emerald-950/10' : 'border-zinc-900 hover:border-zinc-800 bg-zinc-950/40'}`}
         >
           <div className="p-2 bg-zinc-900 rounded-lg w-fit text-emerald-400 mb-3 border border-zinc-800">
-            <Sprout className="h-5 w-5" />
+            <Briefcase className="h-5 w-5" />
           </div>
           <h3 className="font-bold text-zinc-100 text-sm">Supplier / Producer</h3>
           <p className="text-xs text-zinc-400 mt-1">List your industrial products, request compliance audits, and gain trade financing eligibility.</p>

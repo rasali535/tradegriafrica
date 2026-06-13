@@ -40,11 +40,11 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
       case 'Botswana ↔ South Africa':
         return {
           agreement: 'SACU (Southern African Customs Union) + SADC Protocol',
-          relevance: 'Duty-free movement of agricultural cargo, subject to common external tariff structures.',
-          keyNote: 'Simplifies livestock and feed flows, though border phyto-checks are strictly required at Ramatlabama.',
+          relevance: 'Duty-free movement of industrial cargo, subject to common external tariff structures.',
+          keyNote: 'Simplifies material and equipment flows, though border compliance checks are strictly required at Ramatlabama.',
           rules: [
-            'Zero-rated customs tariffs for originating agricultural goods',
-            'SADC Phytosanitary certificate validation',
+            'Zero-rated customs tariffs for originating industrial goods',
+            'SADC Compliance validation',
             'SACU Common External Tariff application on external transshipments'
           ],
           status: 'Active Corridor'
@@ -53,10 +53,10 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
         return {
           agreement: 'SACU + SADC Corridor Protocol',
           relevance: 'Customs union alignment covering the Trans-Kalahari Highway corridor.',
-          keyNote: 'High beef exports and grain transshipments. Fast customs clearing via Mamuno border post.',
+          keyNote: 'High heavy machinery and materials transshipments. Fast customs clearing via Mamuno border post.',
           rules: [
             'Trans-Kalahari corridor customs bond system compatibility',
-            'Livestock movement veterinary restrictions',
+            'Heavy load movement restrictions',
             'Bilateral road transport permit exemptions'
           ],
           status: 'Active Corridor'
@@ -76,23 +76,23 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
       case 'South Africa ↔ Zimbabwe':
         return {
           agreement: 'Bilateral Trade Agreement + SADC Free Trade Protocol',
-          relevance: 'Heavy grain and fresh produce shipping lanes via Beitbridge.',
+          relevance: 'Heavy material and industrial produce shipping lanes via Beitbridge.',
           keyNote: 'Beitbridge is the busiest border post in the region. Mandatory digitized SADC Trade Registry pre-filing recommended.',
           rules: [
             'Pre-clearance customs filing on SADC Trade Registry',
-            'Mandatory commercial invoice + phyto inspection at Musina',
-            'South African VAT exemption on originating transit foods'
+            'Mandatory commercial invoice + compliance inspection at Musina',
+            'South African VAT exemption on originating transit goods'
           ],
           status: 'Active Corridor'
         };
       case 'Namibia ↔ South Africa':
         return {
           agreement: 'SACU + SADC Protocol',
-          relevance: 'Deep integration for fruits, horticulture, and livestock distribution.',
-          keyNote: 'Duty-free customs clearance. Direct alignment with South African agricultural standard boards.',
+          relevance: 'Deep integration for industrial materials and equipment distribution.',
+          keyNote: 'Duty-free customs clearance. Direct alignment with South African industrial standard boards.',
           rules: [
             'Common monetary area transactions support',
-            'Veterinary export hygiene certificates for red meat',
+            'Industrial export certificates for heavy goods',
             'SACU customs declaration forms (SAD500) compliance'
           ],
           status: 'Active Corridor'
@@ -105,19 +105,19 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
           rules: [
             'Local manufacturing/origin certificate requirement',
             'Transit customs bond for Botswana territory traversal',
-            'Namibian veterinary import authorization'
+            'Namibian compliance import authorization'
           ],
           status: 'Active Corridor'
         };
       case 'Zambia ↔ Zimbabwe':
         return {
           agreement: 'COMESA Free Trade Area + SADC Protocol',
-          relevance: 'Critical grain, fertilizer, and seed shipping corridor across the Zambezi.',
-          keyNote: 'Chirundu One-Stop Border Post (OSBP) integrates biosecurity and customs desks under one roof.',
+          relevance: 'Critical steel, machinery, and equipment shipping corridor across the Zambezi.',
+          keyNote: 'Chirundu One-Stop Border Post (OSBP) integrates compliance and customs desks under one roof.',
           rules: [
-            'COMESA Simplified Trade Regime (STR) for smallholders',
+            'COMESA Simplified Trade Regime (STR) for small/medium suppliers',
             'Chirundu OSBP joint customs clearance',
-            'Maize export ban exemptions validation'
+            'Export ban exemptions validation'
           ],
           status: 'Active Corridor'
         };
@@ -125,35 +125,35 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
         return {
           agreement: 'SADC Protocol + Bilateral Trade Agreement',
           relevance: 'Key corridor link via the Kazungula Bridge One-Stop Border Post.',
-          keyNote: 'Significant route for horticultural crops and machinery. Kazungula OSBP reduces processing times to under 2 hours.',
+          keyNote: 'Significant route for structural materials and machinery. Kazungula OSBP reduces processing times to under 2 hours.',
           rules: [
             'Kazungula OSBP integrated clearance process',
             'SADC regional customs transit bond (RCTG) support',
-            'Ministry-approved seed & feed certificates'
+            'Ministry-approved compliance certificates'
           ],
           status: 'Active Corridor'
         };
       case 'South Africa ↔ Zambia':
         return {
           agreement: 'SADC Free Trade Protocol',
-          relevance: 'Large scale commercial agro-inputs and retail supply distribution.',
+          relevance: 'Large scale commercial inputs and retail supply distribution.',
           keyNote: 'Traverses Zimbabwe or Botswana. Transit bonds are crucial to avoid dual tariff assessments.',
           rules: [
             'SADC Certificate of Origin requirement',
             'Multi-border transit custom declarations',
-            'Pre-shipment biosecurity compliance inspection'
+            'Pre-shipment compliance inspection'
           ],
           status: 'Active Corridor'
         };
       case 'Namibia ↔ Zambia':
         return {
           agreement: 'SADC Protocol + Bilateral Trade Agreement',
-          relevance: 'Logistics corridor linking Walvis Bay port to copperbelt agro-demand.',
-          keyNote: 'Growing trade route via Wenela/Katima Mulilo border post. High volume of fish and timber.',
+          relevance: 'Logistics corridor linking Walvis Bay port to copperbelt industrial demand.',
+          keyNote: 'Growing trade route via Wenela/Katima Mulilo border post. High volume of steel and timber.',
           rules: [
             'Katima Mulilo border clearance protocol',
-            'Walvis Bay agricultural corridor logistics priority',
-            'Forestry/veterinary export stamps'
+            'Walvis Bay industrial corridor logistics priority',
+            'Forestry/industrial export stamps'
           ],
           status: 'Active Corridor'
         };
@@ -161,8 +161,8 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
         return {
           agreement: 'SADC Protocol on Trade',
           relevance: 'General multilateral trade rules governing Southern African nations.',
-          keyNote: 'Subject to regional tariffs reductions and harmonized sanitary standards.',
-          rules: ['SADC Certificate of Origin', 'Standard sanitary inspections'],
+          keyNote: 'Subject to regional tariffs reductions and harmonized safety standards.',
+          rules: ['SADC Certificate of Origin', 'Standard safety inspections'],
           status: 'Active Corridor'
         };
     }
@@ -176,18 +176,18 @@ export const DocsPage: React.FC<DocsPageProps> = ({ onBackToLanding }) => {
       title: 'SADC Protocol on Trade',
       category: 'Regional Protocols',
       icon: Globe,
-      summary: 'Main multilateral treaty establishing free trade, tariff reductions, and phytosanitary harmonization across the SADC region.',
-      content: `### SADC Protocol on Trade: Overview & Agricultural Compliance
+      summary: 'Main multilateral treaty establishing free trade, tariff reductions, and compliance harmonization across the SADC region.',
+      content: `### SADC Protocol on Trade: Overview & Industrial Compliance
 
-The SADC Protocol on Trade is the primary legal instrument governing regional trade integration in Southern Africa. Signed in 1996 and fully implemented in 2008, the protocol seeks to eliminate trade barriers, ease customs procedures, and establish a common market for agricultural goods.
+The SADC Protocol on Trade is the primary legal instrument governing regional trade integration in Southern Africa. Signed in 1996 and fully implemented in 2008, the protocol seeks to eliminate trade barriers, ease customs procedures, and establish a common market for industrial goods.
 
-#### Key Provisions for Agribusiness:
-1. **Sanitary and Phytosanitary (SPS) Harmonization:** Article 16 commits member states to harmonize sanitary and phytosanitary measures in accordance with international standards (IPPC, OIE, Codex Alimentarius). This prevents governments from using health and safety regulations as disguised barriers to trade.
-2. **Rules of Origin:** Agricultural products must be wholly obtained in a SADC member state to qualify for duty-free access. For processed agricultural goods, the regional content must meet specific thresholds.
+#### Key Provisions for Enterprise:
+1. **Safety and Compliance (SPS) Harmonization:** Article 16 commits member states to harmonize safety and compliance measures in accordance with international standards. This prevents governments from using health and safety regulations as disguised barriers to trade.
+2. **Rules of Origin:** Industrial products must be wholly obtained in a SADC member state to qualify for duty-free access. For processed industrial goods, the regional content must meet specific thresholds.
 3. **Elimination of Non-Tariff Barriers (NTBs):** Outlaws arbitrary import/export quotas, import bans, and unjustified administrative fees.
 
 > [!IMPORTANT]
-> **Permit Issuance:** Exporters must obtain official Phytosanitary certificates and import/export licenses from their respective national Ministries of Agriculture. TradeGridAfrica acts as a secure tracking layer and does not issue sovereign permits directly.`
+> **Permit Issuance:** Exporters must obtain official Compliance certificates and import/export licenses from their respective national Ministries of Trade. TradeGridAfrica acts as a secure tracking layer and does not issue sovereign permits directly.`
     },
     {
       id: 'sacu-treaty',
@@ -199,31 +199,31 @@ The SADC Protocol on Trade is the primary legal instrument governing regional tr
 
 The SACU Agreement of 2002 governs the oldest continuous customs union in the world. It provides for a common external tariff (CET) and the duty-free movement of domestically produced goods among its five member states.
 
-#### Key Rules for Agricultural Trade:
+#### Key Rules for Industrial Trade:
 - **Free Movement of Goods:** Article 18 guarantees that no member state shall apply customs duties on goods originating from the customs area.
-- **Agricultural Marketing Restrictions:** Under Article 26, member states can regulate the marketing of agricultural products within their borders, provided such regulations apply equally to imports and domestic production.
-- **National Protection:** Members can temporarily prohibit or restrict agricultural imports to protect domestic industries in times of extreme surplus or biosecurity outbreaks (e.g., Foot and Mouth Disease).
+- **Industrial Marketing Restrictions:** Under Article 26, member states can regulate the marketing of industrial products within their borders, provided such regulations apply equally to imports and domestic production.
+- **National Protection:** Members can temporarily prohibit or restrict industrial imports to protect domestic industries in times of extreme surplus or supply chain disruptions.
 
 > [!NOTE]
 > Transshipments from outside SACU entering one member state destined for another are subject to the Common External Tariff (CET) at the initial port of entry, with revenue distributed via the SACU revenue-sharing pool.`
     },
     {
       id: 'phyto-guidelines',
-      title: 'SADC Biosecurity & SPS Guide',
+      title: 'SADC Compliance & Safety Guide',
       category: 'Compliance Standards',
       icon: Shield,
-      summary: 'Practical guide to sanitary and phytosanitary inspections, quarantine procedures, and disease prevention rules along regional corridors.',
-      content: `### SADC Phytosanitary and Veterinary Guidelines
+      summary: 'Practical guide to safety inspections, transit procedures, and compliance rules along regional corridors.',
+      content: `### SADC Compliance Guidelines
 
-Biosecurity is the most frequent cause of border delays for agricultural shipments. SADC members maintain rigorous inspection regimes to protect local ecosystems and animal health from pests and transboundary diseases.
+Compliance is the most frequent cause of border delays for industrial shipments. SADC members maintain rigorous inspection regimes to protect local markets and supply chains from disruptions.
 
 #### Core Compliance Requirements:
-1. **Phytosanitary Certification:** Every crop cargo shipment must be accompanied by an original Phytosanitary Certificate issued by the exporting country's plant health authority (e.g., Division of Plant Health in Botswana, DAFF in South Africa).
-2. **Cold Chain Integrity:** Horticulture and meat shipments must maintain log records showing temperature maintenance. Sudden temperature spikes can void biosecurity validations.
-3. **Fumigation & Packaging:** Wood packaging material must comply with ISPM 15 standards (heat treatment or methyl bromide fumigation) to prevent pest transport.
+1. **Compliance Certification:** Every shipment must be accompanied by an original Compliance Certificate issued by the exporting country's trade authority.
+2. **Chain of Custody:** Industrial shipments must maintain log records showing material handling. Sudden disruptions can void compliance validations.
+3. **Safety & Packaging:** Heavy materials must comply with ISO standards to prevent transit accidents.
 
 > [!WARNING]
-> Failing to verify biosecurity certificate validity prior to arriving at border crossings like Beitbridge or Ramatlabama can result in complete cargo quarantine, cargo rejection, or severe border hold-ups exceeding 48 hours.`
+> Failing to verify compliance certificate validity prior to arriving at border crossings like Beitbridge or Ramatlabama can result in complete cargo quarantine, cargo rejection, or severe border hold-ups exceeding 48 hours.`
     },
     {
       id: 'smart-contract-framework',
@@ -238,7 +238,7 @@ To bridge the regional trade gap and resolve the trust deficit between cross-bor
 #### Workflow of the Contract Engine:
 1. **Contract Generation:** The buyer generates a binding digital contract with agreed terms in USD, BWP, or ZAR within TradeGridAfrica.
 2. **Milestone Tracking:** Procurement stages are tracked and verified in structured tranches tied to regional trade checkpoints:
-   - **Stage 1 (Compliance):** Verified upon clearance of the Phytosanitary certificate on the SADC Trade Registry.
+   - **Stage 1 (Compliance):** Verified upon clearance of the Compliance certificate on the SADC Trade Registry.
    - **Stage 2 (Logistics):** Verified upon GPS verification crossing the designated border checkpoint.
    - **Stage 3 (Delivery):** Verified upon buyer receipt and quality check sign-off at the delivery warehouse.
 3. **Dispute Resolution:** In the event of a dispute (e.g., quality degradation or border rejection), the contract history provides a digital audit trail. A joint arbitration panel composed of representatives from local chambers of commerce reviews the digital logs.

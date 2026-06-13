@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 // Database Entity Types
 export interface User {
   id: string;
-  role: 'farmer' | 'buyer' | 'transporter' | 'cooperative' | 'exporter' | 'admin' | 'government' | 'bank';
+  role: 'supplier' | 'buyer' | 'transporter' | 'cooperative' | 'exporter' | 'admin' | 'government' | 'bank';
   name: string;
   email: string;
   phone: string;
@@ -210,11 +210,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Initial Seed Data for local testing and investor demos
 const SEED_USERS: User[] = [
-  { id: 'f1000000-0000-0000-0000-000000000001', role: 'farmer', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana', kyc_status: 'approved', document_name: 'Botswana Smallholder Agri-Permit', document_ref: 'BW-AGR-4019', document_url: 'tshepo_agri_permit.pdf' },
-  { id: 'f1000000-0000-0000-0000-000000000002', role: 'farmer', name: 'Farai Moyo', email: 'farai@farmer.com', phone: '+263 77 123 4567', country: 'Zimbabwe', kyc_status: 'pending', document_name: 'Zimbabwe Biosecurity & Land Certificate', document_ref: 'ZW-BIO-8821', document_url: 'farai_moyo_land_cert.pdf' },
-  { id: 'f1000000-0000-0000-0000-000000000003', role: 'farmer', name: 'Mwansa Mwape', email: 'mwansa@farmer.com', phone: '+260 97 123 4567', country: 'Zambia', kyc_status: 'approved', document_name: 'Zambia Cooperative Produce Code', document_ref: 'ZM-COOP-1029', document_url: 'mwansa_coop_code.pdf' },
-  { id: 'f1000000-0000-0000-0000-000000000004', role: 'farmer', name: 'Ndapewa Shivute', email: 'ndapewa@farmer.com', phone: '+264 81 123 4567', country: 'Namibia', kyc_status: 'pending', document_name: 'Namibia Livestock Brand Registry', document_ref: 'NM-LBR-8832', document_url: 'ndapewa_livestock_brand.pdf' },
-  { id: 'f1000000-0000-0000-0000-000000000005', role: 'farmer', name: 'Johan Pretorius', email: 'johan@farmer.com', phone: '+27 82 123 4567', country: 'South Africa', kyc_status: 'approved', document_name: 'SA Grain Export License', document_ref: 'ZA-GEL-9821', document_url: 'johan_grain_license.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000001', role: 'supplier', name: 'Tshepo Mokgosi', email: 'tshepo@farmer.com', phone: '+267 7123 4567', country: 'Botswana', kyc_status: 'approved', document_name: 'Botswana Smallholder Agri-Permit', document_ref: 'BW-AGR-4019', document_url: 'tshepo_agri_permit.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000002', role: 'supplier', name: 'Farai Moyo', email: 'farai@farmer.com', phone: '+263 77 123 4567', country: 'Zimbabwe', kyc_status: 'pending', document_name: 'Zimbabwe Biosecurity & Land Certificate', document_ref: 'ZW-BIO-8821', document_url: 'farai_moyo_land_cert.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000003', role: 'supplier', name: 'Mwansa Mwape', email: 'mwansa@farmer.com', phone: '+260 97 123 4567', country: 'Zambia', kyc_status: 'approved', document_name: 'Zambia Cooperative Produce Code', document_ref: 'ZM-COOP-1029', document_url: 'mwansa_coop_code.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000004', role: 'supplier', name: 'Ndapewa Shivute', email: 'ndapewa@farmer.com', phone: '+264 81 123 4567', country: 'Namibia', kyc_status: 'pending', document_name: 'Namibia Livestock Brand Registry', document_ref: 'NM-LBR-8832', document_url: 'ndapewa_livestock_brand.pdf' },
+  { id: 'f1000000-0000-0000-0000-000000000005', role: 'supplier', name: 'Johan Pretorius', email: 'johan@farmer.com', phone: '+27 82 123 4567', country: 'South Africa', kyc_status: 'approved', document_name: 'SA Grain Export License', document_ref: 'ZA-GEL-9821', document_url: 'johan_grain_license.pdf' },
   
   { id: 'b2000000-0000-0000-0000-000000000001', role: 'buyer', name: 'SADC Food Distributors', email: 'orders@sadcfood.com', phone: '+27 11 987 6543', country: 'South Africa', kyc_status: 'approved', document_name: 'SADC Corporate Import Passport', document_ref: 'SADC-BUY-9021', document_url: 'sadc_food_dist_passport.pdf' },
   { id: 'b2000000-0000-0000-0000-000000000002', role: 'buyer', name: 'Botswana Milling Co.', email: 'info@botmilling.co.bw', phone: '+267 391 2345', country: 'Botswana', kyc_status: 'approved', document_name: 'BW Agribusiness Buying License', document_ref: 'BW-ABL-2291', document_url: 'bot_milling_license.pdf' },
@@ -984,10 +984,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const registerUser = (newUser: Omit<User, 'id'>) => {
-    const prefix = newUser.role === 'farmer' ? 'f' : newUser.role === 'buyer' ? 'b' : newUser.role === 'transporter' ? 't' : 'u';
+    const prefix = newUser.role === 'supplier' ? 's' : newUser.role === 'buyer' ? 'b' : newUser.role === 'transporter' ? 't' : 'u';
     const created: User = {
       ...newUser,
-      kyc_status: (newUser.role === 'farmer' || newUser.role === 'buyer' || newUser.role === 'transporter') 
+      kyc_status: (newUser.role === 'supplier' || newUser.role === 'buyer' || newUser.role === 'transporter') 
         ? (newUser.kyc_status || 'pending') 
         : 'approved',
       id: `${prefix}${(users.length + 1).toString().padStart(7, '0')}-0000-0000-0000-000000000001`

@@ -87,7 +87,7 @@ export const RoleSwitcher: React.FC = () => {
                 ? 'bg-amber-950/30 text-amber-400 border-amber-900/60' 
                 : 'bg-emerald-950/30 text-emerald-400'
             }`}>
-              {currentUser.role === 'farmer' ? 'SUPPLIER' : currentUser.role}
+              {currentUser.role === 'supplier' ? 'SUPPLIER' : currentUser.role}
             </Badge>
           </div>
           <p className="text-xs text-zinc-400">
@@ -104,11 +104,11 @@ export const RoleSwitcher: React.FC = () => {
           <Select value={currentUser.id} onValueChange={handleRoleChange}>
             <SelectTrigger className="w-[240px] bg-zinc-900/80 border-zinc-800 hover:border-emerald-800 text-zinc-200 focus:ring-emerald-700">
               <span className="truncate text-xs font-semibold text-zinc-200">
-                {currentUser.name} ({(currentUser.role === 'farmer' ? 'SUPPLIER' : currentUser.role).toUpperCase()})
+                {currentUser.name} ({(currentUser.role === 'supplier' ? 'SUPPLIER' : currentUser.role).toUpperCase()})
               </span>
             </SelectTrigger>
             <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-200">
-              {users.filter(u => u.role === 'buyer' || u.role === 'farmer').map((user) => (
+              {users.filter(u => u.role === 'buyer' || u.role === 'supplier').map((user) => (
                 <SelectItem 
                   key={user.id} 
                   value={user.id}
@@ -117,7 +117,7 @@ export const RoleSwitcher: React.FC = () => {
                   <div className="flex flex-col items-start gap-0.5">
                     <span className="font-medium text-xs">{user.name}</span>
                     <span className="text-[10px] text-zinc-500 uppercase tracking-wide">
-                      {user.role === 'farmer' ? 'supplier' : user.role} ({user.country})
+                      {user.role === 'supplier' ? 'supplier' : user.role} ({user.country})
                     </span>
                   </div>
                 </SelectItem>

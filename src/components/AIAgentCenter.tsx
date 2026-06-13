@@ -24,8 +24,7 @@ interface AgentLog {
 export const AIAgentCenter: React.FC = () => {
   const { submitBid, triggerEvent, formatCurrency, currency } = useApp();
   
-  // Prompt and Pipeline States
-  const [query, setQuery] = useState("I want to export 12 tons of maize from Botswana to South Africa");
+  const [query, setQuery] = useState("I want to export 12 tons of copper wire from Botswana to South Africa");
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(-1); // -1: idle, 0: parsing, 1: discovery, 2: compliance, 3: logistics, 4: documentation, 5: closing, 6: done
   const [pipelineData, setPipelineData] = useState<any>(null);
@@ -36,12 +35,11 @@ export const AIAgentCenter: React.FC = () => {
   // In-memory audit logs for demo presentation
   const [auditLogs, setAuditLogs] = useState<AgentLog[]>([]);
 
-  // Load preset templates
   const presets = [
-    { label: "Botswana Maize Export", text: "I want to export 10 tons of maize from Botswana to South Africa" },
-    { label: "Namibia Beef Export", text: "Export 25 tons of beef from Namibia to UAE" },
-    { label: "SADC FMD Inquiry", text: "Are there any Foot-and-Mouth Disease movement bans from Botswana to South Africa?" },
-    { label: "Phyto Requirements", text: "Explain Botswana phytosanitary requirements for exporting maize to Zimbabwe" }
+    { label: "Botswana Copper Export", text: "I want to export 10 tons of copper wire from Botswana to South Africa" },
+    { label: "Find Buyers (Zambia)", text: "Find enterprise buyers for construction materials in Zambia" },
+    { label: "Logistics Route (NAM)", text: "What is the best route from Walvis Bay to Lusaka for heavy machinery?" },
+    { label: "Compliance Requirements", text: "Explain Botswana compliance requirements for exporting copper to Zimbabwe" }
   ];
 
   // Run the Orchestrator pipeline
@@ -209,7 +207,7 @@ export const AIAgentCenter: React.FC = () => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="w-full h-32 bg-zinc-900/80 border border-zinc-800 hover:border-zinc-700 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 rounded-lg p-3 text-xs text-zinc-100 outline-none resize-none transition-colors"
-                  placeholder="e.g. I want to export 12 tons of maize from Botswana to South Africa"
+                  placeholder="e.g. I want to export 12 tons of copper wire from Botswana to South Africa"
                 />
                 
                 <Button 

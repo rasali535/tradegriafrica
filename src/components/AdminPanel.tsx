@@ -41,7 +41,7 @@ export const AdminPanel: React.FC = () => {
   const [apiResponse, setApiResponse] = useState<string>('{\n  "message": "Click Send Sandbox Request to run execution"\n}');
   const [apiLoading, setApiLoading] = useState<boolean>(false);
   const [newKeyName, setNewKeyName] = useState<string>('');
-  const [newKeyRole, setNewKeyRole] = useState<string>('farmer');
+  const [newKeyRole, setNewKeyRole] = useState<string>('supplier');
   const [newWebhookUrl, setNewWebhookUrl] = useState<string>('');
 
   // NDA & Access Logs states
@@ -230,16 +230,16 @@ export const AdminPanel: React.FC = () => {
       const lowerText = userMsg.toLowerCase();
 
       if (lowerText === 'help') {
-        reply = '👉 Enrollment template:\nREGISTER farm=Nswazwi Orchards, size=180, crop=Sorghum\n\n👉 Crop listing template:\nLIST crop=Beans, quantity=40, price=450';
+        reply = '👉 Enrollment template:\nREGISTER supplier=Chobe Industrials, size=180, industry=Mining\n\n👉 Procurement listing template:\nLIST industry=Steel, quantity=40, price=450';
       } else if (lowerText.startsWith('register')) {
-        const farmMatch = userMsg.match(/farm=([^,]+)/i);
+        const farmMatch = userMsg.match(/supplier=([^,]+)/i);
         const sizeMatch = userMsg.match(/size=(\d+)/i);
-        const cropMatch = userMsg.match(/crop=([^,]+)/i);
+        const cropMatch = userMsg.match(/industry=([^,]+)/i);
 
         if (farmMatch && sizeMatch && cropMatch) {
           const farmName = farmMatch[1].trim();
           const size = Number(sizeMatch[1]);
-          const crop = cropMatch[1].trim() as 'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products';
+          const crop = cropMatch[1].trim() as 'Mining' | 'Construction' | 'Manufacturing' | 'Heavy Machinery' | 'Logistics';
 
           const farmData = {
             owner_id: 'f1000000-0000-0000-0000-000000000001',
@@ -254,21 +254,21 @@ export const AdminPanel: React.FC = () => {
 
           if (isOnline) {
             addCompany(farmData as any);
-            reply = `✅ TradeGridAfrica WhatsApp enrollment SUCCESS!\nCompany: ${farmName}\nSize: ${size} Hectares\nStatus: Certified\nRef: co100000-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
+            reply = `✅ Pula Trade Africa WhatsApp enrollment SUCCESS!\nCompany: ${farmName}\nSize: ${size} Units\nStatus: Certified\nRef: co100000-${Math.random().toString(16).substring(2,6).toUpperCase()}`;
           } else {
             setOfflineQueue(prev => [...prev, { type: 'register_company', data: farmData }]);
             reply = `💾 [OFFLINE QUEUED] Enrollment stored in local device sync queue. Will sync automatically when connection restores.`;
           }
         } else {
-          reply = '❌ Formatting mismatch. Use:\nREGISTER farm=Name, size=Hectares, crop=CropType';
+          reply = '❌ Formatting mismatch. Use:\nREGISTER supplier=Name, size=Units, industry=IndustryType';
         }
       } else if (lowerText.startsWith('list')) {
-        const cropMatch = userMsg.match(/crop=([^,]+)/i);
+        const cropMatch = userMsg.match(/industry=([^,]+)/i);
         const qtyMatch = userMsg.match(/quantity=(\d+)/i);
         const priceMatch = userMsg.match(/price=(\d+)/i);
 
         if (cropMatch && qtyMatch && priceMatch) {
-          const crop = cropMatch[1].trim() as 'Beef' | 'Maize' | 'Sorghum' | 'Horticulture' | 'Poultry feed products';
+          const crop = cropMatch[1].trim() as 'Mining' | 'Construction' | 'Manufacturing' | 'Heavy Machinery' | 'Logistics';
           const qty = Number(qtyMatch[1]);
           const price = Number(priceMatch[1]);
 
@@ -566,10 +566,10 @@ export const AdminPanel: React.FC = () => {
               <p className="text-[10px] text-zinc-500 mt-1.5">Action required for border authorization</p>
             </Card>
             <Card className="glass-card border-zinc-900 p-4">
-              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Verified SADC Farmers</div>
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Verified SADC Suppliers</div>
               <div className="text-2xl font-bold text-emerald-500 mt-1 flex items-center justify-between">
-                <span>{users.filter(u => u.role === 'farmer' && u.kyc_status === 'approved').length} Active</span>
-                <span className="p-1 bg-emerald-950/50 rounded-lg text-emerald-400 border border-emerald-900/60"><Sprout className="h-4 w-4" /></span>
+                <span>{users.filter(u => u.role === 'supplier' && u.kyc_status === 'approved').length} Active</span>
+                <span className="p-1 bg-emerald-950/50 rounded-lg text-emerald-400 border border-emerald-900/60"><Briefcase className="h-4 w-4" /></span>
               </div>
               <p className="text-[10px] text-zinc-500 mt-1.5">Eligible for trade & financing</p>
             </Card>
@@ -596,7 +596,7 @@ export const AdminPanel: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
               <div>
                 <h3 className="text-sm font-semibold text-zinc-300">Regional Onboarding Ledger</h3>
-                <p className="text-xs text-zinc-500">Monitor and approve legal identities across agricultural trade corridors</p>
+                <p className="text-xs text-zinc-500">Monitor and approve legal identities across enterprise trade corridors</p>
               </div>
               
               {/* Filter controls */}
@@ -618,7 +618,7 @@ export const AdminPanel: React.FC = () => {
                   className="bg-zinc-950 border border-zinc-900 rounded-lg text-xs px-2.5 h-9 text-zinc-300 outline-none focus:border-emerald-800"
                 >
                   <option value="all">All Roles</option>
-                  <option value="farmer">Farmers</option>
+                  <option value="supplier">Suppliers</option>
                   <option value="buyer">Buyers</option>
                   <option value="transporter">Logistics</option>
                   <option value="exporter">Exporters</option>
@@ -699,9 +699,9 @@ export const AdminPanel: React.FC = () => {
                         </td>
                         
                         <td className="p-3">
-                          {u.role === 'farmer' && (
+                          {u.role === 'supplier' && (
                             <Badge className="bg-emerald-950/80 text-emerald-400 border border-emerald-900/60 text-[10px] gap-1 px-2 py-0.5">
-                              <Sprout className="h-3 w-3" /> Farmer
+                              <Briefcase className="h-3 w-3" /> Supplier
                             </Badge>
                           )}
                           {u.role === 'buyer' && (
@@ -719,7 +719,7 @@ export const AdminPanel: React.FC = () => {
                               <Layers className="h-3 w-3" /> Exporter
                             </Badge>
                           )}
-                          {u.role !== 'farmer' && u.role !== 'buyer' && u.role !== 'transporter' && u.role !== 'exporter' && (
+                          {u.role !== 'supplier' && u.role !== 'buyer' && u.role !== 'transporter' && u.role !== 'exporter' && (
                             <Badge className="bg-zinc-900 text-zinc-400 border border-zinc-800 text-[10px] px-2 py-0.5">
                               {u.role.toUpperCase()}
                             </Badge>
@@ -897,7 +897,7 @@ export const AdminPanel: React.FC = () => {
                       onChange={e => setNewKeyRole(e.target.value)}
                       className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2.5 h-8 flex-1 outline-none"
                     >
-                      <option value="farmer">Farmer Account</option>
+                      <option value="supplier">Supplier Account</option>
                       <option value="buyer">Buyer System</option>
                       <option value="transporter">Transporter Dispatch</option>
                       <option value="government">Government Regulator</option>
@@ -982,7 +982,7 @@ export const AdminPanel: React.FC = () => {
                       <MessageSquare className="h-3.5 w-3.5 text-emerald-500" />
                       Offline USSD/SMS Agent Simulator
                     </h3>
-                    <p className="text-[9px] text-zinc-500">Test crop onboarding under weak cellular coverage</p>
+                    <p className="text-[9px] text-zinc-500">Test supplier onboarding under weak cellular coverage</p>
                   </div>
                   <Badge className="bg-emerald-950 text-emerald-400 border border-emerald-900 font-mono text-[9px]">
                     +267 79 100 001
@@ -1010,16 +1010,16 @@ export const AdminPanel: React.FC = () => {
               <div className="space-y-2 border-t border-zinc-900 pt-3">
                 <div className="flex gap-1.5 flex-wrap">
                   <button 
-                    onClick={() => setChatInput('REGISTER farm=Orapa Greenfields, size=300, crop=Maize')}
+                    onClick={() => setChatInput('REGISTER supplier=Orapa Industrials, size=300, industry=Mining')}
                     className="text-[9px] font-mono text-zinc-400 hover:text-emerald-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded"
                   >
-                    Enroll Farm
+                    Enroll Supplier
                   </button>
                   <button 
-                    onClick={() => setChatInput('LIST crop=Maize, quantity=75, price=295')}
+                    onClick={() => setChatInput('LIST industry=Steel, quantity=75, price=295')}
                     className="text-[9px] font-mono text-zinc-400 hover:text-emerald-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded"
                   >
-                    List Maize Crop
+                    List Steel Inventory
                   </button>
                 </div>
 

@@ -146,7 +146,7 @@ export default function Home() {
       const role = currentUser.role;
       let region = '';
       let fleet = '';
-      if (role === 'farmer') region = 'chobe';
+      if (role === 'supplier') region = 'chobe';
       else if (role === 'transporter') {
         region = '';
         fleet = 'kalahari';
@@ -166,7 +166,7 @@ export default function Home() {
   const renderActiveDashboard = () => {
     if (!currentUser) return null;
     switch (currentUser.role) {
-      case 'farmer':
+      case 'supplier':
         return <SupplierDashboard />;
       case 'buyer':
         return <BuyerDashboard />;
