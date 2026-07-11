@@ -660,9 +660,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { data: dbRfqs, error: rfqsErr } = await supabase.from('rfqs').select('*, organizations(*)');
         const { data: dbContracts, error: contractsErr } = await supabase.from('contracts').select('*');
 
-        if (usersErr) console.error("Error fetching users", usersErr);
-        if (rfqsErr) console.error("Error fetching rfqs", rfqsErr);
-        if (contractsErr) console.error("Error fetching contracts", contractsErr);
+        if (usersErr) console.warn("Supabase users fetch failed (using mock data):", usersErr.message || usersErr);
+        if (rfqsErr) console.warn("Supabase rfqs fetch failed (using mock data):", rfqsErr.message || rfqsErr);
+        if (contractsErr) console.warn("Supabase contracts fetch failed (using mock data):", contractsErr.message || contractsErr);
 
         // If DB is empty (initial run), fallback to mock data so UI doesn't break
         if (!dbUsers || dbUsers.length === 0) {

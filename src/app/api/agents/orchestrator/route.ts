@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { callGemini } from "@/lib/gemini";
+import { callAI } from "@/lib/ai-client";
 
 // Helper to run Supplier Discovery logic
 async function runSupplierDiscovery(product: string, quantity: number) {
@@ -20,7 +20,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
     ],
     confidence_score: 0.95
   };
-  return callGemini(prompt, fallback);
+  return callAI(prompt, fallback);
 }
 
 // Helper to run RFQ Intelligence logic
@@ -38,7 +38,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
     expected_bids: 5,
     confidence_score: 0.92
   };
-  return callGemini(prompt, fallback);
+  return callAI(prompt, fallback);
 }
 
 // Helper to run Compliance logic
@@ -56,7 +56,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
     risk_summary: "Standard industrial compliance required.",
     confidence_score: 0.96
   };
-  return callGemini(prompt, fallback);
+  return callAI(prompt, fallback);
 }
 
 // Helper to run Market Intelligence logic
@@ -76,7 +76,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
     market_insight: "Regional supply chains remain robust, leading to stable bulk pricing.",
     confidence_score: 0.88
   };
-  return callGemini(prompt, fallback);
+  return callAI(prompt, fallback);
 }
 
 export async function POST(req: NextRequest) {

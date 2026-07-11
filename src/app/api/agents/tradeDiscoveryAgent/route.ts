@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { callGemini } from "@/lib/gemini";
+import { callAI } from "@/lib/ai-client";
 
 export async function POST(req: NextRequest) {
   const timestamp = new Date().toISOString();
@@ -83,7 +83,7 @@ OUTPUT FORMAT (STRICT JSON ONLY):
 }`;
 
   try {
-    const result = await callGemini(prompt, fallbackOutput);
+    const result = await callAI(prompt, fallbackOutput);
     const data = result.data || fallbackOutput;
     if (!data.buyers || !Array.isArray(data.buyers)) {
       data.buyers = fallbackOutput.buyers;
