@@ -20,7 +20,7 @@ We leverage the extreme high-throughput of **AMD MI300X accelerators** (via the 
 
 ## 🛠️ Tech Stack
 - **Frontend/Backend**: Next.js 14 (App Router), React, TailwindCSS
-- **AI Infrastructure**: Gemma 4 (via Fireworks AI / Local Ollama) running on AMD MI300X instances.
+- **AI Infrastructure**: Gemma 4 E4B (via Fireworks AI / Local Ollama) running on AMD MI300X instances.
 - **Deployment**: Dockerized (`standalone` mode) for reliable cloud hosting.
 
 ## 🚀 Getting Started
@@ -30,11 +30,11 @@ We provide a complete Dockerized environment for easy evaluation by the judges.
 ### Prerequisites
 - Docker and Docker Compose installed.
 
-### Installation
+3. Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tradegrid-africa.git
-   cd tradegrid-africa
+   git clone https://github.com/rasali535/Pula-Trade.git
+   cd Pula-Trade
    ```
 
 2. Set up environment variables:
@@ -48,7 +48,7 @@ We provide a complete Dockerized environment for easy evaluation by the judges.
    docker compose up --build -d
    ```
 
-4. Access the platform at `http://localhost:3000`.
+4. Access the platform at `http://localhost:7501`.
 
 ## 📈 The Market Opportunity (Track 3 Focus)
 Sub-Saharan Africa possesses massive industrial potential, yet cross-border distribution remains bottlenecked by paper-based processes. TradeGrid Africa unlocks a **$300B+ enterprise sector** by digitizing compliance and providing real-time AI trade intelligence.
