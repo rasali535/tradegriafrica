@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 5000",
+    "dev": "next dev -p 7501",
     "build": "next build",
-    "start": "next start -p 5000",
-    "preview": "next start -p 5000",
+    "start": "next start -p 7501",
+    "preview": "next start -p 7501",
     "lint": "eslint"
   },
   "dependencies": {

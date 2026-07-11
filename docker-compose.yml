@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
     container_name: tradegrid-africa-web
     ports:
-      - "3000:3000"
+      - "7501:7501"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=7501
     env_file:
       - .env.local
     restart: unless-stopped
