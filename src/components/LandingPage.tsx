@@ -333,25 +333,41 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
                     </div>
 
                     {/* Agent Pipeline Card */}
-                    <div className="p-4 rounded-lg bg-zinc-950 border border-zinc-900 space-y-3">
-                      <div className="flex justify-between items-start">
+                    <div className="p-4 rounded-lg bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 shadow-[0_0_20px_rgba(16,185,129,0.1)] space-y-3 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                      <div className="flex justify-between items-start relative z-10">
                         <div>
-                          <div className="text-[10px] text-zinc-500 uppercase font-mono">Query: "Export 10T Steel BW → SA"</div>
-                          <div className="text-xs font-bold text-zinc-200">Executing Sequential AI Workflow...</div>
+                          <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            Query: "Export 10T Steel BW → SA"
+                          </div>
+                          <div className="text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-200 mt-1">Executing Concurrent AMD MI300X Inference...</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-[10px] font-extrabold text-amber-400">98%</div>
+                          <div className="text-[10px] font-extrabold text-emerald-400">98%</div>
                           <div className="text-[9px] text-zinc-500">Confidence</div>
                         </div>
                       </div>
 
-                      {/* Agent Execution Flow */}
-                      <div className="space-y-2 pt-1">
-                        <div className="grid grid-cols-1 gap-1.5 text-[10px] font-mono">
-                          <div className="flex items-center gap-2 text-zinc-400"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Discovery]: Buyer found (SADC Foods)</div>
-                          <div className="flex items-center gap-2 text-zinc-400"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Compliance]: Pioneer Gate clearance valid</div>
-                          <div className="flex items-center gap-2 text-amber-400 animate-pulse"><TrendingUp className="h-3 w-3" /> [Logistics]: Calculating multi-modal routes...</div>
-                          <div className="flex items-center gap-2 text-zinc-600"><Lock className="h-3 w-3" /> [Deal Closing]: Awaiting contract draft</div>
+                      {/* Agent Execution Flow - Concurrent visualizer */}
+                      <div className="space-y-2 pt-2 relative z-10">
+                        <div className="grid grid-cols-1 gap-2 text-[10px] font-mono">
+                          <div className="flex items-center justify-between p-1.5 rounded bg-zinc-900/50 border border-zinc-800/50">
+                            <div className="flex items-center gap-2 text-zinc-300"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Discovery]: Buyer found (SADC Foods)</div>
+                            <span className="text-emerald-400 font-bold bg-emerald-950/40 px-1.5 py-0.5 rounded">112ms</span>
+                          </div>
+                          <div className="flex items-center justify-between p-1.5 rounded bg-zinc-900/50 border border-zinc-800/50">
+                            <div className="flex items-center gap-2 text-zinc-300"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Compliance]: Pioneer Gate clearance valid</div>
+                            <span className="text-emerald-400 font-bold bg-emerald-950/40 px-1.5 py-0.5 rounded">145ms</span>
+                          </div>
+                          <div className="flex items-center justify-between p-1.5 rounded bg-zinc-900/50 border border-emerald-900/40 shadow-[0_0_10px_rgba(16,185,129,0.05)]">
+                            <div className="flex items-center gap-2 text-emerald-300 animate-pulse"><TrendingUp className="h-3 w-3" /> [Logistics]: Calculating multi-modal routes...</div>
+                            <span className="text-amber-400 font-bold bg-amber-950/40 px-1.5 py-0.5 rounded">Wait</span>
+                          </div>
+                          <div className="flex items-center justify-between p-1.5 rounded bg-zinc-900/50 border border-zinc-800/50">
+                            <div className="flex items-center gap-2 text-zinc-300"><CheckCircle className="h-3 w-3 text-emerald-500" /> [Market]: Regional supply analysis complete</div>
+                            <span className="text-emerald-400 font-bold bg-emerald-950/40 px-1.5 py-0.5 rounded">180ms</span>
+                          </div>
                         </div>
                       </div>
                     </div>

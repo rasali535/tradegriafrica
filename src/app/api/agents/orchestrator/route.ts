@@ -92,20 +92,19 @@ export async function POST(req: NextRequest) {
   try {
     const parsed = parseFallback;
 
-    // Step 1
-    const supplierResult = await runSupplierDiscovery(parsed.product, parsed.quantity);
-    // Step 2
-    const rfqResult = await runRFQIntelligence(parsed.product, parsed.quantity);
-    // Step 3
-    const complianceResult = await runCompliance(parsed.product);
-    // Step 4
-    const marketResult = await runMarketIntelligence(parsed.product);
+    // Execute all agents concurrently to demonstrate AMD Developer Cloud's high throughput capabilities
+    const [supplierResult, rfqResult, complianceResult, marketResult] = await Promise.all([
+      runSupplierDiscovery(parsed.product, parsed.quantity),
+      runRFQIntelligence(parsed.product, parsed.quantity),
+      runCompliance(parsed.product),
+      runMarketIntelligence(parsed.product)
+    ]);
 
     const logs = [
-      { agent: "supplierDiscoveryAgent", input: parsed, output: supplierResult.data, latency_ms: 450, confidence_score: 0.95, timestamp: new Date().toISOString() },
-      { agent: "rfqIntelligenceAgent", input: parsed, output: rfqResult.data, latency_ms: 380, confidence_score: 0.92, timestamp: new Date().toISOString() },
-      { agent: "complianceAgent", input: parsed, output: complianceResult.data, latency_ms: 410, confidence_score: 0.96, timestamp: new Date().toISOString() },
-      { agent: "marketIntelligenceAgent", input: parsed, output: marketResult.data, latency_ms: 500, confidence_score: 0.88, timestamp: new Date().toISOString() }
+      { agent: "supplierDiscoveryAgent", input: parsed, output: supplierResult.data, latency_ms: supplierResult.latency_ms, confidence_score: supplierResult.confidence_score, timestamp: new Date().toISOString() },
+      { agent: "rfqIntelligenceAgent", input: parsed, output: rfqResult.data, latency_ms: rfqResult.latency_ms, confidence_score: rfqResult.confidence_score, timestamp: new Date().toISOString() },
+      { agent: "complianceAgent", input: parsed, output: complianceResult.data, latency_ms: complianceResult.latency_ms, confidence_score: complianceResult.confidence_score, timestamp: new Date().toISOString() },
+      { agent: "marketIntelligenceAgent", input: parsed, output: marketResult.data, latency_ms: marketResult.latency_ms, confidence_score: marketResult.confidence_score, timestamp: new Date().toISOString() }
     ];
 
     return Response.json({
