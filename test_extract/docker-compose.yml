@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  tradegrid-africa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tradegrid-africa-web
+    ports:
+      - "7501:7501"
+    environment:
+      - NODE_ENV=production
+      - PORT=7501
+    env_file:
+      - .env.local
+    restart: unless-stopped

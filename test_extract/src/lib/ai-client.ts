@@ -110,33 +110,15 @@ export async function callAI(
     };
   }
 
-  // 🔥 LIVE MODE (Fireworks AI) 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+  // ── LIVE MODE (Fireworks AI) ────────────────────────────────────────
   try {
-    let endpoint = FIREWORKS_MODEL_ENDPOINT;
-    let fwPayload: any = { ...payload, model: FIREWORKS_MODEL_NAME };
-    let isRawCompletion = false;
-
-    // Fix for missing chat_template on custom deployments
-    if (FIREWORKS_MODEL_NAME.includes("/deployments/")) {
-      endpoint = "https://api.fireworks.ai/inference/v1/completions";
-      isRawCompletion = true;
-      const rawPrompt = `<start_of_turn>system\n${payload.messages[0].content}<end_of_turn>\n<start_of_turn>user\n${prompt}<end_of_turn>\n<start_of_turn>model\n`;
-      
-      fwPayload = {
-        model: FIREWORKS_MODEL_NAME,
-        prompt: rawPrompt,
-        max_tokens: 8192,
-        temperature: payload.temperature
-      };
-    }
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(FIREWORKS_MODEL_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${FIREWORKS_API_KEY}`
       },
-      body: JSON.stringify(fwPayload),
+      body: JSON.stringify({ ...payload, model: FIREWORKS_MODEL_NAME }),
     });
 
     if (!response.ok) {
@@ -145,9 +127,7 @@ export async function callAI(
     }
 
     const result = await response.json();
-    const rawText = isRawCompletion 
-      ? (result.choices?.[0]?.text ?? "") 
-      : (result.choices?.[0]?.message?.content ?? "");
+    const rawText = result.choices?.[0]?.message?.content ?? "";
 
     if (!rawText) {
       throw new Error(`Fireworks returned empty content`);
