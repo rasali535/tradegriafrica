@@ -7,7 +7,7 @@
 
 const FIREWORKS_API_KEY = process.env.FIREWORKS_API_KEY || "";
 const FIREWORKS_MODEL_ENDPOINT = process.env.FIREWORKS_MODEL_ENDPOINT || "https://api.fireworks.ai/inference/v1/chat/completions";
-const FIREWORKS_MODEL_NAME = process.env.FIREWORKS_MODEL_NAME || "accounts/fireworks/models/gemma2-9b-it";
+const FIREWORKS_MODEL_NAME = process.env.FIREWORKS_MODEL_NAME || "accounts/fireworks/models/deepseek-v4-pro";
 
 const AMD_ENDPOINT = process.env.AI_MODEL_ENDPOINT || "";
 const AMD_API_KEY = process.env.AI_API_KEY || "ollama";
