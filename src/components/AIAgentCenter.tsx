@@ -29,6 +29,8 @@ interface Message {
   currentStep?: number;
   loading?: boolean;
   error?: string;
+  latency_ms?: number;
+  source?: string;
 }
 
 export const AIAgentCenter: React.FC = () => {
@@ -80,7 +82,9 @@ export const AIAgentCenter: React.FC = () => {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'ai',
-        content: data.text || "Sorry, I couldn't generate a response."
+        content: data.text || "Sorry, I couldn't generate a response.",
+        latency_ms: data.latency_ms,
+        source: data.source
       }]);
     } catch (err: any) {
       setMessages(prev => [...prev, {
@@ -179,8 +183,27 @@ export const AIAgentCenter: React.FC = () => {
                   <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
                     <Bot className="h-4 w-4 text-emerald-400" />
                   </div>
-                  <div className="bg-zinc-900/60 border border-zinc-800/80 text-zinc-200 p-3.5 rounded-2xl rounded-tl-sm text-sm leading-relaxed shadow-sm">
-                    {msg.content}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="bg-zinc-900/60 border border-zinc-800/80 text-zinc-200 p-3.5 rounded-2xl rounded-tl-sm text-sm leading-relaxed shadow-sm">
+                      {msg.content}
+                    </div>
+                    {msg.source && (
+                      <div className="flex items-center gap-2 pl-2">
+                        <span className="text-[10px] uppercase font-mono text-zinc-500 flex items-center gap-1">
+                          <Server className="h-3 w-3" />
+                          {msg.source.includes('AMD') ? (
+                            <span className="text-red-400 font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">{msg.source}</span>
+                          ) : (
+                            <span className="text-emerald-500">{msg.source}</span>
+                          )}
+                        </span>
+                        {msg.latency_ms && (
+                          <span className="text-[10px] font-mono text-zinc-500">
+                            {msg.latency_ms}ms
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

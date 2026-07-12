@@ -4,33 +4,41 @@
 [![Built with Next.js](https://img.shields.io/badge/Built_with-Next.js-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![Powered by AMD](https://img.shields.io/badge/Powered_by-AMD_MI300X-red?style=for-the-badge&logo=amd)](https://amd.com)
 [![AI Model](https://img.shields.io/badge/AI-Gemma_4-blue?style=for-the-badge)](https://ai.google.dev/gemma)
+[![Deployment](https://img.shields.io/badge/Hosted_on-Hostinger-purple?style=for-the-badge)](https://magenta-termite-395904.hostingersite.com/)
 
 TradeGrid Africa is a multi-agent B2B procurement platform designed to eliminate the bottlenecks of cross-border trade within the Southern African Development Community (SADC). 
 
 This project was built for the **AMD Developer Hackathon Act II (Track 3: Unicorn Track)**.
 
-## 🧠 AMD AI Architecture
-To handle complex enterprise logistics, compliance checking, and contract generation, TradeGrid Africa utilizes a **Multi-Agent Orchestrator** powered by **Gemma 4**.
+## 🧠 AMD AI Architecture & High-Availability Pipeline
+To handle complex enterprise logistics, compliance checking, and contract generation, TradeGrid Africa utilizes a **Multi-Agent Orchestrator** powered by Google's **Gemma 4**.
 
 We leverage the extreme high-throughput of **AMD MI300X accelerators** (via the AMD Developer Cloud) to run our agents **concurrently**. Instead of sequential AI processing, our system fires parallel inference requests for Supplier Discovery, RFQ Intelligence, Trade Compliance, and Logistics Routing. 
 
-### Why AMD?
-- **Concurrency**: Parallel execution of 4 heavy LLM workloads cuts end-to-end pipeline latency by over 60%.
-- **Throughput**: AMD hardware effortlessly handles the large context windows required for analyzing complex SADC trade treaties and multimodal logistics matrices.
+### Robust 3-Tier AI Fallback Mechanism
+For enterprise reliability during live pitches and production deployments, we engineered a custom 3-tier ultra-fast failover strategy:
+1. **Primary**: **AMD Developer Cloud** (Powered by AMD Instinct GPUs running `gemma2-9b-it`).
+2. **Secondary Fallback**: **Fireworks AI** Custom Deployment (Gemma 4).
+3. **Tertiary Fallback**: **AI/ML API** (`google/gemma-4-26b-a4b-it`).
+
+*Note: The platform features aggressive micro-timeouts to immediately reroute traffic to healthy endpoints if an AI node scales down or goes offline, ensuring the AI Agent Center is always responsive.*
 
 ## 🛠️ Tech Stack
 - **Frontend/Backend**: Next.js 14 (App Router), React, TailwindCSS
-- **AI Infrastructure**: Gemma 4 E4B (via Fireworks AI / Local Ollama) running on AMD MI300X instances.
-- **Deployment**: Dockerized (`standalone` mode) for reliable cloud hosting.
+- **AI Infrastructure**: Gemma 4 (AMD Cloud / Fireworks AI / AI/ML API)
+- **Deployment**: Live on **Hostinger** (`magenta-termite-395904.hostingersite.com`) and fully Dockerized (`standalone` mode).
 
 ## 🚀 Getting Started
 
-We provide a complete Dockerized environment for easy evaluation by the judges.
+You can test the live application at our Hostinger deployment:
+**[TradeGrid Africa Live Demo](http://magenta-termite-395904.hostingersite.com/)**
+
+Or run the complete Dockerized environment locally:
 
 ### Prerequisites
 - Docker and Docker Compose installed.
 
-3. Installation
+### Installation
 1. Clone the repository:
    ```bash
    git clone https://github.com/rasali535/Pula-Trade.git
@@ -40,7 +48,13 @@ We provide a complete Dockerized environment for easy evaluation by the judges.
 2. Set up environment variables:
    Create a `.env.local` file in the root directory:
    ```env
-   FIREWORKS_API_KEY=your_api_key_here
+   # AI Inference
+   AI_MODEL_ENDPOINT=https://fresh-paws-lick.loca.lt/v1/chat/completions
+   AI_API_KEY=ollama
+   
+   # Fallback Endpoints
+   FIREWORKS_API_KEY=your_fireworks_key
+   AIML_API_KEY=your_aiml_key
    ```
 
 3. Spin up the application:
@@ -55,9 +69,6 @@ Sub-Saharan Africa possesses massive industrial potential, yet cross-border dist
 
 ## 🎥 Video Demo
 [Insert Link to YouTube/Vimeo Demo Here]
-
-## 🤝 Team
-- [Your Name] - [Your Role]
 
 ---
 *Built with ❤️ for the AMD Developer Hackathon.*
