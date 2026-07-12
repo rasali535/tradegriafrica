@@ -15,7 +15,8 @@ const AMD_MODEL = process.env.AI_MODEL_NAME || "gemma4-e4b";
 
 export async function callAI(
   prompt: string,
-  fallbackJson: any
+  fallbackJson: any,
+  options: { isJson?: boolean, systemPrompt?: string } = { isJson: true }
 ): Promise<{
   data: any;
   latency_ms: number;
@@ -23,24 +24,31 @@ export async function callAI(
   source: string;
 }> {
   const startTime = Date.now();
-  const payload = {
+  const isJson = options.isJson !== false;
+  
+  const payload: any = {
     messages: [
       {
         role: "system",
-        content: "You are a backend AI agent. Always return valid JSON matching the exact schema requested by the user. Do not include markdown code blocks (```json) or any other text before or after the JSON."
+        content: options.systemPrompt || (isJson 
+          ? "You are a backend AI agent. Always return valid JSON matching the exact schema requested by the user. Do not include markdown code blocks (```json) or any other text before or after the JSON." 
+          : "You are a helpful, professional AI assistant for TradeGrid Africa, a B2B procurement platform. Answer questions clearly and concisely.")
       },
       {
         role: "user",
         content: prompt
       }
     ],
-    temperature: 0.15,
+    temperature: isJson ? 0.15 : 0.7,
     max_tokens: 16384,
     top_k: 40,
     presence_penalty: 0,
     frequency_penalty: 0,
-    response_format: { type: "json_object" }
   };
+
+  if (isJson) {
+    payload.response_format = { type: "json_object" };
+  }
 
   // Try AMD Developer Cloud First for Gemma 4
   if (AMD_ENDPOINT) {
@@ -59,10 +67,18 @@ export async function callAI(
         const rawText = result.choices?.[0]?.message?.content ?? "";
         if (rawText) {
           let cleanText = rawText.trim();
-          if (cleanText.startsWith("```")) {
+          if (isJson && cleanText.startsWith("```")) {
             cleanText = cleanText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
           }
-          const parsedData = JSON.parse(cleanText);
+          
+          let parsedData;
+          if (isJson) {
+            try { parsedData = JSON.parse(cleanText); } 
+            catch(e) { parsedData = fallbackJson; }
+          } else {
+            parsedData = cleanText;
+          }
+
           return {
             data: parsedData,
             latency_ms: Date.now() - startTime,
@@ -117,7 +133,7 @@ export async function callAI(
     }
 
     let cleanText = rawText.trim();
-    if (cleanText.startsWith("```")) {
+    if (isJson && cleanText.startsWith("```")) {
       cleanText = cleanText
         .replace(/^```(?:json)?\s*/i, "")
         .replace(/\s*```$/, "")
@@ -125,11 +141,15 @@ export async function callAI(
     }
 
     let parsedData;
-    try {
-      parsedData = JSON.parse(cleanText);
-    } catch (e) {
-      console.error("[Fireworks] Failed to parse JSON:", cleanText);
-      throw new Error("Model returned invalid JSON.");
+    if (isJson) {
+      try {
+        parsedData = JSON.parse(cleanText);
+      } catch (e) {
+        console.error("[Fireworks] Failed to parse JSON:", cleanText);
+        throw new Error("Model returned invalid JSON.");
+      }
+    } else {
+      parsedData = cleanText;
     }
 
     const latency = Date.now() - startTime;

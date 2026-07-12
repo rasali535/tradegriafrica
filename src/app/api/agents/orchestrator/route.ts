@@ -87,10 +87,16 @@ export async function POST(req: NextRequest) {
   const query = body.query || "";
   if (!query) return Response.json({ error: "Query is required" }, { status: 400 });
 
+  const intentPrompt = `You are a procurement intent parser. Extract the primary product and quantity from the user's request. 
+INPUT: "${query}"
+OUTPUT FORMAT (STRICT JSON ONLY):
+{ "intent": "procurement", "product": "string (e.g. copper, industrial goods)", "quantity": number (e.g. 10, 50, or default to 10 if unspecified) }`;
+  
   const parseFallback = { intent: "procurement", product: "industrial goods", quantity: 10 };
 
   try {
-    const parsed = parseFallback;
+    const intentRes = await callAI(intentPrompt, parseFallback);
+    const parsed = intentRes.data;
 
     // Execute all agents concurrently to demonstrate AMD Developer Cloud's high throughput capabilities
     const [supplierResult, rfqResult, complianceResult, marketResult] = await Promise.all([
