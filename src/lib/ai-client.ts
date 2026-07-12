@@ -57,7 +57,8 @@ export async function callAI(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${AMD_API_KEY}`
+          "Authorization": `Bearer ${AMD_API_KEY}`,
+          "Bypass-Tunnel-Reminder": "true"
         },
         body: JSON.stringify({ ...payload, model: AMD_MODEL })
       });
