@@ -9,6 +9,10 @@ const FIREWORKS_API_KEY = process.env.FIREWORKS_API_KEY || "";
 const FIREWORKS_MODEL_ENDPOINT = process.env.FIREWORKS_MODEL_ENDPOINT || "https://api.fireworks.ai/inference/v1/chat/completions";
 const FIREWORKS_MODEL_NAME = process.env.FIREWORKS_MODEL_NAME || "accounts/fireworks/models/gemma4-e4b";
 
+const AIML_API_KEY = process.env.AIML_API_KEY || "";
+const AIML_MODEL_ENDPOINT = process.env.AIML_MODEL_ENDPOINT || "https://api.aimlapi.com/v1/chat/completions";
+const AIML_MODEL_NAME = process.env.AIML_MODEL_NAME || "google/gemma-4-26b-a4b-it";
+
 const AMD_ENDPOINT = process.env.AI_MODEL_ENDPOINT || "";
 const AMD_API_KEY = process.env.AI_API_KEY || "ollama";
 const AMD_MODEL = process.env.AI_MODEL_NAME || "gemma2-9b-it";
@@ -60,7 +64,8 @@ export async function callAI(
           "Authorization": `Bearer ${AMD_API_KEY}`,
           "Bypass-Tunnel-Reminder": "true"
         },
-        body: JSON.stringify({ ...payload, model: AMD_MODEL })
+        body: JSON.stringify({ ...payload, model: AMD_MODEL }),
+        signal: AbortSignal.timeout(2000)
       });
 
       if (amdResponse.ok) {
@@ -137,6 +142,7 @@ export async function callAI(
         "Authorization": `Bearer ${FIREWORKS_API_KEY}`
       },
       body: JSON.stringify(fwPayload),
+      signal: AbortSignal.timeout(3000)
     });
 
     if (!response.ok) {
@@ -182,8 +188,55 @@ export async function callAI(
     };
   } catch (error: any) {
     console.error("[Fireworks] Live call failed:", error?.message ?? error);
-    // Graceful fallback during a pitch if the API fails
-    console.warn("Falling back to local simulation data due to API error.");
+    
+    // ── FALLBACK 3: AI/ML API ──────────────────────────────────────────────
+    if (AIML_API_KEY) {
+      console.warn("Falling back to AI/ML API...");
+      try {
+        const aimlResponse = await fetch(AIML_MODEL_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AIML_API_KEY}`
+          },
+          body: JSON.stringify({ ...payload, model: AIML_MODEL_NAME })
+        });
+
+        if (aimlResponse.ok) {
+          const aimlResult = await aimlResponse.json();
+          const rawText = aimlResult.choices?.[0]?.message?.content ?? "";
+          if (rawText) {
+            let cleanText = rawText.trim();
+            if (isJson && cleanText.startsWith("```")) {
+              cleanText = cleanText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+            }
+
+            let parsedData;
+            if (isJson) {
+              try { parsedData = JSON.parse(cleanText); } 
+              catch(e) { parsedData = fallbackJson; }
+            } else {
+              parsedData = cleanText;
+            }
+
+            return {
+              data: parsedData,
+              latency_ms: Date.now() - startTime,
+              confidence_score: 0.90,
+              source: `AI/ML API (${AIML_MODEL_NAME})`
+            };
+          }
+        } else {
+          const errText = await aimlResponse.text();
+          console.error(`[AI/ML API] HTTP ${aimlResponse.status}: ${errText}`);
+        }
+      } catch (aimlError: any) {
+        console.error("[AI/ML API] Connection failed:", aimlError?.message ?? aimlError);
+      }
+    }
+
+    // Graceful fallback during a pitch if all APIs fail
+    console.warn("Falling back to local simulation data due to all API errors.");
     return {
       data: fallbackJson,
       latency_ms: Date.now() - startTime,
