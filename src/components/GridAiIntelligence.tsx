@@ -408,6 +408,7 @@ export const GridAiIntelligence: React.FC = () => {
               ))}
             </CardContent>
           </Card>
+          </div>
         </div>
       )}
 
