@@ -24,14 +24,66 @@ export default function LoginPage() {
     }
 
     setBusy(true);
-    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (loginError) {
+      setBusy(false);
       setError(loginError.message);
       return;
     }
 
+    try {
+      const pendingRaw = localStorage.getItem("tradegrid_pending_onboarding");
+      if (pendingRaw && loginData.user) {
+        const pending = JSON.parse(pendingRaw);
+
+        const { data: existingProfile } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", loginData.user.id)
+          .maybeSingle();
+
+        if (!existingProfile) {
+          const { data: org, error: orgError } = await supabase.from("organizations").insert({
+            name: pending.companyName,
+            type: pending.role === "buyer" ? "buyer" : pending.role === "supplier" ? "supplier" : "both",
+            country: pending.country,
+            registration_number: pending.registrationNumber,
+            created_by: loginData.user.id,
+            region: pending.region,
+            industry: pending.industry,
+            verification_status: "Pending",
+            trust_score: 50
+          }).select().single();
+
+          if (orgError) throw orgError;
+
+          const nameParts = String(pending.name || "").trim().split(/\s+/);
+          const firstName = nameParts.shift() || pending.name || email;
+          const lastName = nameParts.join(" ");
+
+          const { error: profileError } = await supabase.from("users").insert({
+            id: loginData.user.id,
+            org_id: org.id,
+            role: pending.role,
+            email: pending.email || email,
+            first_name: firstName,
+            last_name: lastName,
+            phone: pending.phone || ""
+          });
+
+          if (profileError) throw profileError;
+        }
+
+        localStorage.removeItem("tradegrid_pending_onboarding");
+      }
+    } catch (profileError: any) {
+      setBusy(false);
+      setError(profileError.message || "Signed in, but company setup could not be completed.");
+      return;
+    }
+
+    setBusy(false);
     window.location.assign("/sandbox");
   };
 
