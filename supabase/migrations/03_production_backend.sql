@@ -153,6 +153,7 @@ create table if not exists public.event_logs (
   created_at timestamptz not null default now()
 );
 create index if not exists event_logs_org_time_idx on public.event_logs(organization_id, created_at desc);
+create index if not exists event_logs_actor_user_idx on public.event_logs(actor_user_id);
 
 create or replace function private.set_updated_at()
 returns trigger
