@@ -9,7 +9,7 @@ import { ShieldCheck, TrendingDown, Clock, Scale, ArrowRight, BrainCircuit, Chec
 import { useApp } from '@/context/AppContext';
 
 export const RfqEvaluationScreen: React.FC<{ rfqId: string, onBack: () => void }> = ({ rfqId, onBack }) => {
-  const { rfqs, bids, updateBidStatus, updateRfqStatus, formatCurrency } = useApp();
+  const { rfqs, bids, awardBidAndCreateShipment, formatCurrency } = useApp();
   
   const currentRfq = rfqs.find(r => r.id === rfqId);
   const activeBids = bids.filter(b => b.rfq_id === rfqId);
@@ -20,12 +20,12 @@ export const RfqEvaluationScreen: React.FC<{ rfqId: string, onBack: () => void }
 
   const handleAwardContract = () => {
     if (!selectedBid) return;
-    updateBidStatus(selectedBid.id, 'accepted');
-    activeBids.forEach(b => {
-      if (b.id !== selectedBid.id) updateBidStatus(b.id, 'rejected');
-    });
-    updateRfqStatus(rfqId, 'awarded');
-    alert(`Contract awarded to Supplier ${selectedBid.supplier_company_id}! RFQ Closed.`);
+    const shipment = awardBidAndCreateShipment(selectedBid.id);
+    if (!shipment) {
+      alert('TradeGrid could not create the shipment execution record for this award.');
+      return;
+    }
+    alert(`Contract awarded. Shipment ${shipment.id.slice(0, 8)} is ready for transporter assignment and GridAi monitoring.`);
     onBack();
   };
 
