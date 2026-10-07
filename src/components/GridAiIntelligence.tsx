@@ -43,7 +43,18 @@ const trendData = [
 ];
 
 export const GridAiIntelligence: React.FC = () => {
-  const { shipments, rfqs, bids, exports, tradeCorridors, currentUser, formatCurrency } = useApp();
+  const {
+    shipments,
+    shipmentDocuments,
+    telemetryHistory,
+    recordTelemetry,
+    rfqs,
+    bids,
+    exports,
+    tradeCorridors,
+    currentUser,
+    formatCurrency,
+  } = useApp();
   const [view, setView] = useState<IntelligenceView>("overview");
   const [telemetry, setTelemetry] = useState<any>(null);
   const [riskAnalysis, setRiskAnalysis] = useState<any>(null);
@@ -75,6 +86,12 @@ export const GridAiIntelligence: React.FC = () => {
   const selectedShipment = activeShipments[0] || pendingShipments[0] || shipments[0] || null;
   const selectedExport = exports[0] || null;
   const selectedRfq = openRfqs[0] || rfqs[0] || null;
+  const selectedShipmentTelemetry = selectedShipment
+    ? telemetryHistory.filter((item) => item.shipment_id === selectedShipment.id).slice(0, 8)
+    : [];
+  const selectedShipmentDocuments = selectedShipment
+    ? shipmentDocuments.filter((document) => document.shipment_id === selectedShipment.id)
+    : [];
 
   useEffect(() => {
     if (view !== "cargo" || !selectedShipment) return;
@@ -94,7 +111,19 @@ export const GridAiIntelligence: React.FC = () => {
         });
         if (!res.ok) return;
         const data = await res.json();
-        if (active) setTelemetry(data);
+        if (active) {
+          setTelemetry(data);
+          recordTelemetry({
+            shipment_id: selectedShipment.id,
+            timestamp: data.timestamp,
+            gps: data.gps,
+            temperature_c: data.telemetry.temperature_c,
+            humidity_pct: data.telemetry.humidity_pct,
+            shock_g: data.telemetry.shock_g,
+            door_open: data.telemetry.door_open,
+            alerts: data.alerts || [],
+          });
+        }
       } catch {
         // Keep the cargo screen usable if the simulator is unavailable.
       }
@@ -293,6 +322,38 @@ export const GridAiIntelligence: React.FC = () => {
                   </Badge>
                 </div>
               ))}
+
+              <div className="mt-5 border-t border-zinc-800 pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-zinc-400">Shipment-linked documents</div>
+                    <div className="mt-1 text-[11px] text-zinc-600">
+                      {selectedShipment ? `Execution pack for ${selectedShipment.id.slice(0, 10)}` : "Award an RFQ to create an execution document pack."}
+                    </div>
+                  </div>
+                  <Badge className="border-zinc-700 bg-zinc-900 text-zinc-300">{selectedShipmentDocuments.length} linked</Badge>
+                </div>
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  {selectedShipmentDocuments.map((document) => (
+                    <button
+                      key={document.id}
+                      onClick={() => window.open(document.url, "_blank", "noopener,noreferrer")}
+                      className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-3 text-left transition hover:border-emerald-800"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold text-zinc-200">{document.title}</span>
+                        <span className="text-[10px] font-bold uppercase text-emerald-400">{document.status}</span>
+                      </div>
+                      <div className="mt-1 font-mono text-[10px] text-zinc-600">{document.bid_id.slice(0, 10)}</div>
+                    </button>
+                  ))}
+                  {selectedShipmentDocuments.length === 0 && (
+                    <div className="rounded-lg border border-dashed border-zinc-800 p-4 text-xs text-zinc-600 md:col-span-2">
+                      No shipment document pack has been created yet.
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -381,6 +442,22 @@ export const GridAiIntelligence: React.FC = () => {
                       {telemetry.alerts.join(" · ")}
                     </div>
                   )}
+                  <div className="border-t border-zinc-800 pt-3">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Telemetry history</span>
+                      <span className="text-[10px] text-emerald-400">{selectedShipmentTelemetry.length} recent samples</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {selectedShipmentTelemetry.slice(0, 4).map((sample) => (
+                        <div key={sample.id} className="flex items-center justify-between rounded-md bg-zinc-900/50 px-2 py-1.5 text-[10px]">
+                          <span className="text-zinc-500">{new Date(sample.timestamp).toLocaleTimeString()}</span>
+                          <span className={sample.alerts.length ? "font-bold text-amber-400" : "text-zinc-300"}>
+                            {sample.temperature_c}°C · {sample.shock_g}G {sample.alerts.length ? `· ${sample.alerts.length} alert(s)` : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </>
               ) : (
                 <p className="text-xs text-zinc-500">Select or create a shipment to start the GridAi edge telemetry stream.</p>

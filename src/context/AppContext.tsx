@@ -115,6 +115,29 @@ export interface Shipment {
   created_at: string;
 }
 
+export interface ShipmentDocument {
+  id: string;
+  shipment_id: string;
+  bid_id: string;
+  type: 'invoice' | 'packing_list' | 'certificate_of_origin' | 'contract';
+  title: string;
+  status: 'required' | 'generated' | 'verified';
+  url: string;
+  created_at: string;
+}
+
+export interface TelemetryRecord {
+  id: string;
+  shipment_id: string;
+  timestamp: string;
+  gps: GPSData;
+  temperature_c: number;
+  humidity_pct: number;
+  shock_g: number;
+  door_open: boolean;
+  alerts: string[];
+}
+
 export interface Payment {
   id: string;
   bid_id: string;
@@ -168,6 +191,8 @@ interface AppContextType {
   rfqs: Rfq[];
   bids: Bid[];
   shipments: Shipment[];
+  shipmentDocuments: ShipmentDocument[];
+  telemetryHistory: TelemetryRecord[];
   payments: Payment[];
   exports: Export[];
   cooperatives: Cooperative[];
@@ -188,6 +213,8 @@ interface AppContextType {
   updateRfqStatus: (id: string, status: Rfq['status']) => void;
   submitBid: (bid: Omit<Bid, 'id' | 'created_at'>) => Bid;
   updateBidStatus: (bidId: string, status: Bid['status']) => void;
+  awardBidAndCreateShipment: (bidId: string) => Shipment | null;
+  recordTelemetry: (record: Omit<TelemetryRecord, 'id'>) => void;
   assignTransporter: (shipmentId: string, transporterId: string) => void;
   updateShipmentStatus: (shipmentId: string, status: Shipment['status'], gps?: GPSData) => void;
   updateExportStatus: (exportId: string, status: Export['status'], readinessScore?: number, missingReqs?: string[]) => void;
@@ -595,6 +622,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [rfqs, setRfqs] = useState<Rfq[]>([]);
   const [bids, setBids] = useState<Bid[]>([]);
   const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [shipmentDocuments, setShipmentDocuments] = useState<ShipmentDocument[]>([]);
+  const [telemetryHistory, setTelemetryHistory] = useState<TelemetryRecord[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [exports, setExports] = useState<Export[]>([]);
   const [cooperatives, setCooperatives] = useState<Cooperative[]>([]);
@@ -639,15 +668,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(converted);
   };
 
+  const readLocalState = <T,>(key: string, fallback: T): T => {
+    if (typeof window === 'undefined') return fallback;
+    try {
+      const value = localStorage.getItem(key);
+      return value ? JSON.parse(value) as T : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
   const refreshLiveData = async () => {
     if (!supabase) {
       setUsers(SEED_USERS);
       setCompanies(SEED_COMPANIES);
-      setRfqs(SEED_RFQS);
-      setBids(SEED_BIDS);
-      setShipments(FULL_SHIPMENTS);
-      setPayments(FULL_PAYMENTS);
-      setExports(FULL_EXPORTS);
+      setRfqs(readLocalState('pt_rfqs', SEED_RFQS));
+      setBids(readLocalState('pt_bids', SEED_BIDS));
+      setShipments(readLocalState('pt_shipments', FULL_SHIPMENTS));
+      setShipmentDocuments(readLocalState('pt_shipment_documents', [] as ShipmentDocument[]));
+      setTelemetryHistory(readLocalState('pt_telemetry_history', [] as TelemetryRecord[]));
+      setPayments(readLocalState('pt_payments', FULL_PAYMENTS));
+      setExports(readLocalState('pt_exports', FULL_EXPORTS));
       setCooperatives(SEED_COOPERATIVES);
       setFinancingRequests(SEED_FINANCING_REQUESTS);
       setWebhooks(SEED_WEBHOOKS);
@@ -753,6 +794,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRfqs(mappedRfqs);
       setBids(mappedBids);
       setShipments(mappedShipments);
+      setShipmentDocuments([]);
+      setTelemetryHistory([]);
       setCurrentUser(mappedUser);
 
       setPayments([]);
@@ -911,6 +954,136 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       });
     }
+  };
+
+  const awardBidAndCreateShipment = (bidId: string): Shipment | null => {
+    const bid = bids.find(item => item.id === bidId);
+    if (!bid) return null;
+
+    const rfq = rfqs.find(item => item.id === bid.rfq_id);
+    if (!rfq) return null;
+
+    updateBidStatus(bid.id, 'accepted');
+    bids
+      .filter(item => item.rfq_id === rfq.id && item.id !== bid.id)
+      .forEach(item => updateBidStatus(item.id, 'rejected'));
+    updateRfqStatus(rfq.id, 'awarded');
+
+    const existingShipment = shipments.find(item => item.bid_id === bid.id);
+    if (existingShipment) return existingShipment;
+
+    const supplier = companies.find(company => company.id === bid.supplier_company_id);
+    const buyer = companies.find(company => company.id === rfq.buyer_company_id);
+    const routeFrom = supplier
+      ? [supplier.region, supplier.country].filter(Boolean).join(', ')
+      : 'Supplier Dispatch Hub';
+
+    const shipment: Shipment = {
+      id: newUuid(),
+      bid_id: bid.id,
+      transporter_id: null,
+      status: 'pending',
+      route_from: routeFrom,
+      route_to: rfq.delivery_location || buyer?.country || 'Buyer Delivery Hub',
+      gps: null,
+      transport_mode: 'Road',
+      created_at: new Date().toISOString()
+    };
+
+    saveState('pt_shipments', [shipment, ...shipments], setShipments);
+
+    if (!payments.some(payment => payment.bid_id === bid.id)) {
+      const payment: Payment = {
+        id: newUuid(),
+        bid_id: bid.id,
+        amount: bid.total_price,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+      saveState('pt_payments', [payment, ...payments], setPayments);
+    }
+
+    if (!exports.some(exportItem => exportItem.bid_id === bid.id)) {
+      const exportPack: Export = {
+        id: newUuid(),
+        bid_id: bid.id,
+        country: rfq.delivery_location || buyer?.country || 'SADC',
+        readiness_score: 45,
+        status: 'incomplete',
+        missing_requirements: ['Commercial Invoice', 'Packing List', 'SADC Certificate of Origin'],
+        certificates: {},
+        created_at: new Date().toISOString()
+      };
+      saveState('pt_exports', [exportPack, ...exports], setExports);
+    }
+
+    const query = new URLSearchParams({
+      seller: supplier?.company_name || 'TradeGrid Supplier',
+      buyer: buyer?.company_name || 'TradeGrid Buyer',
+      product: rfq.title,
+      quantity: String(rfq.required_quantity),
+      price: String(bid.price_per_unit)
+    }).toString();
+
+    const documentBlueprints: Array<Pick<ShipmentDocument, 'type' | 'title'>> = [
+      { type: 'invoice', title: 'Commercial Invoice' },
+      { type: 'packing_list', title: 'Packing List' },
+      { type: 'certificate_of_origin', title: 'SADC Certificate of Origin' },
+      { type: 'contract', title: 'Trade & Purchase Agreement' }
+    ];
+
+    const documents: ShipmentDocument[] = documentBlueprints.map(document => ({
+      id: newUuid(),
+      shipment_id: shipment.id,
+      bid_id: bid.id,
+      type: document.type,
+      title: document.title,
+      status: 'generated',
+      url: `/api/documents/${document.type}?${query}`,
+      created_at: new Date().toISOString()
+    }));
+
+    saveState('pt_shipment_documents', [...documents, ...shipmentDocuments], setShipmentDocuments);
+    triggerEvent('shipment.created_from_award', {
+      shipment_id: shipment.id,
+      bid_id: bid.id,
+      rfq_id: rfq.id,
+      document_count: documents.length
+    });
+
+    if (supabase && isAuthenticated) {
+      void supabase.from('shipments').insert({
+        id: shipment.id,
+        bid_id: shipment.bid_id,
+        buyer_org_id: rfq.buyer_company_id,
+        supplier_org_id: bid.supplier_company_id,
+        transporter_org_id: null,
+        status: shipment.status,
+        route_from: shipment.route_from,
+        route_to: shipment.route_to,
+        gps: null,
+        transport_mode: shipment.transport_mode
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist awarded shipment', error);
+          void refreshLiveData();
+        }
+      });
+    }
+
+    return shipment;
+  };
+
+  const recordTelemetry = (record: Omit<TelemetryRecord, 'id'>) => {
+    const telemetryRecord: TelemetryRecord = {
+      ...record,
+      id: newUuid()
+    };
+    const updated = [
+      telemetryRecord,
+      ...telemetryHistory.filter(item => item.shipment_id !== record.shipment_id || item.timestamp !== record.timestamp)
+    ].slice(0, 250);
+    saveState('pt_telemetry_history', updated, setTelemetryHistory);
   };
 
   const assignTransporter = (shipmentId: string, transporterId: string) => {
@@ -1139,6 +1312,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem('pt_rfqs');
       localStorage.removeItem('pt_bids');
       localStorage.removeItem('pt_shipments');
+      localStorage.removeItem('pt_shipment_documents');
+      localStorage.removeItem('pt_telemetry_history');
       localStorage.removeItem('pt_payments');
       localStorage.removeItem('pt_exports');
       localStorage.removeItem('pt_cooperatives');
@@ -1155,6 +1330,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setRfqs(SEED_RFQS);
       setBids(SEED_BIDS);
       setShipments(FULL_SHIPMENTS);
+      setShipmentDocuments([]);
+      setTelemetryHistory([]);
       setPayments(FULL_PAYMENTS);
       setExports(FULL_EXPORTS);
       setCooperatives(SEED_COOPERATIVES);
@@ -1177,6 +1354,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       rfqs,
       bids,
       shipments,
+      shipmentDocuments,
+      telemetryHistory,
       payments,
       exports,
       cooperatives,
@@ -1196,6 +1375,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateRfqStatus,
       submitBid,
       updateBidStatus,
+      awardBidAndCreateShipment,
+      recordTelemetry,
       assignTransporter,
       updateShipmentStatus,
       updateExportStatus,
