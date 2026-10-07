@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/context/AppContext";
 import {
   Activity,
@@ -45,6 +45,10 @@ const trendData = [
 export const GridAiIntelligence: React.FC = () => {
   const { shipments, rfqs, bids, exports, tradeCorridors, currentUser, formatCurrency } = useApp();
   const [view, setView] = useState<IntelligenceView>("overview");
+  const [telemetry, setTelemetry] = useState<any>(null);
+  const [riskAnalysis, setRiskAnalysis] = useState<any>(null);
+  const [agentAnalysis, setAgentAnalysis] = useState<any>(null);
+  const [gridAiLoading, setGridAiLoading] = useState(false);
 
   const activeShipments = shipments.filter((shipment) => shipment.status === "transit");
   const pendingShipments = shipments.filter((shipment) => shipment.status === "pending");
@@ -67,6 +71,103 @@ export const GridAiIntelligence: React.FC = () => {
       92 - highRiskExports.length * 8 - corridorAlerts.length * 5 - pendingShipments.length * 2
     )
   );
+
+  const selectedShipment = activeShipments[0] || pendingShipments[0] || shipments[0] || null;
+  const selectedExport = exports[0] || null;
+  const selectedRfq = openRfqs[0] || rfqs[0] || null;
+
+  useEffect(() => {
+    if (view !== "cargo" || !selectedShipment) return;
+
+    let active = true;
+    const loadTelemetry = async () => {
+      try {
+        const res = await fetch("/api/gridai/telemetry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shipment_id: selectedShipment.id,
+            lat: selectedShipment.gps?.lat,
+            lng: selectedShipment.gps?.lng,
+            status: selectedShipment.status,
+          }),
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (active) setTelemetry(data);
+      } catch {
+        // Keep the cargo screen usable if the simulator is unavailable.
+      }
+    };
+
+    void loadTelemetry();
+    const timer = window.setInterval(loadTelemetry, 5000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [view, selectedShipment?.id, selectedShipment?.status, selectedShipment?.gps?.lat, selectedShipment?.gps?.lng]);
+
+  const runRiskAnalysis = async () => {
+    setGridAiLoading(true);
+    try {
+      const worstCorridorDelay = tradeCorridors.reduce((max, corridor) => Math.max(max, corridor.queue_delay_hours), 0);
+      const res = await fetch("/api/gridai/risk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          export_readiness: selectedExport?.readiness_score ?? 80,
+          corridor_delay_hours: worstCorridorDelay,
+          shipment_status: selectedShipment?.status ?? "pending",
+          missing_documents: selectedExport?.missing_requirements ?? [],
+          transporter_assigned: Boolean(selectedShipment?.transporter_id),
+        }),
+      });
+      if (!res.ok) throw new Error("GridAi risk analysis failed");
+      setRiskAnalysis(await res.json());
+    } finally {
+      setGridAiLoading(false);
+    }
+  };
+
+  const runAgentSweep = async () => {
+    setGridAiLoading(true);
+    try {
+      const product = selectedRfq?.title || "industrial goods";
+      const destination = selectedRfq?.delivery_location || selectedShipment?.route_to || "South Africa";
+      const origin = selectedShipment?.route_from || currentUser?.country || "Botswana";
+      const quantity = selectedRfq?.required_quantity || 10;
+      const acceptedBid = acceptedBids[0];
+
+      const [compliance, logistics, documentation] = await Promise.all([
+        fetch("/api/agents/complianceAgent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product, origin_country: origin, destination_country: destination }),
+        }).then((res) => res.json()),
+        fetch("/api/agents/logisticsAgent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ origin, destination, cargo_type: selectedRfq?.industry || "industrial", weight_tons: quantity }),
+        }).then((res) => res.json()),
+        fetch("/api/agents/documentationAgent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            seller: currentUser?.name || "TradeGrid Supplier",
+            buyer: "TradeGrid Buyer",
+            product,
+            quantity,
+            price_per_unit: acceptedBid?.price_per_unit || 320,
+          }),
+        }).then((res) => res.json()),
+      ]);
+
+      setAgentAnalysis({ compliance, logistics, documentation, analyzed_at: new Date().toISOString() });
+    } finally {
+      setGridAiLoading(false);
+    }
+  };
 
   const tabs: { id: IntelligenceView; label: string }[] = [
     { id: "overview", label: "Overview" },
@@ -203,7 +304,21 @@ export const GridAiIntelligence: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-xs text-zinc-400">
-              <p>GridAi will consolidate invoice, origin, permit and customs checks into this panel once the dedicated backend is connected.</p>
+              <p>Run the existing TradeGrid compliance, logistics and documentation agents as one GridAi intelligence sweep.</p>
+              <button
+                onClick={() => void runAgentSweep()}
+                disabled={gridAiLoading}
+                className="w-full rounded-lg border border-emerald-800 bg-emerald-950/50 px-3 py-2 font-bold text-emerald-400 hover:bg-emerald-950 disabled:opacity-50"
+              >
+                {gridAiLoading ? "Analyzing..." : "Run GridAi Agent Sweep"}
+              </button>
+              {agentAnalysis && (
+                <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3">
+                  <div><span className="font-bold text-zinc-300">Compliance:</span> {agentAnalysis.compliance?.output?.risk_summary || "Analysis complete"}</div>
+                  <div><span className="font-bold text-zinc-300">Documents:</span> {agentAnalysis.documentation?.output?.document_status || "generated"}</div>
+                  <div><span className="font-bold text-zinc-300">Route:</span> {agentAnalysis.logistics?.output?.routes?.[0]?.route || "Route intelligence complete"}</div>
+                </div>
+              )}
               <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-3">
                 <div className="mb-2 font-bold text-zinc-300">Current signal</div>
                 <div className="flex items-center gap-2">
@@ -213,6 +328,7 @@ export const GridAiIntelligence: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
       )}
 
@@ -244,6 +360,34 @@ export const GridAiIntelligence: React.FC = () => {
             </CardContent>
           </Card>
 
+          <div className="space-y-6">
+          <Card className="border-zinc-900 bg-zinc-950/60">
+            <CardHeader>
+              <CardTitle className="text-sm text-zinc-200">Live Edge Telemetry</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {telemetry ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <TelemetryStat label="Temperature" value={`${telemetry.telemetry.temperature_c}°C`} alert={telemetry.telemetry.temperature_c > 25} />
+                    <TelemetryStat label="Humidity" value={`${telemetry.telemetry.humidity_pct}%`} />
+                    <TelemetryStat label="Shock" value={`${telemetry.telemetry.shock_g} G`} alert={telemetry.telemetry.shock_g > 2} />
+                    <TelemetryStat label="Door" value={telemetry.telemetry.door_open ? "OPEN" : "SECURED"} alert={telemetry.telemetry.door_open} />
+                  </div>
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3 text-[11px] text-zinc-500">
+                    GPS {telemetry.gps.lat}, {telemetry.gps.lng} · {telemetry.source}
+                  </div>
+                  {telemetry.alerts.length > 0 && (
+                    <div className="rounded-lg border border-amber-900/50 bg-amber-950/20 p-3 text-xs text-amber-400">
+                      {telemetry.alerts.join(" · ")}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-xs text-zinc-500">Select or create a shipment to start the GridAi edge telemetry stream.</p>
+              )}
+            </CardContent>
+          </Card>
           <Card className="border-zinc-900 bg-zinc-950/60">
             <CardHeader>
               <CardTitle className="text-sm text-zinc-200">Corridor Watch</CardTitle>
@@ -264,6 +408,7 @@ export const GridAiIntelligence: React.FC = () => {
               ))}
             </CardContent>
           </Card>
+          </div>
         </div>
       )}
 
@@ -295,6 +440,25 @@ export const GridAiIntelligence: React.FC = () => {
               <CardTitle className="text-sm text-zinc-200">GridAi Recommended Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              <button
+                onClick={() => void runRiskAnalysis()}
+                disabled={gridAiLoading}
+                className="w-full rounded-lg border border-emerald-800 bg-emerald-950/50 px-3 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-950 disabled:opacity-50"
+              >
+                {gridAiLoading ? "Scoring..." : "Run Live GridAi Risk Analysis"}
+              </button>
+              {riskAnalysis?.output && (
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Live score</span>
+                    <span className={riskAnalysis.output.score >= 70 ? "text-xl font-black text-red-400" : riskAnalysis.output.score >= 40 ? "text-xl font-black text-amber-400" : "text-xl font-black text-emerald-400"}>
+                      {riskAnalysis.output.score}/100
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-zinc-400">{riskAnalysis.output.recommendation}</p>
+                  <div className="mt-2 text-[10px] text-zinc-600">Source: {riskAnalysis.source}</div>
+                </div>
+              )}
               <ActionItem done={highRiskExports.length === 0} text={highRiskExports.length ? "Review export packs below 60% readiness before clearance." : "No high-risk export packs require intervention."} />
               <ActionItem done={corridorAlerts.length === 0} text={corridorAlerts.length ? "Reroute or review shipments crossing delayed or alerted corridors." : "Current monitored corridors are within normal operating range."} />
               <ActionItem done={pendingShipments.length === 0} text={pendingShipments.length ? "Assign logistics providers to pending shipments." : "No pending shipment assignments."} />
@@ -364,5 +528,13 @@ const ReportStat = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
     <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{label}</div>
     <div className="mt-2 text-lg font-bold text-zinc-200">{value}</div>
+  </div>
+);
+
+
+const TelemetryStat = ({ label, value, alert = false }: { label: string; value: string; alert?: boolean }) => (
+  <div className={`rounded-lg border p-3 ${alert ? "border-amber-900/50 bg-amber-950/20" : "border-zinc-800 bg-zinc-900/40"}`}>
+    <div className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</div>
+    <div className={`mt-1 text-sm font-bold ${alert ? "text-amber-400" : "text-zinc-200"}`}>{value}</div>
   </div>
 );
