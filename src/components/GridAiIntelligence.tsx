@@ -29,8 +29,9 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AIAgentCenter } from "@/components/AIAgentCenter";
 
-type IntelligenceView = "overview" | "documents" | "cargo" | "risk" | "reports";
+type IntelligenceView = "overview" | "execution" | "documents" | "cargo" | "risk" | "reports" | "agents";
 
 const trendData = [
   { day: "Mon", risk: 22 },
@@ -200,10 +201,12 @@ export const GridAiIntelligence: React.FC = () => {
 
   const tabs: { id: IntelligenceView; label: string }[] = [
     { id: "overview", label: "Overview" },
+    { id: "execution", label: "Execution" },
     { id: "documents", label: "Documents" },
     { id: "cargo", label: "Cargo Operations" },
     { id: "risk", label: "Risk Engine" },
     { id: "reports", label: "Reports" },
+    { id: "agents", label: "Agent Console" },
   ];
 
   return (
@@ -296,6 +299,97 @@ export const GridAiIntelligence: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+      )}
+
+      {view === "execution" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <MetricCard label="Awarded Deals" value={acceptedBids.length} icon={<CheckCircle2 className="h-4 w-4" />} />
+            <MetricCard label="Execution Shipments" value={shipments.length} icon={<Truck className="h-4 w-4" />} />
+            <MetricCard label="Document Packs" value={new Set(shipmentDocuments.map((document) => document.shipment_id)).size} icon={<FileSearch className="h-4 w-4" />} />
+            <MetricCard label="Telemetry Samples" value={telemetryHistory.length} icon={<Activity className="h-4 w-4" />} />
+          </div>
+
+          <Card className="border-zinc-900 bg-zinc-950/60">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm text-zinc-200">
+                <Radar className="h-4 w-4 text-emerald-400" />
+                Execution Command Centre
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {shipments.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-zinc-800 p-10 text-center">
+                  <div className="text-sm font-semibold text-zinc-300">No execution shipments yet</div>
+                  <p className="mt-2 text-xs text-zinc-500">Award a supplier bid and TradeGrid will create the shipment, payment, export pack and linked documents automatically.</p>
+                </div>
+              ) : shipments.map((shipment) => {
+                const bid = bids.find((item) => item.id === shipment.bid_id);
+                const rfq = bid ? rfqs.find((item) => item.id === bid.rfq_id) : null;
+                const exportPack = exports.find((item) => item.bid_id === shipment.bid_id);
+                const docs = shipmentDocuments.filter((document) => document.shipment_id === shipment.id);
+                const samples = telemetryHistory.filter((item) => item.shipment_id === shipment.id);
+                const stage = shipment.status === "delivered"
+                  ? 5
+                  : shipment.transporter_id
+                    ? 4
+                    : (exportPack?.readiness_score ?? 0) >= 80
+                      ? 3
+                      : docs.length >= 4
+                        ? 2
+                        : 1;
+
+                return (
+                  <div key={shipment.id} className="rounded-xl border border-zinc-800 bg-zinc-900/35 p-4">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono text-xs text-emerald-400">{shipment.id.slice(0, 10)}</span>
+                          <Badge className="border-zinc-700 bg-zinc-900 text-zinc-300">{shipment.status}</Badge>
+                          <Badge className={(exportPack?.readiness_score ?? 0) >= 80 ? "border-emerald-900 bg-emerald-950 text-emerald-400" : "border-amber-900 bg-amber-950 text-amber-400"}>
+                            {exportPack?.readiness_score ?? 0}% compliance
+                          </Badge>
+                        </div>
+                        <div className="mt-2 truncate text-sm font-semibold text-zinc-200">{rfq?.title || "Trade execution"}</div>
+                        <div className="mt-1 text-xs text-zinc-500">{shipment.route_from} → {shipment.route_to}</div>
+                      </div>
+
+                      <div className="grid min-w-[260px] grid-cols-3 gap-2 text-center">
+                        <ExecutionStat label="Docs" value={`${docs.length}/4`} ready={docs.length >= 4} />
+                        <ExecutionStat label="Carrier" value={shipment.transporter_id ? "Assigned" : "Pending"} ready={Boolean(shipment.transporter_id)} />
+                        <ExecutionStat label="Telemetry" value={String(samples.length)} ready={samples.length > 0} />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-5 gap-1">
+                      {["Award", "Documents", "Compliance", "Logistics", "Delivered"].map((label, index) => {
+                        const complete = stage >= index + 1;
+                        return (
+                          <div key={label} className="space-y-1">
+                            <div className={`h-1.5 rounded-full ${complete ? "bg-emerald-500" : "bg-zinc-800"}`} />
+                            <div className={`text-[9px] font-bold uppercase tracking-wide ${complete ? "text-emerald-400" : "text-zinc-600"}`}>{label}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button onClick={() => setView("documents")} className="rounded-lg border border-zinc-800 px-3 py-1.5 text-[11px] font-semibold text-zinc-300 hover:border-emerald-800 hover:text-emerald-400">
+                        Open documents
+                      </button>
+                      <button onClick={() => setView("cargo")} className="rounded-lg border border-zinc-800 px-3 py-1.5 text-[11px] font-semibold text-zinc-300 hover:border-emerald-800 hover:text-emerald-400">
+                        Open cargo telemetry
+                      </button>
+                      <button onClick={() => setView("risk")} className="rounded-lg border border-zinc-800 px-3 py-1.5 text-[11px] font-semibold text-zinc-300 hover:border-emerald-800 hover:text-emerald-400">
+                        Run risk review
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -572,6 +666,12 @@ export const GridAiIntelligence: React.FC = () => {
           </CardContent>
         </Card>
       )}
+      {view === "agents" && (
+        <div className="rounded-2xl border border-zinc-900 bg-zinc-950/30 p-1">
+          <AIAgentCenter />
+        </div>
+      )}
+
     </div>
   );
 };
@@ -607,6 +707,13 @@ const ReportStat = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
+
+const ExecutionStat = ({ label, value, ready }: { label: string; value: string; ready: boolean }) => (
+  <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-2">
+    <div className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">{label}</div>
+    <div className={`mt-1 text-[11px] font-bold ${ready ? "text-emerald-400" : "text-amber-400"}`}>{value}</div>
+  </div>
+);
 
 const TelemetryStat = ({ label, value, alert = false }: { label: string; value: string; alert?: boolean }) => (
   <div className={`rounded-lg border p-3 ${alert ? "border-amber-900/50 bg-amber-950/20" : "border-zinc-800 bg-zinc-900/40"}`}>
