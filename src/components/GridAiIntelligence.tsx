@@ -49,9 +49,12 @@ export const GridAiIntelligence: React.FC = () => {
     shipmentDocuments,
     telemetryHistory,
     recordTelemetry,
+    updateShipmentStatus,
     rfqs,
     bids,
+    payments,
     exports,
+    eventLogs,
     tradeCorridors,
     currentUser,
     formatCurrency,
@@ -355,10 +358,15 @@ export const GridAiIntelligence: React.FC = () => {
                         <div className="mt-1 text-xs text-zinc-500">{shipment.route_from} → {shipment.route_to}</div>
                       </div>
 
-                      <div className="grid min-w-[260px] grid-cols-3 gap-2 text-center">
+                      <div className="grid min-w-[320px] grid-cols-4 gap-2 text-center">
                         <ExecutionStat label="Docs" value={`${docs.length}/4`} ready={docs.length >= 4} />
                         <ExecutionStat label="Carrier" value={shipment.transporter_id ? "Assigned" : "Pending"} ready={Boolean(shipment.transporter_id)} />
                         <ExecutionStat label="Telemetry" value={String(samples.length)} ready={samples.length > 0} />
+                        <ExecutionStat
+                          label="Payment"
+                          value={payments.find((payment) => payment.bid_id === shipment.bid_id)?.status || "pending"}
+                          ready={payments.find((payment) => payment.bid_id === shipment.bid_id)?.status === "released"}
+                        />
                       </div>
                     </div>
 
@@ -388,6 +396,34 @@ export const GridAiIntelligence: React.FC = () => {
                   </div>
                 );
               })}
+            </CardContent>
+          </Card>
+
+          <Card className="border-zinc-900 bg-zinc-950/60">
+            <CardHeader>
+              <CardTitle className="text-sm text-zinc-200">Recent Execution Events</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {eventLogs.filter((log) =>
+                ["bid.status_updated", "shipment.created_from_award", "shipment.transporter_assigned", "shipment.delivered", "payment.released"].includes(log.event)
+              ).slice(0, 10).map((log) => (
+                <div key={log.id} className="flex items-center justify-between gap-4 rounded-lg border border-zinc-800 bg-zinc-900/35 px-3 py-2">
+                  <div>
+                    <div className="text-xs font-semibold text-zinc-300">{log.event.replaceAll(".", " · ")}</div>
+                    <div className="mt-0.5 font-mono text-[10px] text-zinc-600">
+                      {log.payload?.shipment_id || log.payload?.bid_id || log.payload?.id || "workflow"}
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-zinc-500">{new Date(log.created_at).toLocaleString()}</div>
+                </div>
+              ))}
+              {eventLogs.filter((log) =>
+                ["bid.status_updated", "shipment.created_from_award", "shipment.transporter_assigned", "shipment.delivered", "payment.released"].includes(log.event)
+              ).length === 0 && (
+                <div className="rounded-lg border border-dashed border-zinc-800 p-5 text-center text-xs text-zinc-600">
+                  Execution events will appear here as RFQs move through award, logistics and delivery.
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -508,7 +544,17 @@ export const GridAiIntelligence: React.FC = () => {
                     <div className="mt-1 text-xs text-zinc-500">{shipment.transport_mode} · {shipment.gps ? `${shipment.gps.lat.toFixed(3)}, ${shipment.gps.lng.toFixed(3)}` : "GPS pending"}</div>
                   </div>
                   <Badge className="border-zinc-700 bg-zinc-900 text-zinc-300">{shipment.status}</Badge>
-                  <div className="text-right text-xs text-zinc-500">{shipment.transporter_id ? "Transporter assigned" : "Awaiting transporter"}</div>
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="text-right text-xs text-zinc-500">{shipment.transporter_id ? "Transporter assigned" : "Awaiting transporter"}</span>
+                    {shipment.status === "transit" && (currentUser?.role === "transporter" || currentUser?.role === "admin") && (
+                      <button
+                        onClick={() => updateShipmentStatus(shipment.id, "delivered")}
+                        className="rounded-md border border-emerald-800 bg-emerald-950/40 px-2 py-1 text-[10px] font-bold text-emerald-400 hover:bg-emerald-950"
+                      >
+                        Mark delivered
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </CardContent>
