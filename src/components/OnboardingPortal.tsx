@@ -20,6 +20,7 @@ export const OnboardingPortal: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
   const [country, setCountry] = useState<'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa'>('Botswana');
 
   // Generic Company Fields
@@ -39,52 +40,106 @@ export const OnboardingPortal: React.FC = () => {
   const handleOnboard = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !email || !phone) {
-      alert("Please fill in all contact details.");
+    if (!name || !email || !phone || !password) {
+      alert("Please fill in all contact details and choose a password.");
+      return;
+    }
+
+    if (!companyName || !region || !registrationNumber) {
+      alert("Please fill in your company name, region, and registration number.");
       return;
     }
 
     try {
-      const companyOrName = role === 'supplier' ? name : role === 'buyer' ? companyName || `${name} Distributors` : companyName || name;
-      
       if (!supabase) throw new Error("Supabase connection is not configured.");
 
-      // 1. Register base user to Supabase
-      const { data: userData, error: userError } = await supabase.from('users').insert({
-        name: companyOrName,
+      const pendingProfile = {
+        name,
+        email,
+        phone,
+        role,
+        country,
+        companyName,
+        industry,
+        region,
+        registrationNumber,
+        docType,
+        docRef,
+        docFileName
+      };
+
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            requested_role: role,
+            company_name: companyName
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+      if (!authData.user) throw new Error("Account creation did not return a user.");
+
+      // If email confirmation is enabled, finish the company profile after the
+      // user confirms their email and signs in.
+      if (!authData.session) {
+        localStorage.setItem('tradegrid_pending_onboarding', JSON.stringify(pendingProfile));
+        alert("Account created. Confirm your email, then sign in to finish company setup.");
+        window.location.assign('/login');
+        return;
+      }
+
+      const { data: org, error: orgError } = await supabase.from('organizations').insert({
+        name: companyName,
+        type: role === 'buyer' ? 'buyer' : role === 'supplier' ? 'supplier' : 'both',
+        country,
+        registration_number: registrationNumber,
+        created_by: authData.user.id,
+        region,
+        industry,
+        verification_status: 'Pending',
+        trust_score: 50
+      }).select().single();
+
+      if (orgError) throw orgError;
+
+      const nameParts = name.trim().split(/\s+/);
+      const firstName = nameParts.shift() || name;
+      const lastName = nameParts.join(' ');
+
+      const { data: profile, error: profileError } = await supabase.from('users').insert({
+        id: authData.user.id,
+        org_id: org.id,
+        role,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        phone
+      }).select().single();
+
+      if (profileError) throw profileError;
+
+      const user: User = {
+        id: profile.id,
+        role,
+        name,
         email,
         phone,
         country,
-        role,
-      }).select().single();
+        kyc_status: 'pending',
+        document_name: docType,
+        document_ref: docRef,
+        document_url: docFileName || undefined
+      };
 
-      if (userError) throw userError;
-      const user = userData as User;
-
-      // 2. Perform company profile side-effects
-      if (!companyName || !region || !registrationNumber) {
-        alert("Please fill in your company name, region, and registration number.");
-        return;
-      }
-      
-      const { error: companyError } = await supabase.from('companies').insert({
-        owner_id: user.id,
-        company_name: companyName,
-        industry,
-        country,
-        region,
-        registration_number: registrationNumber,
-        verification_status: 'Pending',
-        trust_score: 50
-      });
-      
-      if (companyError) throw companyError;
-
-      // 3. Set newly registered user as current user for instant sandbox test
       setCurrentUser(user);
       setRegisteredUser(user);
+      localStorage.removeItem('tradegrid_pending_onboarding');
 
-      alert(`Success! Onboarding Complete. Registered and signed in as: ${user.name} (${user.role.toUpperCase()})`);
+      alert(`Success! ${companyName} is registered and signed in.`);
     } catch (err: any) {
       alert(err.message || "Failed to finalize registration.");
     }
@@ -94,6 +149,7 @@ export const OnboardingPortal: React.FC = () => {
     setName('');
     setEmail('');
     setPhone('');
+    setPassword('');
     setCompanyName('');
     setRegion('');
     setRegistrationNumber('');
@@ -214,6 +270,20 @@ export const OnboardingPortal: React.FC = () => {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="e.g. contact@domain.com"
+                className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Password</label>
+              <Input
+                type="password"
+                required
+                minLength={8}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Minimum 8 characters"
+                autoComplete="new-password"
                 className="bg-zinc-950 border-zinc-900 text-zinc-200 focus:border-emerald-700 h-9"
               />
             </div>
