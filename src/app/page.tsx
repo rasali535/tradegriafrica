@@ -16,10 +16,11 @@ import { SupplierVerification } from '@/components/SupplierVerification';
 import { TenderHub } from '@/components/TenderHub';
 import { ProcurementAnalytics } from '@/components/ProcurementAnalytics';
 import { IndustryDirectory } from '@/components/IndustryDirectory';
+import { GridAiIntelligence } from '@/components/GridAiIntelligence';
 import { 
   Sprout, LayoutDashboard, Globe, ShieldCheck, FileSpreadsheet, 
   HelpCircle, ExternalLink, Menu, X, Star, ShoppingCart, Truck, UserPlus,
-  Shield, Lock, Unlock, Bot
+  Shield, Lock, Unlock, Bot, Radar
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { isSupabaseConfigured } from "@/lib/supabaseClient";
@@ -36,7 +37,7 @@ export default function Home() {
   const { currentUser, users, setCurrentUser, isAuthenticated, authLoading, signOut } = useApp();
   const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents' | 'verification' | 'tenders' | 'analytics' | 'directory'>('dashboard');
+  const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents' | 'gridai' | 'verification' | 'tenders' | 'analytics' | 'directory'>('dashboard');
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   useEffect(() => {
@@ -199,6 +200,8 @@ export default function Home() {
         return <OnboardingPortal />;
       case 'ai_agents':
         return <AIAgentCenter />;
+      case 'gridai':
+        return <GridAiIntelligence />;
       case 'verification':
         return <SupplierVerification />;
       case 'tenders':
@@ -271,6 +274,17 @@ export default function Home() {
               }`}
             >
               AI Agents
+            </button>
+            <button 
+              onClick={() => {
+                setView('app');
+                setAppSubTab('gridai');
+              }}
+              className={`hover:text-zinc-100 transition-colors py-1.5 px-3 rounded-lg ${
+                view === 'app' && appSubTab === 'gridai' ? 'text-zinc-100 bg-zinc-900/80 border border-zinc-800' : ''
+              }`}
+            >
+              GridAi
             </button>
             <button 
               onClick={() => {
@@ -461,6 +475,16 @@ export default function Home() {
               <button 
                 onClick={() => {
                   setView('app');
+                  setAppSubTab('gridai');
+                  setMobileMenuOpen(false);
+                }}
+                className={`text-left py-2 px-3 rounded-lg ${view === 'app' && appSubTab === 'gridai' ? 'bg-zinc-900 text-zinc-100' : ''}`}
+              >
+                GridAi Intelligence
+              </button>
+              <button 
+                onClick={() => {
+                  setView('app');
                   setAppSubTab('dashboard');
                   setMobileMenuOpen(false);
                 }}
@@ -613,6 +637,18 @@ export default function Home() {
                 >
                   <Bot className="h-4 w-4" />
                   AI Agent Center
+                </button>
+
+                <button
+                  onClick={() => setAppSubTab('gridai')}
+                  className={`py-3 px-4 border-b-2 font-bold text-xs flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                    appSubTab === 'gridai'
+                      ? 'border-emerald-500 text-emerald-400 bg-emerald-950/5'
+                      : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <Radar className="h-4 w-4" />
+                  GridAi Intelligence
                 </button>
 
                 <button
