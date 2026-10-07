@@ -94,7 +94,7 @@ export const OnboardingPortal: React.FC = () => {
 
       const { data: org, error: orgError } = await supabase.from('organizations').insert({
         name: companyName,
-        type: role === 'buyer' ? 'buyer' : role === 'supplier' ? 'supplier' : 'both',
+        type: role,
         country,
         registration_number: registrationNumber,
         created_by: authData.user.id,
@@ -128,6 +128,7 @@ export const OnboardingPortal: React.FC = () => {
         name,
         email,
         phone,
+        organization_id: org.id,
         country,
         kyc_status: 'pending',
         document_name: docType,

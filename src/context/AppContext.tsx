@@ -10,6 +10,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
+  organization_id?: string;
   country: 'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa' | 'Mozambique';
   kyc_status?: 'pending' | 'approved' | 'rejected';
   document_name?: string;
@@ -712,21 +713,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setRfqs([]);
         setBids([]);
         setShipments([]);
+        setShipmentDocuments([]);
+        setTelemetryHistory([]);
+        setPayments([]);
+        setExports([]);
+        setEventLogs([]);
         setIsAuthenticated(false);
         return;
       }
 
       setIsAuthenticated(true);
 
-      const [userRes, orgRes, rfqRes, bidRes, shipmentRes] = await Promise.all([
+      const [
+        userRes,
+        orgRes,
+        rfqRes,
+        bidRes,
+        shipmentRes,
+        paymentRes,
+        exportRes,
+        documentRes,
+        telemetryRes,
+        eventRes,
+      ] = await Promise.all([
         supabase.from('users').select('*, organizations(*)').eq('id', authData.user.id).single(),
         supabase.from('organizations').select('*'),
         supabase.from('rfqs').select('*').order('created_at', { ascending: false }),
         supabase.from('rfq_bids').select('*').order('created_at', { ascending: false }),
         supabase.from('shipments').select('*').order('created_at', { ascending: false }),
+        supabase.from('payments').select('*').order('created_at', { ascending: false }),
+        supabase.from('trade_exports').select('*').order('created_at', { ascending: false }),
+        supabase.from('shipment_documents').select('*').order('created_at', { ascending: false }),
+        supabase.from('shipment_telemetry').select('*').order('recorded_at', { ascending: false }).limit(250),
+        supabase.from('event_logs').select('*').order('created_at', { ascending: false }).limit(100),
       ]);
 
-      if (userRes.error) throw userRes.error;
+      const queryErrors = [
+        userRes.error,
+        orgRes.error,
+        rfqRes.error,
+        bidRes.error,
+        shipmentRes.error,
+        paymentRes.error,
+        exportRes.error,
+        documentRes.error,
+        telemetryRes.error,
+        eventRes.error,
+      ].filter(Boolean);
+
+      if (queryErrors.length > 0) throw queryErrors[0];
 
       const u: any = userRes.data;
       const mappedUser: User = {
@@ -735,6 +770,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
         email: u.email,
         phone: u.phone || '',
+        organization_id: u.org_id,
         country: u.organizations?.country || 'Botswana',
         kyc_status: 'approved'
       };
@@ -789,22 +825,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         created_at: shipment.created_at
       }));
 
+      const mappedPayments: Payment[] = (paymentRes.data || []).map((payment: any) => ({
+        id: payment.id,
+        bid_id: payment.bid_id,
+        amount: Number(payment.amount || 0),
+        status: payment.status,
+        created_at: payment.created_at
+      }));
+
+      const mappedExports: Export[] = (exportRes.data || []).map((exportItem: any) => ({
+        id: exportItem.id,
+        bid_id: exportItem.bid_id,
+        country: exportItem.country,
+        readiness_score: Number(exportItem.readiness_score || 0),
+        status: exportItem.status,
+        missing_requirements: exportItem.missing_requirements || [],
+        certificates: exportItem.certificates || {},
+        created_at: exportItem.created_at
+      }));
+
+      const mappedDocuments: ShipmentDocument[] = (documentRes.data || []).map((document: any) => ({
+        id: document.id,
+        shipment_id: document.shipment_id,
+        bid_id: document.bid_id,
+        type: document.type,
+        title: document.title,
+        status: document.status,
+        url: document.url,
+        created_at: document.created_at
+      }));
+
+      const mappedTelemetry: TelemetryRecord[] = (telemetryRes.data || []).map((sample: any) => ({
+        id: sample.id,
+        shipment_id: sample.shipment_id,
+        timestamp: sample.recorded_at,
+        gps: sample.gps,
+        temperature_c: Number(sample.temperature_c || 0),
+        humidity_pct: Number(sample.humidity_pct || 0),
+        shock_g: Number(sample.shock_g || 0),
+        door_open: Boolean(sample.door_open),
+        alerts: sample.alerts || []
+      }));
+
+      const mappedEvents: EventLog[] = (eventRes.data || []).map((event: any) => ({
+        id: event.id,
+        event: event.event,
+        payload: event.payload || {},
+        created_at: event.created_at
+      }));
+
       setUsers([mappedUser]);
       setCompanies(mappedCompanies);
       setRfqs(mappedRfqs);
       setBids(mappedBids);
       setShipments(mappedShipments);
-      setShipmentDocuments([]);
-      setTelemetryHistory([]);
+      setShipmentDocuments(mappedDocuments);
+      setTelemetryHistory(mappedTelemetry);
+      setPayments(mappedPayments);
+      setExports(mappedExports);
+      setEventLogs(mappedEvents);
       setCurrentUser(mappedUser);
 
-      setPayments([]);
-      setExports([]);
       setCooperatives([]);
       setFinancingRequests([]);
       setWebhooks([]);
       setApiKeys([]);
-      setEventLogs([]);
       setTradeAgreements(SEED_TRADE_AGREEMENTS);
       setTradeCorridors(SEED_TRADE_CORRIDORS);
     } catch (err) {
@@ -990,30 +1075,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       created_at: new Date().toISOString()
     };
 
-    saveState('pt_shipments', [shipment, ...shipments], setShipments);
+    const payment: Payment = {
+      id: newUuid(),
+      bid_id: bid.id,
+      amount: bid.total_price,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
 
-    if (!payments.some(payment => payment.bid_id === bid.id)) {
-      const payment: Payment = {
-        id: newUuid(),
-        bid_id: bid.id,
-        amount: bid.total_price,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      };
+    const exportPack: Export = {
+      id: newUuid(),
+      bid_id: bid.id,
+      country: rfq.delivery_location || buyer?.country || 'SADC',
+      readiness_score: 45,
+      status: 'incomplete',
+      missing_requirements: ['Commercial Invoice', 'Packing List', 'SADC Certificate of Origin'],
+      certificates: {},
+      created_at: new Date().toISOString()
+    };
+
+    saveState('pt_shipments', [shipment, ...shipments], setShipments);
+    if (!payments.some(item => item.bid_id === bid.id)) {
       saveState('pt_payments', [payment, ...payments], setPayments);
     }
-
-    if (!exports.some(exportItem => exportItem.bid_id === bid.id)) {
-      const exportPack: Export = {
-        id: newUuid(),
-        bid_id: bid.id,
-        country: rfq.delivery_location || buyer?.country || 'SADC',
-        readiness_score: 45,
-        status: 'incomplete',
-        missing_requirements: ['Commercial Invoice', 'Packing List', 'SADC Certificate of Origin'],
-        certificates: {},
-        created_at: new Date().toISOString()
-      };
+    if (!exports.some(item => item.bid_id === bid.id)) {
       saveState('pt_exports', [exportPack, ...exports], setExports);
     }
 
@@ -1052,20 +1137,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     if (supabase && isAuthenticated) {
-      void supabase.from('shipments').insert({
-        id: shipment.id,
-        bid_id: shipment.bid_id,
-        buyer_org_id: rfq.buyer_company_id,
-        supplier_org_id: bid.supplier_company_id,
-        transporter_org_id: null,
-        status: shipment.status,
-        route_from: shipment.route_from,
-        route_to: shipment.route_to,
-        gps: null,
-        transport_mode: shipment.transport_mode
-      }).then(({ error }) => {
+      void Promise.all([
+        supabase.from('shipments').insert({
+          id: shipment.id,
+          bid_id: shipment.bid_id,
+          buyer_org_id: rfq.buyer_company_id,
+          supplier_org_id: bid.supplier_company_id,
+          transporter_org_id: null,
+          status: shipment.status,
+          route_from: shipment.route_from,
+          route_to: shipment.route_to,
+          gps: null,
+          transport_mode: shipment.transport_mode
+        }),
+        supabase.from('payments').insert({
+          id: payment.id,
+          bid_id: payment.bid_id,
+          buyer_org_id: rfq.buyer_company_id,
+          supplier_org_id: bid.supplier_company_id,
+          amount: payment.amount,
+          status: payment.status
+        }),
+        supabase.from('trade_exports').insert({
+          id: exportPack.id,
+          bid_id: exportPack.bid_id,
+          buyer_org_id: rfq.buyer_company_id,
+          supplier_org_id: bid.supplier_company_id,
+          country: exportPack.country,
+          readiness_score: exportPack.readiness_score,
+          status: exportPack.status,
+          missing_requirements: exportPack.missing_requirements,
+          certificates: exportPack.certificates
+        }),
+        supabase.from('shipment_documents').insert(documents.map(document => ({
+          id: document.id,
+          shipment_id: document.shipment_id,
+          bid_id: document.bid_id,
+          type: document.type,
+          title: document.title,
+          status: document.status,
+          url: document.url,
+          created_at: document.created_at
+        })))
+      ]).then((results) => {
+        const error = results.find(result => result.error)?.error;
         if (error) {
-          console.error('Failed to persist awarded shipment', error);
+          console.error('Failed to persist awarded execution bundle', error);
           void refreshLiveData();
         }
       });
@@ -1084,6 +1201,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...telemetryHistory.filter(item => item.shipment_id !== record.shipment_id || item.timestamp !== record.timestamp)
     ].slice(0, 250);
     saveState('pt_telemetry_history', updated, setTelemetryHistory);
+
+    if (supabase && isAuthenticated) {
+      void supabase.from('shipment_telemetry').insert({
+        id: telemetryRecord.id,
+        shipment_id: telemetryRecord.shipment_id,
+        recorded_at: telemetryRecord.timestamp,
+        gps: telemetryRecord.gps,
+        temperature_c: telemetryRecord.temperature_c,
+        humidity_pct: telemetryRecord.humidity_pct,
+        shock_g: telemetryRecord.shock_g,
+        door_open: telemetryRecord.door_open,
+        alerts: telemetryRecord.alerts
+      }).then(({ error }) => {
+        if (error) console.error('Failed to persist shipment telemetry', error);
+      });
+    }
   };
 
   const assignTransporter = (shipmentId: string, transporterId: string) => {
@@ -1235,6 +1368,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return e;
     });
     saveState('pt_exports', updated, setExports);
+    if (supabase && isAuthenticated) {
+      void supabase.from('trade_exports').update({
+        status,
+        readiness_score: readinessScore,
+        missing_requirements: missingReqs
+      }).eq('id', exportId).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist export status', error);
+          void refreshLiveData();
+        }
+      });
+    }
   };
 
   const releasePayment = (paymentId: string) => {
@@ -1248,6 +1393,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const pm = payments.find(p => p.id === paymentId);
     if (pm) {
       triggerEvent('payment.released', { id: paymentId, bid_id: pm.bid_id, amount: pm.amount });
+    }
+    if (supabase && isAuthenticated) {
+      void supabase.from('payments').update({ status: 'released' }).eq('id', paymentId).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist payment release', error);
+          void refreshLiveData();
+        }
+      });
     }
   };
 
@@ -1309,13 +1462,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const triggerEvent = (event: string, payload: any) => {
     const log: EventLog = {
-      id: `ev000000-0000-0000-0000-${(eventLogs.length + 1).toString().padStart(12, '0')}`,
+      id: newUuid(),
       event,
       payload,
       created_at: new Date().toISOString()
     };
     const updated = [log, ...eventLogs].slice(0, 100);
     saveState('pt_event_logs', updated, setEventLogs);
+
+    if (supabase && isAuthenticated && currentUser?.organization_id) {
+      void supabase.from('event_logs').insert({
+        id: log.id,
+        organization_id: currentUser.organization_id,
+        actor_user_id: currentUser.id,
+        event: log.event,
+        payload: log.payload,
+        created_at: log.created_at
+      }).then(({ error }) => {
+        if (error) console.error('Failed to persist event log', error);
+      });
+    }
   };
 
   const addCompany = (newCompany: Omit<Company, 'id'>) => {

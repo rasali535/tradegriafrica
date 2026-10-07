@@ -24,7 +24,7 @@ For enterprise reliability during live pitches and production deployments, we en
 *Note: The platform features aggressive micro-timeouts to immediately reroute traffic to healthy endpoints if an AI node scales down or goes offline, ensuring the AI Agent Center is always responsive.*
 
 ## 🛠️ Tech Stack
-- **Frontend/Backend**: Next.js 14 (App Router), React, TailwindCSS
+- **Frontend/Backend**: Next.js 16 (App Router), React 19, TailwindCSS
 - **AI Infrastructure**: Gemma 4 (AMD Cloud / Fireworks AI / AI/ML API)
 - **Deployment**: Live on **Hostinger** (`magenta-termite-395904.hostingersite.com`) and fully Dockerized (`standalone` mode).
 
@@ -55,14 +55,26 @@ Or run the complete Dockerized environment locally:
    # Fallback Endpoints
    FIREWORKS_API_KEY=your_fireworks_key
    AIML_API_KEY=your_aiml_key
+
+   # Dedicated TradeGrid Supabase project
+   NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_REPLACE_ME
    ```
 
-3. Spin up the application:
+3. Apply the canonical database migration from `supabase/migrations/03_production_backend.sql` to the dedicated TradeGrid Supabase project.
+
+4. Build the application with the public Supabase values available during the Next.js build. When using Docker directly:
    ```bash
-   docker compose up --build -d
+   docker build \
+     --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+     --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" \
+     -t tradegrid-africa .
+   docker run -p 7501:7501 tradegrid-africa
    ```
 
-4. Access the platform at `http://localhost:7501`.
+   If Hostinger manages the build, configure these as build environment variables before redeploying.
+
+5. Access the platform at `http://localhost:7501`.
 
 ## 📈 The Market Opportunity (Track 3 Focus)
 Sub-Saharan Africa possesses massive industrial potential, yet cross-border distribution remains bottlenecked by paper-based processes. TradeGrid Africa unlocks a **$300B+ enterprise sector** by digitizing compliance and providing real-time AI trade intelligence.
