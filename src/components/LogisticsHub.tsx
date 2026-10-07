@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
 export const LogisticsHub: React.FC = () => {
-  const { users, shipments, bids, assignTransporter, formatCurrency } = useApp();
+  const { users, shipments, bids, exports, shipmentDocuments, assignTransporter, formatCurrency } = useApp();
   const [search, setSearch] = useState('');
   const [corridorFilter, setCorridorFilter] = useState('All');
   const [modeFilter, setModeFilter] = useState('All');
@@ -345,15 +345,38 @@ export const LogisticsHub: React.FC = () => {
                         >
                           {unassignedShipments.map(s => {
                             const order = bids.find(o => o.id === s.bid_id);
+                            const exportPack = exports.find(item => item.bid_id === s.bid_id);
+                            const docs = shipmentDocuments.filter(document => document.shipment_id === s.id);
                             return (
                               <option key={s.id} value={s.id}>
-                                Shipment {s.id.substring(0, 6)} ({s.route_from} ➔ {s.route_to}) - Fee: {formatCurrency(order ? order.total_price * 0.08 : 450)}
+                                Shipment {s.id.substring(0, 6)} ({s.route_from} ➔ {s.route_to}) · {docs.length} docs · {exportPack?.readiness_score ?? 0}% ready · Fee: {formatCurrency(order ? order.total_price * 0.08 : 450)}
                               </option>
                             );
                           })}
                         </select>
                       </div>
                       
+                      <div className="grid grid-cols-2 gap-2 rounded-lg border border-zinc-900 bg-zinc-900/20 p-2.5">
+                        {(() => {
+                          const ship = shipments.find(s => s.id === selectedShipmentId);
+                          const exportPack = ship ? exports.find(item => item.bid_id === ship.bid_id) : null;
+                          const docs = ship ? shipmentDocuments.filter(document => document.shipment_id === ship.id) : [];
+                          return (
+                            <>
+                              <div>
+                                <span className="text-[9px] uppercase font-bold tracking-wider text-zinc-500">Execution documents</span>
+                                <div className="mt-1 text-xs font-bold text-zinc-200">{docs.length}/4 linked</div>
+                              </div>
+                              <div>
+                                <span className="text-[9px] uppercase font-bold tracking-wider text-zinc-500">Compliance readiness</span>
+                                <div className={`mt-1 text-xs font-bold ${(exportPack?.readiness_score ?? 0) >= 80 ? "text-emerald-400" : "text-amber-400"}`}>
+                                  {exportPack?.readiness_score ?? 0}%
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
                       <div className="flex justify-between items-center pt-2 border-t border-zinc-900">
                         <span className="text-zinc-400">Est. Logistics Fee (8% SADC Waived)</span>
                         <strong className="text-emerald-400 text-sm">
