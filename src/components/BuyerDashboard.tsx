@@ -20,6 +20,7 @@ export function BuyerDashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [evaluatingRfqId, setEvaluatingRfqId] = useState<string | null>(null);
   const [newRfqForm, setNewRfqForm] = useState({ title: '', industry: 'Mining', required_quantity: 0, unit: 'Tons', delivery_location: '', deadline: '' });
+  const [dashboardNow] = useState(() => Date.now());
   
   const myRfqs = rfqs.filter(r => r.buyer_company_id === 'co100000-0000-0000-0000-000000000001');
   const myActiveRfqs = myRfqs.filter(r => r.status === 'open');
@@ -82,7 +83,7 @@ export function BuyerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-zinc-100">{myActiveRfqs.length}</div>
-            <p className="text-xs text-emerald-400 mt-1">{myActiveRfqs.filter(r => new Date(r.deadline).getTime() < Date.now() + 7*24*3600*1000).length} closing this week</p>
+            <p className="text-xs text-emerald-400 mt-1">{myActiveRfqs.filter(r => new Date(r.deadline).getTime() < dashboardNow + 7*24*3600*1000).length} closing this week</p>
           </CardContent>
         </Card>
         
