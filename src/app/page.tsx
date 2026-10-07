@@ -22,6 +22,7 @@ import {
   Shield, Lock, Unlock, Bot
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Home() {
-  const { currentUser, users, setCurrentUser } = useApp();
+  const { currentUser, users, setCurrentUser, isAuthenticated, authLoading, signOut } = useApp();
   const [view, setView] = useState<'landing' | 'app' | 'docs'>('landing');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appSubTab, setAppSubTab] = useState<'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents' | 'verification' | 'tenders' | 'analytics' | 'directory'>('dashboard');
@@ -71,6 +72,11 @@ export default function Home() {
   };
 
   const handleLaunchApp = (userId?: string, targetTab?: 'dashboard' | 'marketplace' | 'logistics' | 'onboarding' | 'ai_agents') => {
+    if (isSupabaseConfigured && !authLoading && !isAuthenticated) {
+      window.location.assign('/login');
+      return;
+    }
+
     let role = '';
     let region = '';
     let fleet = '';
@@ -322,13 +328,35 @@ export default function Home() {
 
             {view === 'landing' ? (
               <>
-                <a href="/onboarding">
-                  <Button 
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs shadow-md"
+                {isSupabaseConfigured && isAuthenticated ? (
+                  <Button
+                    onClick={() => void signOut()}
+                    variant="outline"
+                    className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs shadow-md"
                   >
-                    Sign Up
+                    Sign Out
                   </Button>
-                </a>
+                ) : (
+                  <>
+                    <a href="/onboarding">
+                      <Button 
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 text-xs shadow-md"
+                      >
+                        Sign Up
+                      </Button>
+                    </a>
+                    {isSupabaseConfigured && (
+                      <a href="/login">
+                        <Button 
+                          variant="outline"
+                          className="border-zinc-800 text-zinc-300 hover:bg-zinc-900 text-xs shadow-md"
+                        >
+                          Sign In
+                        </Button>
+                      </a>
+                    )}
+                  </>
+                )}
                 <Button 
                   onClick={() => handleLaunchApp()}
                   variant="outline"
@@ -517,10 +545,12 @@ export default function Home() {
           <DocsPage onBackToLanding={handleGoHome} />
         ) : (
           <div className="space-y-6 relative">
-            {/* Persona Switcher for interactive presentation */}
-            <div className="relative z-50">
-              <RoleSwitcher />
-            </div>
+            {/* Persona switching is demo-only. Authenticated sessions stay locked to their company identity. */}
+            {!isSupabaseConfigured && (
+              <div className="relative z-50">
+                <RoleSwitcher />
+              </div>
+            )}
 
             {/* Premium Sandbox Tab Bar & Content */}
             <div className="space-y-6 transition-all duration-300">

@@ -179,6 +179,10 @@ interface AppContextType {
   tradeCorridors: TradeCorridor[];
   currentUser: User | null;
   setCurrentUser: (user: User) => void;
+  isAuthenticated: boolean;
+  authLoading: boolean;
+  signOut: () => Promise<void>;
+  refreshLiveData: () => Promise<void>;
   // Actions
   createRfq: (rfq: Omit<Rfq, 'id' | 'created_at'>) => Rfq;
   updateRfqStatus: (id: string, status: Rfq['status']) => void;
@@ -601,6 +605,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tradeAgreements, setTradeAgreements] = useState<TradeAgreement[]>([]);
   const [tradeCorridors, setTradeCorridors] = useState<TradeCorridor[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Currency State
   const [currency, setCurrency] = useState<string>('USD');
@@ -633,135 +639,150 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(converted);
   };
 
-  useEffect(() => {
-    const fetchLiveDb = async () => {
-      if (!supabase) {
-        console.warn("Supabase is not configured. Skipping live data fetch.");
-        // Fallback to mock data
-        setUsers(SEED_USERS);
-        setCompanies(SEED_COMPANIES);
-        setRfqs(SEED_RFQS);
-        setBids(SEED_BIDS);
-        setShipments(FULL_SHIPMENTS);
-        setPayments(FULL_PAYMENTS);
-        setExports(FULL_EXPORTS);
-        setCooperatives(SEED_COOPERATIVES);
-        setFinancingRequests(SEED_FINANCING_REQUESTS);
-        setWebhooks(SEED_WEBHOOKS);
-        setApiKeys(SEED_API_KEYS);
-        setEventLogs(SEED_EVENT_LOGS);
-        setTradeAgreements(SEED_TRADE_AGREEMENTS);
-        setTradeCorridors(SEED_TRADE_CORRIDORS);
+  const refreshLiveData = async () => {
+    if (!supabase) {
+      setUsers(SEED_USERS);
+      setCompanies(SEED_COMPANIES);
+      setRfqs(SEED_RFQS);
+      setBids(SEED_BIDS);
+      setShipments(FULL_SHIPMENTS);
+      setPayments(FULL_PAYMENTS);
+      setExports(FULL_EXPORTS);
+      setCooperatives(SEED_COOPERATIVES);
+      setFinancingRequests(SEED_FINANCING_REQUESTS);
+      setWebhooks(SEED_WEBHOOKS);
+      setApiKeys(SEED_API_KEYS);
+      setEventLogs(SEED_EVENT_LOGS);
+      setTradeAgreements(SEED_TRADE_AGREEMENTS);
+      setTradeCorridors(SEED_TRADE_CORRIDORS);
+      setCurrentUser(SEED_USERS[5]);
+      setIsAuthenticated(false);
+      setAuthLoading(false);
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        setCurrentUser(null);
+        setUsers([]);
+        setCompanies([]);
+        setRfqs([]);
+        setBids([]);
+        setShipments([]);
+        setIsAuthenticated(false);
         return;
       }
-      try {
-        // Query v2 tables
-        const { data: dbUsers, error: usersErr } = await supabase.from('users').select('*, organizations(*)');
-        const { data: dbRfqs, error: rfqsErr } = await supabase.from('rfqs').select('*, organizations(*)');
-        const { data: dbContracts, error: contractsErr } = await supabase.from('contracts').select('*');
 
-        if (usersErr) console.warn("Supabase users fetch failed (using mock data):", usersErr.message || usersErr);
-        if (rfqsErr) console.warn("Supabase rfqs fetch failed (using mock data):", rfqsErr.message || rfqsErr);
-        if (contractsErr) console.warn("Supabase contracts fetch failed (using mock data):", contractsErr.message || contractsErr);
+      setIsAuthenticated(true);
 
-        // If DB is empty (initial run), fallback to mock data so UI doesn't break
-        if (!dbUsers || dbUsers.length === 0) {
-          console.log("No live data found in Supabase. Falling back to mock data.");
-          setUsers(SEED_USERS);
-          setCompanies(SEED_COMPANIES);
-          setRfqs(SEED_RFQS);
-          setBids(SEED_BIDS);
-          setShipments(FULL_SHIPMENTS);
-          setPayments(FULL_PAYMENTS);
-          setExports(FULL_EXPORTS);
-          setCooperatives(SEED_COOPERATIVES);
-          setFinancingRequests(SEED_FINANCING_REQUESTS);
-          setWebhooks(SEED_WEBHOOKS);
-          setApiKeys(SEED_API_KEYS);
-          setEventLogs(SEED_EVENT_LOGS);
-          setTradeAgreements(SEED_TRADE_AGREEMENTS);
-          setTradeCorridors(SEED_TRADE_CORRIDORS);
+      const [userRes, orgRes, rfqRes, bidRes, shipmentRes] = await Promise.all([
+        supabase.from('users').select('*, organizations(*)').eq('id', authData.user.id).single(),
+        supabase.from('organizations').select('*'),
+        supabase.from('rfqs').select('*').order('created_at', { ascending: false }),
+        supabase.from('rfq_bids').select('*').order('created_at', { ascending: false }),
+        supabase.from('shipments').select('*').order('created_at', { ascending: false }),
+      ]);
 
-          // Restore previously saved user or use default
-          const savedUser = typeof window !== 'undefined' ? localStorage.getItem('pt_current_user') : null;
-          if (savedUser) {
-            setCurrentUser(JSON.parse(savedUser));
-          } else {
-            setCurrentUser(SEED_USERS[5]); // Default to buyer
-          }
-          return;
-        }
+      if (userRes.error) throw userRes.error;
 
-        // Map live DB Users -> AppContext Users
-        const mappedUsers: User[] = dbUsers.map((u: any) => ({
-          id: u.id,
-          role: u.role || 'buyer',
-          name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
-          email: u.email,
-          phone: '',
-          country: u.organizations?.country || 'Botswana',
-          kyc_status: 'approved'
-        }));
+      const u: any = userRes.data;
+      const mappedUser: User = {
+        id: u.id,
+        role: u.role || 'buyer',
+        name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
+        email: u.email,
+        phone: u.phone || '',
+        country: u.organizations?.country || 'Botswana',
+        kyc_status: 'approved'
+      };
 
-        // Map live RFQs
-        const mappedRfqs: Rfq[] = (dbRfqs || []).map((rfq: any) => ({
-          id: rfq.id,
-          buyer_company_id: rfq.buyer_org_id,
-          title: rfq.title || 'Procurement Request',
-          description: rfq.description || 'No description',
-          industry: rfq.industry || 'Mining',
-          required_quantity: rfq.required_quantity || 100,
-          unit: rfq.unit || 'Tons',
-          delivery_location: rfq.delivery_location || 'Gaborone',
-          deadline: rfq.deadline,
-          status: rfq.status === 'open' ? 'open' : 'closed',
-          created_at: rfq.created_at
-        }));
+      const mappedCompanies: Company[] = (orgRes.data || []).map((org: any) => ({
+        id: org.id,
+        owner_id: org.created_by || mappedUser.id,
+        company_name: org.name,
+        industry: org.industry || 'General',
+        country: org.country || mappedUser.country,
+        region: org.region || '',
+        registration_number: org.registration_number || '',
+        verification_status: org.verification_status || 'Pending',
+        trust_score: Number(org.trust_score || 50)
+      }));
 
-        // Map live Contracts -> Bids
-        const mappedBids: Bid[] = (dbContracts || []).map((contract: any) => ({
-          id: contract.id,
-          rfq_id: contract.rfq_id,
-          supplier_company_id: contract.supplier_org_id || 'co000',
-          price_per_unit: contract.price || 0,
-          total_price: (contract.price || 0) * 100,
-          estimated_delivery_days: 14,
-          status: contract.status === 'active' ? 'accepted' : 'pending',
-          notes: '',
-          created_at: contract.created_at
-        }));
+      const mappedRfqs: Rfq[] = (rfqRes.data || []).map((rfq: any) => ({
+        id: rfq.id,
+        buyer_company_id: rfq.buyer_org_id,
+        title: rfq.title || 'Procurement Request',
+        description: rfq.description || '',
+        industry: rfq.industry || 'General',
+        required_quantity: Number(rfq.required_quantity || 0),
+        unit: rfq.unit || 'Units',
+        delivery_location: rfq.delivery_location || '',
+        deadline: rfq.deadline,
+        status: rfq.status || 'open',
+        created_at: rfq.created_at
+      }));
 
-        setUsers(mappedUsers);
-        setRfqs(mappedRfqs);
-        setBids(mappedBids);
+      const mappedBids: Bid[] = (bidRes.data || []).map((bid: any) => ({
+        id: bid.id,
+        rfq_id: bid.rfq_id,
+        supplier_company_id: bid.supplier_org_id,
+        price_per_unit: Number(bid.price_per_unit || bid.amount || 0),
+        total_price: Number(bid.total_price || bid.amount || 0),
+        estimated_delivery_days: Number(bid.estimated_delivery_days || 0),
+        status: bid.status === 'submitted' || bid.status === 'under_review' ? 'pending' : bid.status,
+        notes: bid.notes || '',
+        created_at: bid.created_at
+      }));
 
-        // Keep static/unmigrated data as mock
-        setCompanies(SEED_COMPANIES);
-        setShipments(FULL_SHIPMENTS);
-        setPayments(FULL_PAYMENTS);
-        setExports(FULL_EXPORTS);
-        setCooperatives(SEED_COOPERATIVES);
-        setFinancingRequests(SEED_FINANCING_REQUESTS);
-        setWebhooks(SEED_WEBHOOKS);
-        setApiKeys(SEED_API_KEYS);
-        setEventLogs(SEED_EVENT_LOGS);
-        setTradeAgreements(SEED_TRADE_AGREEMENTS);
-        setTradeCorridors(SEED_TRADE_CORRIDORS);
+      const mappedShipments: Shipment[] = (shipmentRes.data || []).map((shipment: any) => ({
+        id: shipment.id,
+        bid_id: shipment.bid_id,
+        transporter_id: shipment.transporter_org_id,
+        status: shipment.status,
+        route_from: shipment.route_from,
+        route_to: shipment.route_to,
+        gps: shipment.gps,
+        transport_mode: shipment.transport_mode,
+        created_at: shipment.created_at
+      }));
 
-        const savedUser = typeof window !== 'undefined' ? localStorage.getItem('pt_current_user') : null;
-        if (savedUser) {
-          const parsedUser = JSON.parse(savedUser);
-          const exists = mappedUsers.find(u => u.id === parsedUser.id);
-          setCurrentUser(exists || mappedUsers[0]);
-        } else {
-          setCurrentUser(mappedUsers[0]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch from live Supabase DB", err);
-      }
-    };
+      setUsers([mappedUser]);
+      setCompanies(mappedCompanies);
+      setRfqs(mappedRfqs);
+      setBids(mappedBids);
+      setShipments(mappedShipments);
+      setCurrentUser(mappedUser);
 
-    fetchLiveDb();
+      setPayments([]);
+      setExports([]);
+      setCooperatives([]);
+      setFinancingRequests([]);
+      setWebhooks([]);
+      setApiKeys([]);
+      setEventLogs([]);
+      setTradeAgreements(SEED_TRADE_AGREEMENTS);
+      setTradeCorridors(SEED_TRADE_CORRIDORS);
+    } catch (err) {
+      console.error("Failed to load authenticated TradeGrid data", err);
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refreshLiveData();
+
+    if (!supabase) return;
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      void refreshLiveData();
+    });
+
+    return () => authListener.subscription.unsubscribe();
   }, []);
 
   // Save updates helper
@@ -773,24 +794,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const handleSetCurrentUser = (user: User) => {
+    if (isAuthenticated && currentUser && user.id !== currentUser.id) {
+      console.warn('Persona switching is disabled for authenticated sessions.');
+      return;
+    }
     saveState('pt_current_user', user, setCurrentUser);
+  };
+
+  const signOut = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+  };
+
+  const newUuid = () => {
+    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
+    return '00000000-0000-4000-8000-' + Math.random().toString(16).slice(2).padEnd(12, '0').slice(0, 12);
   };
 
   // ACTIONS IMPLEMENTATION
   const createRfq = (newRfq: Omit<Rfq, 'id' | 'created_at'>) => {
     const created: Rfq = {
       ...newRfq,
-      id: `rfq00000-0000-0000-0000-${(rfqs.length + 1).toString().padStart(12, '0')}`,
+      id: newUuid(),
       created_at: new Date().toISOString()
     };
     const updatedList = [created, ...rfqs];
     saveState('pt_rfqs', updatedList, setRfqs);
+
+    if (supabase && isAuthenticated) {
+      void supabase.from('rfqs').insert({
+        id: created.id,
+        buyer_org_id: created.buyer_company_id,
+        title: created.title,
+        description: created.description,
+        industry: created.industry,
+        required_quantity: created.required_quantity,
+        unit: created.unit,
+        delivery_location: created.delivery_location,
+        deadline: created.deadline,
+        status: created.status
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist RFQ', error);
+          void refreshLiveData();
+        }
+      });
+    }
+
     return created;
   };
 
   const updateRfqStatus = (id: string, status: Rfq['status']) => {
     const updated = rfqs.map(r => r.id === id ? { ...r, status } : r);
     saveState('pt_rfqs', updated, setRfqs);
+    if (supabase && isAuthenticated) {
+      void supabase.from('rfqs').update({ status }).eq('id', id).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist RFQ status', error);
+          void refreshLiveData();
+        }
+      });
+    }
   };
 
   const submitBid = (newBid: Omit<Bid, 'id' | 'created_at'>) => {
@@ -799,12 +866,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const created: Bid = {
       ...newBid,
-      id: `bid00000-0000-0000-0000-${(bids.length + 1).toString().padStart(12, '0')}`,
+      id: newUuid(),
       created_at: new Date().toISOString()
     };
     const updated = [created, ...bids];
     saveState('pt_bids', updated, setBids);
     triggerEvent('bid.submitted', { id: created.id, rfq_id: rfq.id, amount: created.total_price });
+
+    if (supabase && isAuthenticated) {
+      void supabase.from('rfq_bids').insert({
+        id: created.id,
+        rfq_id: created.rfq_id,
+        supplier_org_id: created.supplier_company_id,
+        amount: created.total_price,
+        price_per_unit: created.price_per_unit,
+        total_price: created.total_price,
+        estimated_delivery_days: created.estimated_delivery_days,
+        status: 'submitted',
+        notes: created.notes
+      }).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist bid', error);
+          void refreshLiveData();
+        }
+      });
+    }
+
     return created;
   };
 
@@ -814,6 +901,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const bid = bids.find(b => b.id === bidId);
     if (bid) {
       triggerEvent('bid.status_updated', { id: bidId, status, amount: bid.total_price });
+    }
+    if (supabase && isAuthenticated) {
+      const dbStatus = status === 'pending' ? 'submitted' : status;
+      void supabase.from('rfq_bids').update({ status: dbStatus }).eq('id', bidId).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist bid status', error);
+          void refreshLiveData();
+        }
+      });
     }
   };
 
@@ -835,6 +931,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return s;
     });
     saveState('pt_shipments', updated, setShipments);
+    if (supabase && isAuthenticated) {
+      void supabase.from('shipments').update({
+        transporter_org_id: transporterId,
+        status: 'transit'
+      }).eq('id', shipmentId).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist transporter assignment', error);
+          void refreshLiveData();
+        }
+      });
+    }
   };
 
   const updateShipmentStatus = (shipmentId: string, status: Shipment['status'], gps?: GPSData) => {
@@ -874,6 +981,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return s;
     });
     saveState('pt_shipments', updated, setShipments);
+    if (supabase && isAuthenticated) {
+      void supabase.from('shipments').update({
+        status,
+        gps: gps || null,
+        updated_at: new Date().toISOString()
+      }).eq('id', shipmentId).then(({ error }) => {
+        if (error) {
+          console.error('Failed to persist shipment status', error);
+          void refreshLiveData();
+        }
+      });
+    }
   };
 
   const updateExportStatus = (exportId: string, status: Export['status'], readinessScore?: number, missingReqs?: string[]) => {
@@ -1069,6 +1188,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       tradeCorridors,
       currentUser,
       setCurrentUser: handleSetCurrentUser,
+      isAuthenticated,
+      authLoading,
+      signOut,
+      refreshLiveData,
       createRfq,
       updateRfqStatus,
       submitBid,
