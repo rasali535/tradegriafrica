@@ -1087,6 +1087,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const assignTransporter = (shipmentId: string, transporterId: string) => {
+    const shipment = shipments.find(item => item.id === shipmentId);
+    if (!shipment) return;
+
     const updated = shipments.map(s => {
       if (s.id === shipmentId) {
         return {
@@ -1104,6 +1107,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return s;
     });
     saveState('pt_shipments', updated, setShipments);
+
+    const updatedDocuments = shipmentDocuments.map(document =>
+      document.shipment_id === shipmentId
+        ? { ...document, status: 'verified' as const }
+        : document
+    );
+    saveState('pt_shipment_documents', updatedDocuments, setShipmentDocuments);
+
+    const updatedExports = exports.map(exportItem => {
+      if (exportItem.bid_id !== shipment.bid_id) return exportItem;
+      return {
+        ...exportItem,
+        readiness_score: Math.max(exportItem.readiness_score, 85),
+        status: 'pending_approval' as const,
+        missing_requirements: exportItem.missing_requirements.filter(requirement =>
+          !['Commercial Invoice', 'Packing List', 'SADC Certificate of Origin'].includes(requirement)
+        ),
+        certificates: {
+          ...exportItem.certificates,
+          logistics_assignment: 'VERIFIED',
+          document_pack: 'VERIFIED'
+        }
+      };
+    });
+    saveState('pt_exports', updatedExports, setExports);
+
+    triggerEvent('shipment.transporter_assigned', {
+      shipment_id: shipmentId,
+      transporter_id: transporterId,
+      bid_id: shipment.bid_id,
+      verified_documents: updatedDocuments.filter(document => document.shipment_id === shipmentId).length
+    });
+
     if (supabase && isAuthenticated) {
       void supabase.from('shipments').update({
         transporter_org_id: transporterId,
@@ -1137,10 +1173,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 return uPayments;
               });
               setExports(prev => {
-                const uExports = prev.map(e => e.bid_id === ship.bid_id ? { ...e, status: 'approved' as const, readiness_score: 100 } : e);
+                const uExports = prev.map(e => e.bid_id === ship.bid_id ? {
+                  ...e,
+                  status: 'approved' as const,
+                  readiness_score: 100,
+                  missing_requirements: [],
+                  certificates: {
+                    ...e.certificates,
+                    delivery_confirmation: 'VERIFIED',
+                    customs_clearance: 'ISSUED'
+                  }
+                } : e);
                 if (typeof window !== 'undefined') localStorage.setItem('pt_exports', JSON.stringify(uExports));
                 return uExports;
               });
+              setShipmentDocuments(prev => {
+                const updatedDocs = prev.map(document => document.shipment_id === shipmentId
+                  ? { ...document, status: 'verified' as const }
+                  : document);
+                if (typeof window !== 'undefined') localStorage.setItem('pt_shipment_documents', JSON.stringify(updatedDocs));
+                return updatedDocs;
+              });
+              triggerEvent('shipment.delivered', { shipment_id: shipmentId, bid_id: ship.bid_id });
             }
           }, 100);
         }
