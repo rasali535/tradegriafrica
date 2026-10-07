@@ -266,6 +266,7 @@ export const GridAiIntelligence: React.FC = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </div>
         </div>
       )}
 
@@ -327,7 +328,6 @@ export const GridAiIntelligence: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
         </div>
       )}
 
