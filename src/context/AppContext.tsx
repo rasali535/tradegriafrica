@@ -1075,30 +1075,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       created_at: new Date().toISOString()
     };
 
-    saveState('pt_shipments', [shipment, ...shipments], setShipments);
+    const payment: Payment = {
+      id: newUuid(),
+      bid_id: bid.id,
+      amount: bid.total_price,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
 
-    if (!payments.some(payment => payment.bid_id === bid.id)) {
-      const payment: Payment = {
-        id: newUuid(),
-        bid_id: bid.id,
-        amount: bid.total_price,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      };
+    const exportPack: Export = {
+      id: newUuid(),
+      bid_id: bid.id,
+      country: rfq.delivery_location || buyer?.country || 'SADC',
+      readiness_score: 45,
+      status: 'incomplete',
+      missing_requirements: ['Commercial Invoice', 'Packing List', 'SADC Certificate of Origin'],
+      certificates: {},
+      created_at: new Date().toISOString()
+    };
+
+    saveState('pt_shipments', [shipment, ...shipments], setShipments);
+    if (!payments.some(item => item.bid_id === bid.id)) {
       saveState('pt_payments', [payment, ...payments], setPayments);
     }
-
-    if (!exports.some(exportItem => exportItem.bid_id === bid.id)) {
-      const exportPack: Export = {
-        id: newUuid(),
-        bid_id: bid.id,
-        country: rfq.delivery_location || buyer?.country || 'SADC',
-        readiness_score: 45,
-        status: 'incomplete',
-        missing_requirements: ['Commercial Invoice', 'Packing List', 'SADC Certificate of Origin'],
-        certificates: {},
-        created_at: new Date().toISOString()
-      };
+    if (!exports.some(item => item.bid_id === bid.id)) {
       saveState('pt_exports', [exportPack, ...exports], setExports);
     }
 
@@ -1137,20 +1137,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     if (supabase && isAuthenticated) {
-      void supabase.from('shipments').insert({
-        id: shipment.id,
-        bid_id: shipment.bid_id,
-        buyer_org_id: rfq.buyer_company_id,
-        supplier_org_id: bid.supplier_company_id,
-        transporter_org_id: null,
-        status: shipment.status,
-        route_from: shipment.route_from,
-        route_to: shipment.route_to,
-        gps: null,
-        transport_mode: shipment.transport_mode
-      }).then(({ error }) => {
+      void Promise.all([
+        supabase.from('shipments').insert({
+          id: shipment.id,
+          bid_id: shipment.bid_id,
+          buyer_org_id: rfq.buyer_company_id,
+          supplier_org_id: bid.supplier_company_id,
+          transporter_org_id: null,
+          status: shipment.status,
+          route_from: shipment.route_from,
+          route_to: shipment.route_to,
+          gps: null,
+          transport_mode: shipment.transport_mode
+        }),
+        supabase.from('payments').insert({
+          id: payment.id,
+          bid_id: payment.bid_id,
+          buyer_org_id: rfq.buyer_company_id,
+          supplier_org_id: bid.supplier_company_id,
+          amount: payment.amount,
+          status: payment.status
+        }),
+        supabase.from('trade_exports').insert({
+          id: exportPack.id,
+          bid_id: exportPack.bid_id,
+          buyer_org_id: rfq.buyer_company_id,
+          supplier_org_id: bid.supplier_company_id,
+          country: exportPack.country,
+          readiness_score: exportPack.readiness_score,
+          status: exportPack.status,
+          missing_requirements: exportPack.missing_requirements,
+          certificates: exportPack.certificates
+        }),
+        supabase.from('shipment_documents').insert(documents.map(document => ({
+          id: document.id,
+          shipment_id: document.shipment_id,
+          bid_id: document.bid_id,
+          type: document.type,
+          title: document.title,
+          status: document.status,
+          url: document.url,
+          created_at: document.created_at
+        })))
+      ]).then((results) => {
+        const error = results.find(result => result.error)?.error;
         if (error) {
-          console.error('Failed to persist awarded shipment', error);
+          console.error('Failed to persist awarded execution bundle', error);
           void refreshLiveData();
         }
       });
