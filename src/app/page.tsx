@@ -7,7 +7,7 @@ import { DocsPage } from '@/components/DocsPage';
 import { RoleSwitcher } from '@/components/RoleSwitcher';
 import { SupplierDashboard } from '@/components/SupplierDashboard';
 import { BuyerDashboard } from '@/components/BuyerDashboard';
-import { AdminPanel } from '@/components/AdminPanel';
+import { AdminPortal } from '@/components/AdminPortal';
 import { Marketplace } from '@/components/Marketplace';
 import { LogisticsHub } from '@/components/LogisticsHub';
 import { OnboardingPortal } from '@/components/OnboardingPortal';
@@ -146,7 +146,7 @@ export default function Home() {
       case 'buyer':
         return <BuyerDashboard />;
       case 'admin':
-        return <AdminPanel />;
+        return <AdminPortal />;
       default:
         return <SupplierDashboard />;
     }
@@ -269,10 +269,7 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-3">
             {currentUser?.role === 'admin' && (
               <Button
-                onClick={() => {
-                  setView('app');
-                  setAppSubTab('dashboard');
-                }}
+                onClick={() => window.location.assign('/admin')}
                 className="bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-xs px-3.5 py-2 flex items-center gap-1.5 shadow-md"
               >
                 <Shield className="h-3.5 w-3.5 animate-pulse" />
@@ -423,11 +420,7 @@ export default function Home() {
               <div className="pt-2 border-t border-zinc-900 flex flex-col gap-2">
                 {currentUser?.role === 'admin' && (
                   <Button
-                    onClick={() => {
-                      setView('app');
-                      setAppSubTab('dashboard');
-                      setMobileMenuOpen(false);
-                    }}
+                    onClick={() => window.location.assign('/admin')}
                     className="w-full bg-amber-600 hover:bg-amber-700 text-white border border-amber-500 text-xs flex items-center justify-center gap-1.5 shadow-md"
                   >
                     <Shield className="h-3.5 w-3.5 animate-pulse" />
