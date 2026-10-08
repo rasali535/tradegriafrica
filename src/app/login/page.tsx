@@ -84,7 +84,8 @@ export default function LoginPage() {
     }
 
     setBusy(false);
-    window.location.assign("/sandbox");
+    const next = new URLSearchParams(window.location.search).get("next");
+    window.location.assign(next === "/admin" ? "/admin" : "/sandbox");
   };
 
   return (
