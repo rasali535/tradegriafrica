@@ -122,6 +122,7 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
 
   const reviewOrganization = async (company: Company, status: "Pending" | "Verified" | "Rejected") => {
     if (!supabase) return;
+    const client = supabase;
     const trustScore = status === "Verified"
       ? Math.max(company.trust_score, 70)
       : status === "Rejected"
@@ -130,7 +131,7 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
     await runAction(
       `org:${company.id}`,
       async () => {
-        const { error } = await supabase.rpc("admin_review_organization", {
+        const { error } = await client.rpc("admin_review_organization", {
           p_org_id: company.id,
           p_status: status,
           p_trust_score: trustScore,
@@ -144,10 +145,11 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
 
   const setUserStatus = async (user: User, status: "active" | "review" | "suspended") => {
     if (!supabase || user.id === currentUser?.id) return;
+    const client = supabase;
     await runAction(
       `user:${user.id}`,
       async () => {
-        const { error } = await supabase.from("users").update({ account_status: status }).eq("id", user.id);
+        const { error } = await client.from("users").update({ account_status: status }).eq("id", user.id);
         return { error };
       },
       "admin.user_status_changed",
@@ -205,10 +207,11 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
 
   const setRfqStatus = async (id: string, status: "open" | "closed" | "awarded") => {
     if (!supabase) return;
+    const client = supabase;
     await runAction(
       `rfq:${id}`,
       async () => {
-        const { error } = await supabase.from("rfqs").update({ status }).eq("id", id);
+        const { error } = await client.from("rfqs").update({ status }).eq("id", id);
         return { error };
       },
       "admin.rfq_status_changed",
@@ -218,11 +221,12 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
 
   const setShipmentStatus = async (id: string, status: "pending" | "transit" | "delivered") => {
     if (!supabase) return;
+    const client = supabase;
     if (status === "delivered" && typeof window !== "undefined" && !window.confirm("Mark this shipment delivered? This can trigger downstream settlement/compliance automation.")) return;
     await runAction(
       `shipment:${id}`,
       async () => {
-        const { error } = await supabase.from("shipments").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+        const { error } = await client.from("shipments").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
         return { error };
       },
       "admin.shipment_status_changed",
@@ -232,11 +236,12 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
 
   const setPaymentStatus = async (id: string, status: "pending" | "released" | "refunded") => {
     if (!supabase) return;
+    const client = supabase;
     if (status !== "pending" && typeof window !== "undefined" && !window.confirm(`Set payment status to ${status}?`)) return;
     await runAction(
       `payment:${id}`,
       async () => {
-        const { error } = await supabase.from("payments").update({ status }).eq("id", id);
+        const { error } = await client.from("payments").update({ status }).eq("id", id);
         return { error };
       },
       "admin.payment_status_changed",
@@ -246,10 +251,11 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
 
   const setExportStatus = async (id: string, status: "incomplete" | "pending_approval" | "approved" | "rejected") => {
     if (!supabase) return;
+    const client = supabase;
     await runAction(
       `export:${id}`,
       async () => {
-        const { error } = await supabase.from("trade_exports").update({ status }).eq("id", id);
+        const { error } = await client.from("trade_exports").update({ status }).eq("id", id);
         return { error };
       },
       "admin.export_status_changed",
