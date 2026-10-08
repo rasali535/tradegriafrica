@@ -726,6 +726,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const [
         userRes,
+        allUsersRes,
         orgRes,
         rfqRes,
         bidRes,
@@ -737,6 +738,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         eventRes,
       ] = await Promise.all([
         supabase.from('users').select('*, organizations(*)').eq('id', authData.user.id).single(),
+        supabase.from('users').select('*, organizations(*)').order('created_at', { ascending: false }),
         supabase.from('organizations').select('*'),
         supabase.from('rfqs').select('*').order('created_at', { ascending: false }),
         supabase.from('rfq_bids').select('*').order('created_at', { ascending: false }),
@@ -750,6 +752,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       const queryErrors = [
         userRes.error,
+        allUsersRes.error,
         orgRes.error,
         rfqRes.error,
         bidRes.error,
@@ -774,6 +777,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         country: u.organizations?.country || 'Botswana',
         kyc_status: 'approved'
       };
+
+      const mappedUsers: User[] = (allUsersRes.data || []).map((row: any) => ({
+        id: row.id,
+        role: row.role || 'buyer',
+        name: `${row.first_name || ''} ${row.last_name || ''}`.trim() || row.email,
+        email: row.email,
+        phone: row.phone || '',
+        organization_id: row.org_id,
+        country: row.organizations?.country || 'Botswana',
+        kyc_status: row.organizations?.verification_status === 'Rejected'
+          ? 'rejected'
+          : row.organizations?.verification_status === 'Verified'
+            ? 'approved'
+            : 'pending'
+      }));
 
       const mappedCompanies: Company[] = (orgRes.data || []).map((org: any) => ({
         id: org.id,
@@ -874,7 +892,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         created_at: event.created_at
       }));
 
-      setUsers([mappedUser]);
+      setUsers(mappedUsers.length > 0 ? mappedUsers : [mappedUser]);
       setCompanies(mappedCompanies);
       setRfqs(mappedRfqs);
       setBids(mappedBids);
