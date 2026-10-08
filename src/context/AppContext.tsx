@@ -13,6 +13,7 @@ export interface User {
   organization_id?: string;
   country: 'Botswana' | 'Zimbabwe' | 'Zambia' | 'Namibia' | 'South Africa' | 'Mozambique';
   kyc_status?: 'pending' | 'approved' | 'rejected';
+  account_status?: 'active' | 'review' | 'suspended';
   document_name?: string;
   document_ref?: string;
   document_url?: string;
@@ -775,7 +776,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         phone: u.phone || '',
         organization_id: u.org_id,
         country: u.organizations?.country || 'Botswana',
-        kyc_status: 'approved'
+        kyc_status: 'approved',
+        account_status: u.account_status || 'active'
       };
 
       const mappedUsers: User[] = (allUsersRes.data || []).map((row: any) => ({
@@ -786,6 +788,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         phone: row.phone || '',
         organization_id: row.org_id,
         country: row.organizations?.country || 'Botswana',
+        account_status: row.account_status || 'active',
         kyc_status: row.organizations?.verification_status === 'Rejected'
           ? 'rejected'
           : row.organizations?.verification_status === 'Verified'
