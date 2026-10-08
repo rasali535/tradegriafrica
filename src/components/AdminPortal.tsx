@@ -257,11 +257,19 @@ export function AdminPortal({ standalone = false }: { standalone?: boolean }) {
     );
   };
 
+  const referenceTime = Math.max(
+    0,
+    ...shipments.map((shipment) => new Date(shipment.created_at).getTime()),
+    ...eventLogs.map((event) => new Date(event.created_at).getTime())
+  );
   const staleShipments = shipments.filter((shipment) =>
-    shipment.status === "transit" && Date.now() - new Date(shipment.created_at).getTime() > 3 * 24 * 60 * 60 * 1000
+    shipment.status === "transit"
+    && referenceTime > 0
+    && referenceTime - new Date(shipment.created_at).getTime() > 3 * 24 * 60 * 60 * 1000
   );
   const recentEvents = eventLogs.filter((event) =>
-    Date.now() - new Date(event.created_at).getTime() < 24 * 60 * 60 * 1000
+    referenceTime > 0
+    && referenceTime - new Date(event.created_at).getTime() < 24 * 60 * 60 * 1000
   );
   const complianceExceptions = exports.filter((item) =>
     item.status === "rejected" || item.status === "incomplete" || item.readiness_score < 70
